@@ -3,6 +3,8 @@ Função principal para impressão de tokens.
 
 Este arquivo será posterioremente substituído, não acrescente nada.
 */
+#include <stdio.h>
+#include "tokens.h"
 
 extern FILE *yyin;
 extern char *yytext;
