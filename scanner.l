@@ -206,6 +206,46 @@
   return '$';
 }
 
+"<=" {
+  return TK_OC_LE;
+}
+
+">=" {
+  return TK_OC_GE;
+}
+
+"==" {
+  return TK_OC_EQ;
+}
+
+"!=" {
+  return TK_OC_NE;
+}
+
+"&&" {
+  return TK_OC_AND;
+}
+
+"||" {
+  return TK_OC_OR;
+}
+
+">>" {
+  return TK_OC_SR;
+}
+
+"<<" {
+  return TK_OC_SL;
+}
+
+"%>%" {
+  return TK_OC_FORWARD_PIPE;
+}
+
+"%|%" {
+  return TK_OC_BASH_PIPE;
+}
+
 %%
 
 int get_line_number() {
