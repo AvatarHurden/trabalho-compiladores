@@ -2,8 +2,11 @@
 #include "tokens.h"
 %}
 
-INT [+-]?[0-9]+
-FLOAT {INT}"."[0-9]+([eE]{INT})?
+ALFABETICO [a-zA-Z_]
+NUMERICO [0-9]
+ID {ALFABETICO}({ALFABETICO}|{NUMERICO})*
+INT [+-]?{NUMERICO}+
+FLOAT {INT}"."{NUMERICO}+([eE]{INT})?
 CHAR '.'
 
 %option yylineno
@@ -268,6 +271,14 @@ CHAR '.'
 
 {CHAR} {
   return TK_LIT_CHAR;
+}
+
+{ID} {
+  return TK_IDENTIFICADOR;
+}
+
+. {
+  return TOKEN_ERRO;
 }
 
 %%
