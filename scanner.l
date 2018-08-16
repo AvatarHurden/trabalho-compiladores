@@ -106,6 +106,106 @@
   return TK_PR_PROTECTED;
 }
 
+"," {
+  return ',';
+}
+
+";" {
+  return ';';
+}
+
+":" {
+  return ':';
+}
+
+"(" {
+  return '(';
+}
+
+")" {
+  return ')';
+}
+
+"[" {
+  return '[';
+}
+
+"]" {
+  return ']';
+}
+
+"{" {
+  return '{';
+}
+
+"}" {
+  return '}';
+}
+
+"+" {
+  return '+';
+}
+
+"-" {
+  return '-';
+}
+
+"|" {
+  return '|';
+}
+
+"?" {
+  return '?';
+}
+
+"*" {
+  return '*';
+}
+
+"/" {
+  return '/';
+}
+
+"<" {
+  return '<';
+}
+
+">" {
+  return '>';
+}
+
+"=" {
+  return '=';
+}
+
+"!" {
+  return '!';
+}
+
+"&" {
+  return '&';
+}
+
+"%" {
+  return '%';
+}
+
+"#" {
+  return '#';
+}
+
+"^" {
+  return '^';
+}
+
+"." {
+  return '.';
+}
+
+"$" {
+  return '$';
+}
+
 %%
 
 int get_line_number() {
