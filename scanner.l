@@ -2,6 +2,8 @@
 #include "tokens.h"
 %}
 
+%option yylineno
+
 %%
 
 "int" {
@@ -11,5 +13,5 @@
 %%
 
 int get_line_number() {
-  return 0;
+  return yylineno;
 }
