@@ -2,6 +2,10 @@
 #include "tokens.h"
 %}
 
+INT [+-]?[0-9]+
+FLOAT {INT}"."[0-9]+([eE]{INT})?
+CHAR '.'
+
 %option yylineno
 
 %%
@@ -244,6 +248,26 @@
 
 "%|%" {
   return TK_OC_BASH_PIPE;
+}
+
+{INT} {
+  return TK_LIT_INT;
+}
+
+{FLOAT} {
+  return TK_LIT_FLOAT;
+}
+
+"true" {
+  return TK_LIT_TRUE;
+}
+
+"false" {
+  return TK_LIT_FALSE;
+}
+
+{CHAR} {
+  return TK_LIT_CHAR;
 }
 
 %%
