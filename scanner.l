@@ -273,6 +273,10 @@ CHAR '.'
   return TK_LIT_CHAR;
 }
 
+'.*' { // Para retornar erros em char inválido
+  return TOKEN_ERRO;
+}
+
 {ID} {
   return TK_IDENTIFICADOR;
 }
