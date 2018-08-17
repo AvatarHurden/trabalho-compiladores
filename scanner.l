@@ -8,6 +8,7 @@ ID {ALFABETICO}({ALFABETICO}|{NUMERICO})*
 INT [+-]?{NUMERICO}+
 FLOAT {INT}"."{NUMERICO}+([eE]{INT})?
 CHAR '.'
+STRING \"[^\n\"]*\"
 
 %option yylineno
 
@@ -273,8 +274,12 @@ CHAR '.'
   return TK_LIT_CHAR;
 }
 
-'.*' { // Para retornar erros em char inválido
+'[^\n']*' { // Para retornar erros em char inválido
   return TOKEN_ERRO;
+}
+
+{STRING} {
+  return TK_LIT_STRING;
 }
 
 {ID} {
