@@ -297,10 +297,6 @@ BLOCK_END "*/"
   return TK_LIT_CHAR;
 }
 
-'[^\n']*' { // Para retornar erros em char inválido
-  return TOKEN_ERRO;
-}
-
 {STRING} {
   return TK_LIT_STRING;
 }
