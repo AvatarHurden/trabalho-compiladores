@@ -10,9 +10,32 @@ FLOAT {INT}"."{NUMERICO}+([eE]{INT})?
 CHAR '.'
 STRING \"[^\n\"]*\"
 
+WHITESPACE [ \t\n]+
+LINE_COMMENT "//".*
+BLOCK_START "/*"
+BLOCK_END "*/"
+
 %option yylineno
 
+%x BLOCK_COMMENT
+
 %%
+
+{WHITESPACE} { }
+{LINE_COMMENT} { }
+
+{BLOCK_START} {
+  BEGIN(BLOCK_COMMENT);
+}
+
+<BLOCK_COMMENT>{
+  {BLOCK_END} {
+    BEGIN(INITIAL);
+  }
+
+  "\n" { }
+  . { }
+}
 
 "int" {
   return TK_PR_INT;
