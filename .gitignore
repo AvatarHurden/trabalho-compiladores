@@ -1,2 +1,4 @@
+etapa*
 main
 lex.yy.*
+*.o
