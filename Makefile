@@ -9,8 +9,8 @@ zip:
 	tar cvzf etapa$(etapa).tgz Makefile main.c tokens.h scanner.l
 
 test:
-	gcc test/main_test.cpp -c
-	gcc test/main_test.o test/scanner_test.cpp -o test/run_tests
+	g++ -std=c++11 test/main_test.cpp -c
+	g++ -std=c++11 test/main_test.o test/scanner_test.cpp -o test/run_tests
 
 clean:
 	rm -f etapa* lex.yy.*
