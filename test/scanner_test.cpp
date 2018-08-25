@@ -1,8 +1,8 @@
 #include "catch.hpp"
 
 extern "C" {
-#include "../lex.yy.h"
 #include "../tokens.h"
+#include "../lex.yy.h"
 }
 
 TEST_CASE( "Reserved words", "[scanner]" )
