@@ -161,24 +161,6 @@ TEST_CASE("Literals")
             REQUIRE(yylex() == TK_LIT_STRING);
             REQUIRE(std::string(yytext) == "\"\"");
         }
-
-        SECTION("With escaped char") {
-            yy_scan_string("\\n");
-            REQUIRE(yylex() == TK_LIT_STRING);
-            REQUIRE(std::string(yytext) == "\\n");
-        }
-
-        SECTION("With escaped quote") {
-            yy_scan_string("\"\\\"\"");
-            REQUIRE(yylex() == TK_LIT_STRING);
-            REQUIRE(std::string(yytext) == "\"\\\"\"");
-        }
-
-        SECTION("With multiline string") {
-            yy_scan_string("\"a\\\nb\"");
-            REQUIRE(yylex() != TK_LIT_STRING);
-            REQUIRE(std::string(yytext) == "\"a\\\nb\"");
-        }
     }
 }
 
