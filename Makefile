@@ -31,7 +31,7 @@ lex.yy.o: scanner.l
 	flex --header-file=lex.yy.h scanner.l
 	$(CC) -c lex.yy.c
 
-test: $(TEST_OBJS)
+test: lex.yy.o $(TEST_OBJS)
 	@echo "\n - Link tests"
 	$(CPPC) lex.yy.o $(TEST_OBJS) -lfl -o test/run_tests
 	@echo "\n - Run tests"
