@@ -1,5 +1,5 @@
 %{
-#include "tokens.h"
+#include "parser.tab.h"
 %}
 
 ALFABETICO [a-zA-Z_]

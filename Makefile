@@ -1,4 +1,4 @@
-# Compiler options 
+# Compiler options
 CC := gcc
 CPPC := g++ -std=c++11
 CFLAGS = -g -Wall
@@ -23,13 +23,14 @@ etapa=1
 # Rules
 all: lex.yy.o
 	@echo "\n - Link scanner"
-	$(CC) $(CFLAGS) main.c lex.yy.o -lfl -o etapa$(etapa)
+	$(CC) $(CFLAGS) main.c lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
 	@echo " - Done!"
 
-lex.yy.o: scanner.l
+lex.yy.o: parser.y scanner.l
 	@echo "\n - Compile scanner"
+	bison -d parser.y
 	flex --header-file=lex.yy.h scanner.l
-	$(CC) -c lex.yy.c
+	$(CC) -c lex.yy.c parser.tab.c
 
 test: lex.yy.o $(TEST_OBJS)
 	@echo "\n - Link tests"
@@ -42,7 +43,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CPPC) -c $< -o $@
 
 zip:
-	tar cvzf etapa$(etapa).tgz Makefile main.c tokens.h scanner.l
+	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l
 
 clean:
-	rm -f etapa* lex.yy.* *.o $(TEST_OBJS) $(TEST_EXE)
+	rm -f etapa* lex.yy.* parser.tab.* *.o $(TEST_OBJS) $(TEST_EXE)
