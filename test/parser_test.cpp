@@ -54,3 +54,53 @@ TEST_CASE("Type Declarations")
 
 
 }
+
+TEST_CASE("Global Variable Declarations")
+{
+
+    // Positive tests
+
+    SECTION("Basic Variable") {
+        yy_scan_string("int a;");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("New Type Varialbe") {
+        yy_scan_string("Complex a;");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Array Variable") {
+        yy_scan_string("char a[5];");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Array Variable Negative Value") {
+        yy_scan_string("char a[-5];");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("No Semicolon") {
+        yy_scan_string("int a");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Missing type") {
+        yy_scan_string("a;");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Missing identifier") {
+        yy_scan_string("int;");
+        REQUIRE(yyparse() == 1);
+    }
+    
+    SECTION("Array Variable Float Value") {
+        yy_scan_string("char a[5.0];");
+        REQUIRE(yyparse() == 1);
+    }
+
+
+}

@@ -58,10 +58,15 @@ base_type: TK_PR_INT
          | TK_PR_CHAR
          | TK_PR_STRING
          | TK_PR_FLOAT;
+type: base_type | TK_IDENTIFICADOR;
 
 scope: TK_PR_PRIVATE | TK_PR_PUBLIC | TK_PR_PROTECTED;
 scope_opt: scope | %empty;
 
+static_opt: TK_PR_STATIC | %empty;
+
+array_index: '[' TK_LIT_INT ']';
+array_index_opt: array_index | %empty;
 
 // Grammar
 
@@ -73,7 +78,7 @@ new_type: TK_PR_CLASS TK_IDENTIFICADOR '{' fields '}' ';';
 fields: field ':' fields | field;
 field: scope_opt base_type TK_IDENTIFICADOR;
 
-global_var: TOKEN_ERRO;
+global_var: static_opt type TK_IDENTIFICADOR array_index_opt ';';
 
 function: TOKEN_ERRO;
 
