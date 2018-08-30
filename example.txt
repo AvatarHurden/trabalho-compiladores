@@ -2,7 +2,7 @@ class Real {
   private float value
 };
 
-int l[5];
+l[5] int;
 
 int first() {}
 
@@ -11,7 +11,7 @@ class Complex {
   float r
 };
 
-static Complex a;
+a static Complex;
 
 static int length(Complex a) {}
 

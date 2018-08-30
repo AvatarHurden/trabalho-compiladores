@@ -79,7 +79,7 @@ new_type: TK_PR_CLASS TK_IDENTIFICADOR '{' fields '}' ';';
 fields: field ':' fields | field;
 field: scope_opt base_type TK_IDENTIFICADOR;
 
-global_var: static_opt type TK_IDENTIFICADOR array_index_opt ';';
+global_var: TK_IDENTIFICADOR array_index_opt static_opt type ';';
 
 function: header body;
 header: static_opt type TK_IDENTIFICADOR '(' params_opt ')';

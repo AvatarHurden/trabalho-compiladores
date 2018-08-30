@@ -59,22 +59,22 @@ TEST_CASE("Global Variable Declarations")
     // Positive tests
 
     SECTION("Basic Variable") {
-        yy_scan_string("int a;");
+        yy_scan_string("a int;");
         REQUIRE(yyparse() == 0);
     }
 
     SECTION("New Type Varialbe") {
-        yy_scan_string("Complex a;");
+        yy_scan_string("a Complex;");
         REQUIRE(yyparse() == 0);
     }
 
     SECTION("Array Variable") {
-        yy_scan_string("char a[5];");
+        yy_scan_string("a[5] char;");
         REQUIRE(yyparse() == 0);
     }
 
     SECTION("Array Variable Negative Value") {
-        yy_scan_string("char a[-5];");
+        yy_scan_string("a[-5] char;");
         REQUIRE(yyparse() == 0);
     }
 
@@ -92,6 +92,11 @@ TEST_CASE("Global Variable Declarations")
 
     SECTION("Missing identifier") {
         yy_scan_string("int;");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Wrong order") {
+        yy_scan_string("int a;");
         REQUIRE(yyparse() == 1);
     }
 
