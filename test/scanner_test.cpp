@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 extern "C" {
-#include "../tokens.h"
+#include "../parser.tab.h"
 #include "../lex.yy.h"
 }
 

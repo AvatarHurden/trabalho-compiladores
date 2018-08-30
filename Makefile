@@ -10,7 +10,7 @@ TEST_DIR := test
 TEST_EXE := $(TEST_DIR)/run_tests
 
 # Sources
-TEST_SRC_FILES := catch.cpp scanner_test.cpp
+TEST_SRC_FILES := catch.cpp parser_test.cpp scanner_test.cpp
 TEST_SRCS := $(addprefix $(TEST_DIR)/, $(TEST_SRC_FILES))
 
 # Objects
@@ -34,7 +34,7 @@ lex.yy.o: parser.y scanner.l
 
 test: lex.yy.o $(TEST_OBJS)
 	@echo "\n - Link tests"
-	$(CPPC) lex.yy.o $(TEST_OBJS) -lfl -o test/run_tests
+	$(CPPC) parser.tab.o lex.yy.o $(TEST_OBJS) -lfl -o test/run_tests
 	@echo "\n - Run tests"
 	./$(TEST_DIR)/run_tests
 

@@ -47,9 +47,35 @@ void yyerror (char const *s);
 %token TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
+%start program
+
 %%
 
-programa: TK_IDENTIFICADOR;
+// Utilities
+
+base_type: TK_PR_INT
+         | TK_PR_BOOL
+         | TK_PR_CHAR
+         | TK_PR_STRING
+         | TK_PR_FLOAT;
+
+scope: TK_PR_PRIVATE | TK_PR_PUBLIC | TK_PR_PROTECTED;
+scope_opt: scope | %empty;
+
+
+// Grammar
+
+program: global_decl program | global_decl;
+
+global_decl: global_var | new_type | function;
+
+new_type: TK_PR_CLASS TK_IDENTIFICADOR '{' fields '}' ';';
+fields: field ':' fields | field;
+field: scope_opt base_type TK_IDENTIFICADOR;
+
+global_var: TOKEN_ERRO;
+
+function: TOKEN_ERRO;
 
 %%
 
