@@ -1,0 +1,12 @@
+class Real {
+  private float value
+};
+
+int l[5];
+
+class Complex {
+  protected float i :
+  float r
+};
+
+Complex a;
