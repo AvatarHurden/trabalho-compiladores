@@ -51,8 +51,6 @@ TEST_CASE("Type Declarations")
         yy_scan_string("class Complex { private public float real };");
         REQUIRE(yyparse() == 1);
     }
-
-
 }
 
 TEST_CASE("Global Variable Declarations")
@@ -96,11 +94,57 @@ TEST_CASE("Global Variable Declarations")
         yy_scan_string("int;");
         REQUIRE(yyparse() == 1);
     }
-    
+
     SECTION("Array Variable Float Value") {
         yy_scan_string("char a[5.0];");
         REQUIRE(yyparse() == 1);
     }
+}
 
+TEST_CASE("Function Declarations")
+{
 
+    // Positive tests
+
+    SECTION("Empty Parameters") {
+        yy_scan_string("int f() {}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Static Function") {
+        yy_scan_string("static char foo() {}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("One Parameter") {
+        yy_scan_string("string fas(char c) {}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Multiple Parameters") {
+        yy_scan_string("bool f_4(int a, char b) {}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Finish With Semicolon") {
+        yy_scan_string("int f() {};");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("No Body") {
+        yy_scan_string("int f()");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Array as return") {
+        yy_scan_string("string[] f() {}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Array as Parameter") {
+        yy_scan_string("char f(int[] a) {}");
+        REQUIRE(yyparse() == 1);
+    }
 }

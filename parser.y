@@ -64,6 +64,7 @@ scope: TK_PR_PRIVATE | TK_PR_PUBLIC | TK_PR_PROTECTED;
 scope_opt: scope | %empty;
 
 static_opt: TK_PR_STATIC | %empty;
+const_opt: TK_PR_CONST | %empty;
 
 array_index: '[' TK_LIT_INT ']';
 array_index_opt: array_index | %empty;
@@ -80,7 +81,16 @@ field: scope_opt base_type TK_IDENTIFICADOR;
 
 global_var: static_opt type TK_IDENTIFICADOR array_index_opt ';';
 
-function: TOKEN_ERRO;
+function: header body;
+header: static_opt type TK_IDENTIFICADOR '(' params_opt ')';
+
+params_opt: params | %empty;
+params: param ',' params | param;
+param: const_opt type TK_IDENTIFICADOR;
+
+body: block;
+
+block: '{' '}';
 
 %%
 
