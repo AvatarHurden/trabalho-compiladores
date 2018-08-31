@@ -28,7 +28,7 @@ all: lex.yy.o
 
 lex.yy.o: parser.y scanner.l
 	@echo "\n - Compile scanner"
-	bison -d parser.y
+	bison -d parser.y -Wall
 	flex --header-file=lex.yy.h scanner.l
 	$(CC) -c lex.yy.c parser.tab.c
 
