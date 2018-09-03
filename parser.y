@@ -208,14 +208,13 @@ expression: expression_part op expression | expression_part;
 
 expression_part:
     TK_IDENTIFICADOR var_part_opt
-  | TK_IDENTIFICADOR function_call
   | integer
   | float
   | TK_LIT_TRUE
   | TK_LIT_FALSE
   | TK_LIT_CHAR
   | TK_LIT_STRING
-  | pipe_expression
+  | TK_IDENTIFICADOR pipe_expression
   | '(' expression ')';
 
 op: '+'
