@@ -375,3 +375,68 @@ TEST_CASE("Shifts")
 
     // Negative tests
 }
+
+
+TEST_CASE("Exit and Return commands")
+{
+
+    // Positive tests
+
+    SECTION("Return command") {
+        yy_scan_string("int main() {"
+                       " return 4 + 3;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Break command") {
+        yy_scan_string("int main() {"
+                       " break;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Continue command") {
+        yy_scan_string("int main() {"
+                       " continue;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Case command") {
+      yy_scan_string("int main() {"
+                     " case 3:"
+                     "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Case with float") {
+      yy_scan_string("int main() {"
+                     " case 3.2:"
+                     "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Case with semicolon") {
+      yy_scan_string("int main() {"
+                     " case 3;"
+                     "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Case with expression") {
+      yy_scan_string("int main() {"
+                     " case 3 + 2:"
+                     "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Continue without semicolon") {
+      yy_scan_string("int main() {"
+                     " continue"
+                     "}");
+        REQUIRE(yyparse() == 1);
+    }
+}
