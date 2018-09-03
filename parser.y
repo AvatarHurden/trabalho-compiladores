@@ -124,11 +124,11 @@ command:
   | input
   | output
   | return
-  | block
-  | function_call;
+  | block;
 
 local_id_start: TK_IDENTIFICADOR // Variable with user type
-              | attr_kind; // Attribution
+              | attr_kind // Attribution
+              | function_call; // Function call
 
 local_var:
     TK_PR_STATIC const_opt local_var_decl
@@ -154,7 +154,10 @@ output: TK_PR_OUTPUT expressions;
 
 return: TK_LIT_FALSE;
 
-function_call: TK_LIT_STRING;
+function_call: '(' arguments_opt ')';
+arguments_opt: arguments | %empty;
+arguments: argument ',' arguments | argument;
+argument: expression | '.';
 
 expressions: expression ',' expressions | expression;
 expression: TOKEN_ERRO;
