@@ -115,7 +115,10 @@ param: const_opt type TK_IDENTIFICADOR;
 body: block;
 
 block: '{' commands '}';
-commands: command ';' commands | %empty;
+commands: command_or_case commands | %empty;
+
+command_or_case: command ';'
+               | TK_PR_CASE integer ':';
 
 command:
     TK_IDENTIFICADOR local_id_start
@@ -124,6 +127,8 @@ command:
   | input
   | output
   | return
+  | TK_PR_BREAK
+  | TK_PR_CONTINUE
   | block;
 
 local_id_start: TK_IDENTIFICADOR // Variable with user type
@@ -152,18 +157,17 @@ attr_or_shift: '=' expression
              | TK_OC_SL expression
              | TK_OC_SR expression;
 
-flow_control: TK_LIT_INT;
-
 input: TK_PR_INPUT expression;
-
 output: TK_PR_OUTPUT expressions;
 
-return: TK_LIT_FALSE;
+return: TK_PR_RETURN expression;
 
 function_call: '(' arguments_opt ')';
 arguments_opt: arguments | %empty;
 arguments: argument ',' arguments | argument;
 argument: expression | '.';
+
+flow_control: TK_LIT_INT;
 
 expressions: expression ',' expressions | expression;
 expression: TOKEN_ERRO;
