@@ -589,3 +589,248 @@ TEST_CASE("Flow commands")
         REQUIRE(yyparse() == 1);
     }
 }
+
+
+TEST_CASE("Pipe Commands")
+{
+
+    // Positive tests
+
+    SECTION("Bash pipe") {
+        yy_scan_string("int main() {"
+                       " f() \%|\% g(a);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Forward pipe") {
+        yy_scan_string("int main() {"
+                       " f(.) \%>\% g(4, .);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound pipe") {
+        yy_scan_string("int main() {"
+                       " f() \%|\% g() \%>\% foo(., .);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Missing second argument") {
+        yy_scan_string("int main() {"
+                       " f() \%|\%;"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("With non-function call") {
+        yy_scan_string("int main() {"
+                       " 4 \%|\% f();"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+}
+
+
+TEST_CASE("Expression Parts")
+{
+
+    // Positive tests
+
+    SECTION("Int as expressions") {
+        yy_scan_string("int main() {"
+                       " a = 4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Float as expression") {
+        yy_scan_string("int main() {"
+                       " a = 4.2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Char as expression") {
+        yy_scan_string("int main() {"
+                       " a = 'c';"
+                       " a = \"test\";"
+                       " a = true;"
+                       " a = false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("String as expression") {
+        yy_scan_string("int main() {"
+                       " a = \"test\";"
+                       " a = true;"
+                       " a = false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("String as expression") {
+        yy_scan_string("int main() {"
+                       " a = \"test\";"
+                       " a = true;"
+                       " a = false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("True as expression") {
+        yy_scan_string("int main() {"
+                       " a = true;"
+                       " a = false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("False as expression") {
+        yy_scan_string("int main() {"
+                       " a = false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Pipe as expression") {
+        yy_scan_string("int main() {"
+                       " a = f(.) \%>\% g(4, .);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Variable as expression") {
+        yy_scan_string("int main() {"
+                       " a = b;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Variable array as expression") {
+        yy_scan_string("int main() {"
+                       " a = b[3 + 2];"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Variable field as expression") {
+        yy_scan_string("int main() {"
+                       " a = b$field;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Variable array field as expression") {
+        yy_scan_string("int main() {"
+                       " a = b[3]$field;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Parenthesis expression expression") {
+        yy_scan_string("int main() {"
+                       " a = (3 + 4);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+}
+
+
+TEST_CASE("Compound Expressions")
+{
+
+    // Positive tests
+
+    SECTION("Negative Int") {
+        yy_scan_string("int main() {"
+                       " a = -4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Positive Int") {
+        yy_scan_string("int main() {"
+                       " a = +4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Negative Float") {
+        yy_scan_string("int main() {"
+                       " a = -4.2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Positive Float") {
+        yy_scan_string("int main() {"
+                       " a = +4.2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Sum of Negatives") {
+        yy_scan_string("int main() {"
+                       " a = -4 + -4.2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Subtraction of Negatives") {
+        yy_scan_string("int main() {"
+                       " a = -4 - -4.2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Greater or equal operator") {
+        yy_scan_string("int main() {"
+                       " a = 4 >= 3;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Less or equal operator") {
+        yy_scan_string("int main() {"
+                       " a = 4 <= 3;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("equal operator") {
+        yy_scan_string("int main() {"
+                       " a = 4 == (3 + 2);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("not equal operator") {
+        yy_scan_string("int main() {"
+                       " a = true != 3 - 2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("and operator") {
+        yy_scan_string("int main() {"
+                       " a = true && false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("or operator") {
+        yy_scan_string("int main() {"
+                       " a = 4 || 3;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+}
