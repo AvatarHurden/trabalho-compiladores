@@ -301,3 +301,77 @@ TEST_CASE("Input and Output")
         REQUIRE(yyparse() == 1);
     }
 }
+
+
+TEST_CASE("Function call")
+{
+
+    // Positive tests
+
+    SECTION("Empty parameters") {
+        yy_scan_string("int main() {"
+                       " f();"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("One parameter") {
+        yy_scan_string("int main() {"
+                       " foo(false);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Dot parameter") {
+        yy_scan_string("int main() {"
+                       " bar(.);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Multiple parameters") {
+        yy_scan_string("int main() {"
+                       " bar(a, 4, ., 'c');"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+}
+
+
+TEST_CASE("Shifts")
+{
+
+    // Positive tests
+
+    SECTION("Simple variable shift") {
+        yy_scan_string("int main() {"
+                       " a << 4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Array shift") {
+        yy_scan_string("int main() {"
+                       " a[4] >> 'a';"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Field shift") {
+        yy_scan_string("int main() {"
+                       " a$field << a;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Array field Shift") {
+      yy_scan_string("int main() {"
+                     " a[3+2]$field_2 = 3 \% 4;"
+                     "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+}
