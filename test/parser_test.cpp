@@ -153,3 +153,75 @@ TEST_CASE("Function Declarations")
         REQUIRE(yyparse() == 1);
     }
 }
+
+TEST_CASE("Local Variable Declarations")
+{
+
+    // Positive tests
+
+    SECTION("Simple variable") {
+        yy_scan_string("int main() {"
+                       " int a;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Custom type") {
+        yy_scan_string("int main() {"
+                       " Real a;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Static Const") {
+        yy_scan_string("int main() {"
+                       " static const int a;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Only Const") {
+      yy_scan_string("int main() {"
+                     " const Real a;"
+                     "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Only Static") {
+      yy_scan_string("int main() {"
+                     " static int a;"
+                     "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("With attribution literal") {
+        yy_scan_string("int main() {"
+                       " int a <= 4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("With attribution identifier") {
+        yy_scan_string("int main() {"
+                       " int a <= b;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Const Static") {
+        yy_scan_string("int main() {"
+                       " const static Real a;"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("Custom type with attribution") {
+        yy_scan_string("int main() {"
+                       " Real a <= 5;"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+}
