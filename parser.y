@@ -81,6 +81,10 @@ integer: '+' TK_LIT_INT
        | '-' TK_LIT_INT
        | TK_LIT_INT;
 
+float: '+' TK_LIT_FLOAT
+     | '-' TK_LIT_FLOAT
+     | TK_LIT_FLOAT;
+
 // Grammar
 
 program: global_decl program | global_decl;
@@ -201,7 +205,35 @@ pipe_expression:
 pipe_op: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
 
 expressions: expression ',' expressions | expression;
-expression: integer;
+expression: expression_part op expression | expression_part;
+
+expression_part:
+    TK_IDENTIFICADOR var_part_opt
+  | TK_IDENTIFICADOR function_call
+  | integer
+  | float
+  | TK_LIT_TRUE
+  | TK_LIT_FALSE
+  | pipe_expression
+  | '(' expression ')';
+
+op: '+'
+  | '-'
+  | '*'
+  | '/'
+  | '%'
+  | '|'
+  | '&'
+  | '^'
+  | '>'
+  | '<'
+  | '!'
+  | TK_OC_GE
+  | TK_OC_LE
+  | TK_OC_EQ
+  | TK_OC_NE
+  | TK_OC_AND
+  | TK_OC_OR;
 
 %%
 
