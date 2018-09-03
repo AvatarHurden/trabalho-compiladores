@@ -220,3 +220,84 @@ TEST_CASE("Local Variable Declarations")
     }
 
 }
+
+TEST_CASE("Attributions")
+{
+
+    // Positive tests
+
+    SECTION("Simple variable") {
+        yy_scan_string("int main() {"
+                       " a = 4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Array variable") {
+        yy_scan_string("int main() {"
+                       " a[4] = 'a';"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Field variable") {
+        yy_scan_string("int main() {"
+                       " a$field = 3 + 4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Array field variable") {
+      yy_scan_string("int main() {"
+                     " a[3+2]$field_2 = 5 > 2;"
+                     "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Missing value") {
+      yy_scan_string("int main() {"
+                     " a = ;"
+                     "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+}
+
+
+TEST_CASE("Input and Output")
+{
+
+    // Positive tests
+
+    SECTION("Simple Input") {
+        yy_scan_string("int main() {"
+                       " input 4 > 2 + 1;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Simple Output") {
+        yy_scan_string("int main() {"
+                       " output true | false;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound Output") {
+        yy_scan_string("int main() {"
+                       " output \"string\" & 3, 'a', -10 * +4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Empty Output") {
+        yy_scan_string("int main() {"
+                       " output;"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+}
