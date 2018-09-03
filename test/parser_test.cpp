@@ -337,6 +337,13 @@ TEST_CASE("Function call")
     }
 
     // Negative tests
+
+    SECTION("Trailing comma") {
+        yy_scan_string("int main() {"
+                       " bar(a, 4, .,);"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
 }
 
 
@@ -437,6 +444,148 @@ TEST_CASE("Exit and Return commands")
       yy_scan_string("int main() {"
                      " continue"
                      "}");
+        REQUIRE(yyparse() == 1);
+    }
+}
+
+
+TEST_CASE("Flow commands")
+{
+
+    // Positive tests
+
+    SECTION("Simple if") {
+        yy_scan_string("int main() {"
+                       " if (3) then { };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Simple if else") {
+        yy_scan_string("int main() {"
+                       " if (3 > 1) then { } else { };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound if-else") {
+        yy_scan_string("int main() {"
+                       " if (\"as\") then { if (true) then { return 4; } else { }; } else { };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Simple foreach") {
+        yy_scan_string("int main() {"
+                       " foreach ( a: 3) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound foreach") {
+        yy_scan_string("int main() {"
+                       " foreach ( a: 3, 4, 'a') { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Simple for") {
+        yy_scan_string("int main() {"
+                       " for (i = 0: i < 3: i = i + 1) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("For with list in first") {
+        yy_scan_string("int main() {"
+                       " for (i = 0, j = 1: i < 3: i = i + 1) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("For with list in second") {
+        yy_scan_string("int main() {"
+                       " for (i = 0: i < 3: i = i + 1, break) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("while") {
+        yy_scan_string("int main() {"
+                       " while (i > 3) do { case 3: };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("do while") {
+        yy_scan_string("int main() {"
+                       " do { input \"test\"; } while (i > 3);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("switch") {
+        yy_scan_string("int main() {"
+                       " switch (3+4) { case 7: continue; case 1: break;};"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("If without semicolon") {
+        yy_scan_string("int main() {"
+                       " if (true) then { } else { }"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("foreach trailing comma") {
+        yy_scan_string("int main() {"
+                       " foreach ( a: 3, 4, 'a', ) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("foreach empty") {
+        yy_scan_string("int main() {"
+                       " foreach ( a: ) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("for empty first list") {
+        yy_scan_string("int main() {"
+                       " for (: i < 3: i + 1) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("for empty second list") {
+        yy_scan_string("int main() {"
+                       " for (i = 0: i < 3:) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("for with output command") {
+        yy_scan_string("int main() {"
+                       " for (output 3: i < 3: i + 1) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("for with case command") {
+        yy_scan_string("int main() {"
+                       " for (case 3: i < 3: i + 1) { output a; };"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+
+    SECTION("while with list") {
+        yy_scan_string("int main() {"
+                       " while (i > 3, j < 3) do { break; };"
+                       "}");
         REQUIRE(yyparse() == 1);
     }
 }
