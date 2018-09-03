@@ -131,13 +131,12 @@ command_without_comma:
   | local_var
   | flow_control
   | return
+  | input
   | TK_PR_BREAK
   | TK_PR_CONTINUE
   | block;
 
-command_with_comma:
-   input
-  | output;
+command_with_comma: output;
 
 local_id_start: TK_IDENTIFICADOR // Variable with user type
               | var_part_opt attr_or_shift // Attribution or Shift
@@ -214,6 +213,8 @@ expression_part:
   | float
   | TK_LIT_TRUE
   | TK_LIT_FALSE
+  | TK_LIT_CHAR
+  | TK_LIT_STRING
   | pipe_expression
   | '(' expression ')';
 
