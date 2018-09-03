@@ -73,11 +73,6 @@ TEST_CASE("Global Variable Declarations")
         REQUIRE(yyparse() == 0);
     }
 
-    SECTION("Array Variable Negative Value") {
-        yy_scan_string("a[-5] char;");
-        REQUIRE(yyparse() == 0);
-    }
-
     // Negative tests
 
     SECTION("No Semicolon") {

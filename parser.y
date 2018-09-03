@@ -77,6 +77,10 @@ const_opt: TK_PR_CONST | %empty;
 
 array_index: '[' TK_LIT_INT ']';
 
+integer: '+' TK_LIT_INT
+       | '-' TK_LIT_INT
+       | TK_LIT_INT;
+
 // Grammar
 
 program: global_decl program | global_decl;

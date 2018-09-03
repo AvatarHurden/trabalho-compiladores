@@ -75,12 +75,14 @@ TEST_CASE("Literals")
         REQUIRE(std::string(yytext) == "207");
 
         yy_scan_string("+207");
+        REQUIRE(yylex() == '+');
         REQUIRE(yylex() == TK_LIT_INT);
-        REQUIRE(std::string(yytext) == "+207");
+        REQUIRE(std::string(yytext) == "207");
 
         yy_scan_string("-207");
+        REQUIRE(yylex() == '-');
         REQUIRE(yylex() == TK_LIT_INT);
-        REQUIRE(std::string(yytext) == "-207");
+        REQUIRE(std::string(yytext) == "207");
     }
 
     SECTION("Float") {
@@ -89,12 +91,14 @@ TEST_CASE("Literals")
         REQUIRE(std::string(yytext) == "2.07");
 
         yy_scan_string("+2.07");
+        REQUIRE(yylex() == '+');
         REQUIRE(yylex() == TK_LIT_FLOAT);
-        REQUIRE(std::string(yytext) == "+2.07");
+        REQUIRE(std::string(yytext) == "2.07");
 
         yy_scan_string("-2.07");
+        REQUIRE(yylex() == '-');
         REQUIRE(yylex() == TK_LIT_FLOAT);
-        REQUIRE(std::string(yytext) == "-2.07");
+        REQUIRE(std::string(yytext) == "2.07");
 
         yy_scan_string("2.07e33");
         REQUIRE(yylex() == TK_LIT_FLOAT);
@@ -105,8 +109,9 @@ TEST_CASE("Literals")
         REQUIRE(std::string(yytext) == "2.07e-33");
 
         yy_scan_string("-2.07E+33");
+        REQUIRE(yylex() == '-');
         REQUIRE(yylex() == TK_LIT_FLOAT);
-        REQUIRE(std::string(yytext) == "-2.07E+33");
+        REQUIRE(std::string(yytext) == "2.07E+33");
 
         yy_scan_string("2.");
         REQUIRE(yylex() != TK_LIT_FLOAT);
