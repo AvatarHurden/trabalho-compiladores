@@ -120,20 +120,24 @@ commands: command_or_case commands | %empty;
 command_or_case: command ';'
                | TK_PR_CASE integer ':';
 
-command:
-    TK_IDENTIFICADOR local_id_start
+command: command_with_comma | command_without_comma;
+
+command_without_comma:
+  TK_IDENTIFICADOR local_id_start
   | local_var
   | flow_control
-  | input
-  | output
   | return
   | TK_PR_BREAK
   | TK_PR_CONTINUE
   | block;
 
+command_with_comma:
+   input
+  | output;
+
 local_id_start: TK_IDENTIFICADOR // Variable with user type
               | var_part_opt attr_or_shift // Attribution or Shift
-              | function_call; // Function call
+              | pipe_expression; // Pipe expression (possibly one function call)
 
 local_var:
     TK_PR_STATIC const_opt local_var_decl
@@ -171,18 +175,30 @@ flow_control: if
             | foreach
             | for
             | do_while
-            | while_do;
+            | while_do
+            | switch
+            | pipe_expression;
 
 if: TK_PR_IF '(' expression ')' TK_PR_THEN block else_opt;
 else_opt: TK_PR_ELSE block | %empty;
 
-foreach: TK_LIT_INT;
+foreach: TK_PR_FOREACH '(' TK_IDENTIFICADOR ':' expressions ')' block;
 
-for: TK_LIT_TRUE;
+for: TK_PR_FOR '(' commands_comma ':' expression ':' commands_comma ')' block;
 
-do_while: TK_LIT_FALSE;
+commands_comma: command_without_comma ',' commands_comma | command_without_comma;
 
-while_do: TK_PR_STRING;
+do_while: TK_PR_DO block TK_PR_WHILE '(' expression ')';
+
+while_do: TK_PR_WHILE '(' expression ')' TK_PR_DO block;
+
+switch: TK_PR_SWITCH '(' expression ')' block;
+
+pipe_expression:
+    function_call pipe_op TK_IDENTIFICADOR pipe_expression
+  | function_call;
+
+pipe_op: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
 
 expressions: expression ',' expressions | expression;
 expression: integer;
