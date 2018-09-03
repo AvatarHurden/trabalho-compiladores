@@ -167,10 +167,25 @@ arguments_opt: arguments | %empty;
 arguments: argument ',' arguments | argument;
 argument: expression | '.';
 
-flow_control: TK_LIT_INT;
+flow_control: if
+            | foreach
+            | for
+            | do_while
+            | while_do;
+
+if: TK_PR_IF '(' expression ')' TK_PR_THEN block else_opt;
+else_opt: TK_PR_ELSE block | %empty;
+
+foreach: TK_LIT_INT;
+
+for: TK_LIT_TRUE;
+
+do_while: TK_LIT_FALSE;
+
+while_do: TK_PR_STRING;
 
 expressions: expression ',' expressions | expression;
-expression: TOKEN_ERRO;
+expression: integer;
 
 %%
 
