@@ -83,7 +83,7 @@ program: global_decl program | global_decl;
 
 global_decl: new_type | global_var_or_function;
 
-new_type: TK_PR_CLASS TK_IDENTIFICADOR '{' fields '}' ';';
+new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' fields ']' ';';
 fields: field ':' fields | field;
 field: scope_opt base_type TK_IDENTIFICADOR;
 

@@ -1,6 +1,6 @@
-class Real {
+class Real [
   private float value
-};
+];
 
 l[5] int;
 
@@ -10,10 +10,10 @@ int first() {
   float b;
 }
 
-class Complex {
+class Complex [
   protected float i :
   float r
-};
+];
 
 a static Complex;
 
