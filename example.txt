@@ -4,7 +4,11 @@ class Real {
 
 l[5] int;
 
-int first() {}
+int first() {
+  static char t <= 'a';
+  const Complex a;
+  float b;
+}
 
 class Complex {
   protected float i :

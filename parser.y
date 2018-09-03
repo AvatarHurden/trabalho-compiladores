@@ -53,6 +53,15 @@ void yyerror (char const *s);
 
 // Utilities
 
+literal: TK_LIT_INT
+       | TK_LIT_FLOAT
+       | TK_LIT_CHAR
+       | TK_LIT_STRING
+       | TK_LIT_TRUE
+       | TK_LIT_FALSE;
+
+lit_or_id: literal | TK_IDENTIFICADOR;
+
 base_type: TK_PR_INT
          | TK_PR_BOOL
          | TK_PR_CHAR
@@ -101,7 +110,49 @@ param: const_opt type TK_IDENTIFICADOR;
 
 body: block;
 
-block: '{' '}';
+block: '{' commands '}';
+commands: command ';' commands | %empty;
+
+command:
+    TK_IDENTIFICADOR local_id_start
+  | local_var
+  | flow_control
+  | input
+  | output
+  | return
+  | block
+  | function_call;
+
+local_id_start: TK_IDENTIFICADOR // Variable with user type
+              | attr_kind; // Attribution
+
+local_var:
+    TK_PR_STATIC const_opt local_var_decl
+  | TK_PR_CONST local_var_decl
+  | base_type TK_IDENTIFICADOR init_opt;
+
+local_var_decl:
+  base_type TK_IDENTIFICADOR init_opt;
+  | TK_IDENTIFICADOR TK_IDENTIFICADOR;
+
+init_opt: TK_OC_LE lit_or_id | %empty;
+
+attr_kind: '[' expression ']' field_access_opt '=' expression;
+         |  field_access '=' expression;
+field_access: '$' TK_IDENTIFICADOR;
+field_access_opt: field_access | %empty;
+
+flow_control: TK_LIT_INT;
+
+input: TK_LIT_CHAR;
+
+output: TK_LIT_TRUE;
+
+return: TK_LIT_FALSE;
+
+function_call: TK_LIT_STRING;
+
+expression: TOKEN_ERRO;
 
 %%
 
