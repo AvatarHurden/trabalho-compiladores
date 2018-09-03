@@ -148,14 +148,15 @@ field_access_opt: field_access | %empty;
 
 flow_control: TK_LIT_INT;
 
-input: TK_LIT_CHAR;
+input: TK_PR_INPUT expression;
 
-output: TK_LIT_TRUE;
+output: TK_PR_OUTPUT expressions;
 
 return: TK_LIT_FALSE;
 
 function_call: TK_LIT_STRING;
 
+expressions: expression ',' expressions | expression;
 expression: TOKEN_ERRO;
 
 %%
