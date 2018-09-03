@@ -127,7 +127,7 @@ command:
   | block;
 
 local_id_start: TK_IDENTIFICADOR // Variable with user type
-              | attr_kind // Attribution
+              | var_part_opt attr_or_shift // Attribution or Shift
               | function_call; // Function call
 
 local_var:
@@ -141,10 +141,16 @@ local_var_decl:
 
 init_opt: TK_OC_LE lit_or_id | %empty;
 
-attr_kind: '[' expression ']' field_access_opt '=' expression;
-         |  field_access '=' expression;
-field_access: '$' TK_IDENTIFICADOR;
+var_part_opt: var_part | %empty;
+var_part: '[' expression ']' field_access_opt;
+        |  field_access;
+
 field_access_opt: field_access | %empty;
+field_access: '$' TK_IDENTIFICADOR;
+
+attr_or_shift: '=' expression
+             | TK_OC_SL expression
+             | TK_OC_SR expression;
 
 flow_control: TK_LIT_INT;
 
