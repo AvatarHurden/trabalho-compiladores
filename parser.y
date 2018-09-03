@@ -161,5 +161,5 @@ expression: TOKEN_ERRO;
 %%
 
 void yyerror(const char* msg) {
-    printf("%s\n", msg);
+    printf("Error near line %d\n", get_line_number());
 }
