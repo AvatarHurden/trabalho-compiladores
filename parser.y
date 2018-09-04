@@ -197,6 +197,7 @@ pipe_op: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
 
 expressions: expression ',' expressions | expression;
 expression: operand op expression
+          | operand '?' expression ':' expression
           | operand;
 
 operand:

@@ -862,3 +862,54 @@ TEST_CASE("Compound Expressions")
 
     // Negative tests
 }
+
+
+TEST_CASE("Ternary Expression")
+{
+
+    // Positive tests
+
+    SECTION("Simple") {
+        yy_scan_string("int main() {"
+                       " a = t ? 4 : 2;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound then") {
+        yy_scan_string("int main() {"
+                       " a = t ? 4 + 2 : 4;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound then else") {
+        yy_scan_string("int main() {"
+                       " a = t ? -5 * +a : f() \%|\% g(.);"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Compound condition") {
+        yy_scan_string("int main() {"
+                       " a = a*2 > 5 ? 4 : 1;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Nested ternary") {
+        yy_scan_string("int main() {"
+                       " a = a > 2 ? t ? 5 : 1 : 6;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("Nested ternary without closing") {
+        yy_scan_string("int main() {"
+                       " a = a > 2 ? t ? 5 : 1;"
+                       "}");
+        REQUIRE(yyparse() == 1);
+    }
+}
