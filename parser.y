@@ -77,14 +77,6 @@ const_opt: TK_PR_CONST | %empty;
 
 array_index: '[' TK_LIT_INT ']';
 
-integer: '+' TK_LIT_INT
-       | '-' TK_LIT_INT
-       | TK_LIT_INT;
-
-float: '+' TK_LIT_FLOAT
-     | '-' TK_LIT_FLOAT
-     | TK_LIT_FLOAT;
-
 // Grammar
 
 program: global_decl program | global_decl;
@@ -122,7 +114,7 @@ block: '{' commands '}';
 commands: command_or_case commands | %empty;
 
 command_or_case: command ';'
-               | TK_PR_CASE integer ':';
+               | TK_PR_CASE TK_LIT_INT ':';
 
 command: command_with_comma | command_without_comma;
 
@@ -204,18 +196,30 @@ pipe_expression:
 pipe_op: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
 
 expressions: expression ',' expressions | expression;
-expression: expression_part op expression | expression_part;
+expression: operand op expression
+          | operand;
+
+operand:
+    expression_part
+  | prefix_op expression_part;
 
 expression_part:
     TK_IDENTIFICADOR var_part_opt
-  | integer
-  | float
+  | TK_LIT_INT
+  | TK_LIT_FLOAT
   | TK_LIT_TRUE
   | TK_LIT_FALSE
   | TK_LIT_CHAR
   | TK_LIT_STRING
   | TK_IDENTIFICADOR pipe_expression
   | '(' expression ')';
+
+prefix_op:
+    '!'
+  | '-'
+  | '+'
+  | '*'
+  | '&';
 
 op: '+'
   | '-'

@@ -832,5 +832,33 @@ TEST_CASE("Compound Expressions")
         REQUIRE(yyparse() == 0);
     }
 
+    SECTION("prefix pointer operator") {
+        yy_scan_string("int main() {"
+                       " a = *b;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("prefix address operator") {
+        yy_scan_string("int main() {"
+                       " a = &b;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("prefix not operator") {
+        yy_scan_string("int main() {"
+                       " a = !b;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("prefix and infix operators") {
+        yy_scan_string("int main() {"
+                       " a = !b + +2 - -3;"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
     // Negative tests
 }
