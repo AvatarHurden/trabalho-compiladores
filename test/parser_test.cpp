@@ -657,9 +657,6 @@ TEST_CASE("Expression Parts")
     SECTION("Char as expression") {
         yy_scan_string("int main() {"
                        " a = 'c';"
-                       " a = \"test\";"
-                       " a = true;"
-                       " a = false;"
                        "}");
         REQUIRE(yyparse() == 0);
     }
@@ -667,17 +664,6 @@ TEST_CASE("Expression Parts")
     SECTION("String as expression") {
         yy_scan_string("int main() {"
                        " a = \"test\";"
-                       " a = true;"
-                       " a = false;"
-                       "}");
-        REQUIRE(yyparse() == 0);
-    }
-
-    SECTION("String as expression") {
-        yy_scan_string("int main() {"
-                       " a = \"test\";"
-                       " a = true;"
-                       " a = false;"
                        "}");
         REQUIRE(yyparse() == 0);
     }
@@ -685,7 +671,6 @@ TEST_CASE("Expression Parts")
     SECTION("True as expression") {
         yy_scan_string("int main() {"
                        " a = true;"
-                       " a = false;"
                        "}");
         REQUIRE(yyparse() == 0);
     }

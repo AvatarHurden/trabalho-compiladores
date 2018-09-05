@@ -171,8 +171,7 @@ flow_control: if
             | for
             | do_while
             | while_do
-            | switch
-            | pipe_expression;
+            | switch;
 
 if: TK_PR_IF '(' expression ')' TK_PR_THEN block else_opt;
 else_opt: TK_PR_ELSE block | %empty;
