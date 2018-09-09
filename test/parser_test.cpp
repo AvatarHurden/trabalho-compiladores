@@ -73,6 +73,16 @@ TEST_CASE("Global Variable Declarations")
         REQUIRE(yyparse() == 0);
     }
 
+    SECTION("Static Variable") {
+        yy_scan_string("a static int;");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Static Array Variable") {
+        yy_scan_string("a[5] static int;");
+        REQUIRE(yyparse() == 0);
+    }
+
     // Negative tests
 
     SECTION("No Semicolon") {
