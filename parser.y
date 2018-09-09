@@ -117,8 +117,10 @@ command_or_case: command ';'
 command: command_with_comma | command_without_comma;
 
 command_without_comma:
-  TK_IDENTIFICADOR local_id_start
-  | local_var
+  local_var
+  | static_or_const_local_var
+  | TK_IDENTIFICADOR array_or_field_access_opt assign_or_shift // Assignment or Shift
+  | function_call
   | flow_control
   | return
   | input
@@ -126,31 +128,31 @@ command_without_comma:
   | TK_PR_CONTINUE
   | block;
 
-command_with_comma: output;
-
-local_id_start: TK_IDENTIFICADOR // Variable with user type
-              | var_part_opt attr_or_shift // Attribution or Shift
-              | pipe_expression; // Pipe expression (possibly one function call)
-
 local_var:
-    TK_PR_STATIC const_opt local_var_decl
-  | TK_PR_CONST local_var_decl
-  | base_type TK_IDENTIFICADOR init_opt;
+  base_type_local_var
+  | custom_type_local_var;
 
-local_var_decl:
+base_type_local_var:
   base_type TK_IDENTIFICADOR init_opt;
-  | TK_IDENTIFICADOR TK_IDENTIFICADOR;
 
 init_opt: TK_OC_LE lit_or_id | %empty;
 
-var_part_opt: var_part | %empty;
-var_part: '[' expression ']' field_access_opt;
+custom_type_local_var: TK_IDENTIFICADOR TK_IDENTIFICADOR;
+
+static_or_const_local_var:
+  TK_PR_STATIC const_opt local_var
+  | TK_PR_CONST local_var;
+
+command_with_comma: output;
+
+array_or_field_access_opt: array_or_field_access | %empty;
+array_or_field_access: '[' expression ']' field_access_opt;
         |  field_access;
 
 field_access_opt: field_access | %empty;
 field_access: '$' TK_IDENTIFICADOR;
 
-attr_or_shift: '=' expression
+assign_or_shift: '=' expression
              | TK_OC_SL expression
              | TK_OC_SR expression;
 
@@ -158,11 +160,6 @@ input: TK_PR_INPUT expression;
 output: TK_PR_OUTPUT expressions;
 
 return: TK_PR_RETURN expression;
-
-function_call: '(' arguments_opt ')';
-arguments_opt: arguments | %empty;
-arguments: argument ',' arguments | argument;
-argument: expression | '.';
 
 flow_control: if
             | foreach
@@ -176,9 +173,9 @@ else_opt: TK_PR_ELSE block | %empty;
 
 foreach: TK_PR_FOREACH '(' TK_IDENTIFICADOR ':' expressions ')' block;
 
-for: TK_PR_FOR '(' commands_comma ':' expression ':' commands_comma ')' block;
+for: TK_PR_FOR '(' commands_comma_separated ':' expression ':' commands_comma_separated ')' block;
 
-commands_comma: command_without_comma ',' commands_comma | command_without_comma;
+commands_comma_separated: command_without_comma ',' commands_comma_separated | command_without_comma;
 
 do_while: TK_PR_DO block TK_PR_WHILE '(' expression ')';
 
@@ -186,9 +183,14 @@ while_do: TK_PR_WHILE '(' expression ')' TK_PR_DO block;
 
 switch: TK_PR_SWITCH '(' expression ')' block;
 
-pipe_expression:
-    function_call pipe_op TK_IDENTIFICADOR pipe_expression
-  | function_call;
+function_call:
+    TK_IDENTIFICADOR function_args pipe_op function_call
+  | TK_IDENTIFICADOR function_args;
+
+function_args: '(' arguments_opt ')';
+arguments_opt: arguments | %empty;
+arguments: argument ',' arguments | argument;
+argument: expression | '.';
 
 pipe_op: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
 
@@ -202,14 +204,14 @@ operand:
   | prefix_op expression_part;
 
 expression_part:
-    TK_IDENTIFICADOR var_part_opt
+    TK_IDENTIFICADOR array_or_field_access_opt
   | TK_LIT_INT
   | TK_LIT_FLOAT
   | TK_LIT_TRUE
   | TK_LIT_FALSE
   | TK_LIT_CHAR
   | TK_LIT_STRING
-  | TK_IDENTIFICADOR pipe_expression
+  | function_call
   | '(' expression ')';
 
 prefix_op:
@@ -217,7 +219,9 @@ prefix_op:
   | '-'
   | '+'
   | '*'
-  | '&';
+  | '&'
+  | '?'
+  | '#';
 
 op: '+'
   | '-'
