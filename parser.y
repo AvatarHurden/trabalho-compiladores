@@ -1,6 +1,9 @@
 %{
+#include <stdio.h>
+#include "lex.yy.h"
 int yylex(void);
 void yyerror (char const *s);
+extern int get_line_number();
 %}
 
 %token TK_PR_INT
@@ -242,5 +245,6 @@ op: '+'
 %%
 
 void yyerror(const char* msg) {
-    printf("Error near line %d\n", get_line_number());
+    char error_msg[] = "%s: Unexpected '%s' found near line %d\n";
+    fprintf(stderr, error_msg, msg, yytext, get_line_number());
 }
