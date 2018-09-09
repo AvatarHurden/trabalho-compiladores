@@ -117,9 +117,9 @@ command_or_case: command ';'
 command: command_with_comma | command_without_comma;
 
 command_without_comma:
-  local_var
-  | static_or_const_local_var
-  | TK_IDENTIFICADOR array_or_field_access_opt assign_or_shift // Assignment or Shift
+  local_var_decl
+  | static_or_const_local_var_decl
+  | local_var assign_or_shift
   | function_call
   | flow_control
   | return
@@ -128,22 +128,25 @@ command_without_comma:
   | TK_PR_CONTINUE
   | block;
 
-local_var:
-  base_type_local_var
-  | custom_type_local_var;
+local_var_decl:
+  base_type_local_var_decl
+  | custom_type_local_var_decl;
 
-base_type_local_var:
+base_type_local_var_decl:
   base_type TK_IDENTIFICADOR init_opt;
 
 init_opt: TK_OC_LE lit_or_id | %empty;
 
-custom_type_local_var: TK_IDENTIFICADOR TK_IDENTIFICADOR;
+custom_type_local_var_decl: TK_IDENTIFICADOR TK_IDENTIFICADOR;
 
-static_or_const_local_var:
-  TK_PR_STATIC const_opt local_var
-  | TK_PR_CONST local_var;
+static_or_const_local_var_decl:
+  TK_PR_STATIC const_opt local_var_decl
+  | TK_PR_CONST local_var_decl;
 
 command_with_comma: output;
+
+local_var:
+    TK_IDENTIFICADOR array_or_field_access_opt;
 
 array_or_field_access_opt: array_or_field_access | %empty;
 array_or_field_access: '[' expression ']' field_access_opt;
@@ -200,18 +203,18 @@ expression: operand op expression
           | operand;
 
 operand:
-    expression_part
+  expression_part
   | prefix_op expression_part;
 
 expression_part:
-    TK_IDENTIFICADOR array_or_field_access_opt
+  local_var
+  | function_call
   | TK_LIT_INT
   | TK_LIT_FLOAT
   | TK_LIT_TRUE
   | TK_LIT_FALSE
   | TK_LIT_CHAR
   | TK_LIT_STRING
-  | function_call
   | '(' expression ')';
 
 prefix_op:
