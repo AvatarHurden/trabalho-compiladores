@@ -52,6 +52,15 @@ TEST_CASE("Reserved words")
     }
 }
 
+TEST_CASE ("Special characters") {
+    std::string special(",;:()[]{}+-|?*/=<>!&%#^.$");
+    yy_scan_string(special.data());
+    for (int i = 0; i < special.length(); i++)
+    {
+        REQUIRE(yylex() == special.at(i));
+    }
+}
+
 TEST_CASE("Identifiers")
 {
     yy_scan_string("intx xint _int int_ int7 int7x");
