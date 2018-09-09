@@ -18,16 +18,16 @@ TEST_OBJ_FILES := $(TEST_SRC_FILES:%.cpp=%.o)
 TEST_OBJS := $(addprefix $(TEST_DIR)/, $(TEST_OBJ_FILES))
 
 # Variables
-etapa=1
+etapa=2
 
 # Rules
 all: lex.yy.o
-	@echo "\n - Link scanner"
+	@echo "\n - Link parser"
 	$(CC) $(CFLAGS) main.c lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
 	@echo " - Done!"
 
 lex.yy.o: parser.y scanner.l
-	@echo "\n - Compile scanner"
+	@echo "\n - Compile parser"
 	bison -d parser.y -Wall --verbose
 	flex --header-file=lex.yy.h scanner.l
 	$(CC) -c lex.yy.c parser.tab.c
@@ -43,7 +43,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CPPC) -c $< -o $@
 
 zip:
-	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l
+	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y
 
 clean:
-	rm -f etapa* lex.yy.* parser.tab.* *.o $(TEST_OBJS) $(TEST_EXE)
+	rm -f etapa* lex.yy.* parser.tab.* *.o test/scanner_test.o test/parser_test.o $(TEST_EXE)
