@@ -84,27 +84,22 @@ array_index: '[' TK_LIT_INT ']';
 
 program: global_decl program | global_decl;
 
-global_decl: new_type | global_var_or_function;
+global_decl: new_type | global_var | function;
 
 new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' fields ']' ';';
 fields: field ':' fields | field;
 field: scope_opt base_type TK_IDENTIFICADOR;
 
+global_var:
+  TK_IDENTIFICADOR base_type ';'                     // Base type variable
+  | TK_IDENTIFICADOR TK_IDENTIFICADOR ';'            // Custom type variable
+  | TK_IDENTIFICADOR array_index static_opt type ';' // Array variable
+  | TK_IDENTIFICADOR TK_PR_STATIC type ';';          // Static variable
 
-global_var_or_function:
-    TK_PR_STATIC type TK_IDENTIFICADOR function_params body // Static function
-    | base_type TK_IDENTIFICADOR function_params body       // Function with base_type
-    | TK_IDENTIFICADOR custom_type_var_or_function;         // Still undecided
-
-custom_type_var_or_function:
-    array_index static_opt type ';'                        // Array variable
-    | TK_PR_STATIC type ';'                                // Static type variable
-    | base_type ';'                                        // Base type variable
-    | TK_IDENTIFICADOR custom_type_simple_var_or_function; // Undecided
-
-custom_type_simple_var_or_function:
-    ';'                             // Variable
-    | function_params body;         // Function
+function:
+  base_type TK_IDENTIFICADOR function_params body            // Base type function
+  | TK_IDENTIFICADOR TK_IDENTIFICADOR function_params body   // Custom type function
+  | TK_PR_STATIC type TK_IDENTIFICADOR function_params body; // Static function
 
 function_params: '(' params_opt ')';
 params_opt: params | %empty;
