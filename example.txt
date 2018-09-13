@@ -1,0 +1,22 @@
+class Real [
+  private float value
+];
+
+l[5] int;
+
+int first() {
+  static char t <= 'a';
+  const Complex a;
+  float b;
+}
+
+class Complex [
+  protected float i :
+  float r
+];
+
+a static Complex;
+
+static int length(Complex a) {}
+
+int sum(int a, const int b) {}

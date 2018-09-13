@@ -1,12 +1,12 @@
 %{
-#include "tokens.h"
+#include "parser.tab.h"
 %}
 
 ALFABETICO [a-zA-Z_]
 NUMERICO [0-9]
 ID {ALFABETICO}({ALFABETICO}|{NUMERICO})*
-INT [+-]?{NUMERICO}+
-FLOAT {INT}"."{NUMERICO}+([eE]{INT})?
+INT {NUMERICO}+
+FLOAT {INT}"."{NUMERICO}+([eE][+-]?{INT})?
 CHAR '.'
 STRING \"[^\n\"]*\"
 
@@ -137,104 +137,32 @@ BLOCK_END "*/"
   return TK_PR_PROTECTED;
 }
 
-"," {
-  return ',';
-}
-
-";" {
-  return ';';
-}
-
-":" {
-  return ':';
-}
-
-"(" {
-  return '(';
-}
-
-")" {
-  return ')';
-}
-
-"[" {
-  return '[';
-}
-
-"]" {
-  return ']';
-}
-
-"{" {
-  return '{';
-}
-
-"}" {
-  return '}';
-}
-
-"+" {
-  return '+';
-}
-
-"-" {
-  return '-';
-}
-
-"|" {
-  return '|';
-}
-
-"?" {
-  return '?';
-}
-
-"*" {
-  return '*';
-}
-
-"/" {
-  return '/';
-}
-
-"<" {
-  return '<';
-}
-
-">" {
-  return '>';
-}
-
-"=" {
-  return '=';
-}
-
-"!" {
-  return '!';
-}
-
-"&" {
-  return '&';
-}
-
-"%" {
-  return '%';
-}
-
-"#" {
-  return '#';
-}
-
-"^" {
-  return '^';
-}
-
-"." {
-  return '.';
-}
-
+"," |
+";" |
+":" |
+"(" |
+")" |
+"[" |
+"]" |
+"{" |
+"}" |
+"+" |
+"-" |
+"|" |
+"?" |
+"*" |
+"/" |
+"<" |
+">" |
+"=" |
+"!" |
+"&" |
+"%" |
+"#" |
+"^" |
+"." |
 "$" {
-  return '$';
+    return yytext[0];
 }
 
 "<=" {

@@ -1,4 +1,4 @@
-# Compiler options 
+# Compiler options
 CC := gcc
 CPPC := g++ -std=c++11
 CFLAGS = -g -Wall
@@ -10,7 +10,7 @@ TEST_DIR := test
 TEST_EXE := $(TEST_DIR)/run_tests
 
 # Sources
-TEST_SRC_FILES := catch.cpp scanner_test.cpp
+TEST_SRC_FILES := catch.cpp parser_test.cpp scanner_test.cpp
 TEST_SRCS := $(addprefix $(TEST_DIR)/, $(TEST_SRC_FILES))
 
 # Objects
@@ -18,22 +18,23 @@ TEST_OBJ_FILES := $(TEST_SRC_FILES:%.cpp=%.o)
 TEST_OBJS := $(addprefix $(TEST_DIR)/, $(TEST_OBJ_FILES))
 
 # Variables
-etapa=1
+etapa=2
 
 # Rules
 all: lex.yy.o
-	@echo "\n - Link scanner"
-	$(CC) $(CFLAGS) main.c lex.yy.o -lfl -o etapa$(etapa)
+	@echo "\n - Link parser"
+	$(CC) $(CFLAGS) main.c lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
 	@echo " - Done!"
 
-lex.yy.o: scanner.l
-	@echo "\n - Compile scanner"
+lex.yy.o: parser.y scanner.l
+	@echo "\n - Compile parser"
+	bison -d parser.y -Wall --verbose
 	flex --header-file=lex.yy.h scanner.l
-	$(CC) -c lex.yy.c
+	$(CC) -c lex.yy.c parser.tab.c
 
 test: lex.yy.o $(TEST_OBJS)
 	@echo "\n - Link tests"
-	$(CPPC) lex.yy.o $(TEST_OBJS) -lfl -o test/run_tests
+	$(CPPC) parser.tab.o lex.yy.o $(TEST_OBJS) -lfl -o test/run_tests
 	@echo "\n - Run tests"
 	./$(TEST_DIR)/run_tests
 
@@ -42,7 +43,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CPPC) -c $< -o $@
 
 zip:
-	tar cvzf etapa$(etapa).tgz Makefile main.c tokens.h scanner.l
+	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y
 
 clean:
-	rm -f etapa* lex.yy.* *.o $(TEST_OBJS) $(TEST_EXE)
+	rm -f etapa* lex.yy.* parser.tab.* *.o test/scanner_test.o test/parser_test.o $(TEST_EXE)

@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 extern "C" {
-#include "../tokens.h"
+#include "../parser.tab.h"
 #include "../lex.yy.h"
 }
 
@@ -52,6 +52,15 @@ TEST_CASE("Reserved words")
     }
 }
 
+TEST_CASE ("Special characters") {
+    std::string special(",;:()[]{}+-|?*/=<>!&%#^.$");
+    yy_scan_string(special.data());
+    for (int i = 0; i < special.length(); i++)
+    {
+        REQUIRE(yylex() == special.at(i));
+    }
+}
+
 TEST_CASE("Identifiers")
 {
     yy_scan_string("intx xint _int int_ int7 int7x");
@@ -75,12 +84,14 @@ TEST_CASE("Literals")
         REQUIRE(std::string(yytext) == "207");
 
         yy_scan_string("+207");
+        REQUIRE(yylex() == '+');
         REQUIRE(yylex() == TK_LIT_INT);
-        REQUIRE(std::string(yytext) == "+207");
+        REQUIRE(std::string(yytext) == "207");
 
         yy_scan_string("-207");
+        REQUIRE(yylex() == '-');
         REQUIRE(yylex() == TK_LIT_INT);
-        REQUIRE(std::string(yytext) == "-207");
+        REQUIRE(std::string(yytext) == "207");
     }
 
     SECTION("Float") {
@@ -89,12 +100,14 @@ TEST_CASE("Literals")
         REQUIRE(std::string(yytext) == "2.07");
 
         yy_scan_string("+2.07");
+        REQUIRE(yylex() == '+');
         REQUIRE(yylex() == TK_LIT_FLOAT);
-        REQUIRE(std::string(yytext) == "+2.07");
+        REQUIRE(std::string(yytext) == "2.07");
 
         yy_scan_string("-2.07");
+        REQUIRE(yylex() == '-');
         REQUIRE(yylex() == TK_LIT_FLOAT);
-        REQUIRE(std::string(yytext) == "-2.07");
+        REQUIRE(std::string(yytext) == "2.07");
 
         yy_scan_string("2.07e33");
         REQUIRE(yylex() == TK_LIT_FLOAT);
@@ -105,8 +118,9 @@ TEST_CASE("Literals")
         REQUIRE(std::string(yytext) == "2.07e-33");
 
         yy_scan_string("-2.07E+33");
+        REQUIRE(yylex() == '-');
         REQUIRE(yylex() == TK_LIT_FLOAT);
-        REQUIRE(std::string(yytext) == "-2.07E+33");
+        REQUIRE(std::string(yytext) == "2.07E+33");
 
         yy_scan_string("2.");
         REQUIRE(yylex() != TK_LIT_FLOAT);
