@@ -36,6 +36,9 @@ void delete(node* node) {
       delete(node->value->bin_op_node.left);
       delete(node->value->bin_op_node.right);
       break;
+    case UN_OP:
+      delete(node->value->un_op_node.value);
+      break;
     default:
       printf("Not implemented\n");
   }
@@ -80,5 +83,12 @@ node* make_bin_op(node* left, bin_op_type type, node* right) {
   n->value->bin_op_node.left = left;
   n->value->bin_op_node.right = right;
   n->value->bin_op_node.type = type;
+  return n;
+}
+
+node* make_un_op(node* value, un_op_type type) {
+  node* n = make_node(UN_OP);
+  n->value->un_op_node.value = value;
+  n->value->un_op_node.type = type;
   return n;
 }

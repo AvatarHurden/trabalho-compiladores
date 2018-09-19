@@ -296,3 +296,4 @@ node* make_char(char value);
 node* make_string(char* value);
 
 node* make_bin_op(node* left, bin_op_type type, node* right);
+node* make_un_op(node* value, un_op_type type);

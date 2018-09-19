@@ -14,7 +14,8 @@ int main (int argc, char **argv)
   node* n = make_string("1234");
   node* n2 = make_int(4);
   node* n3 = make_bin_op(n, MULTIPLY, n2);
-  printf("%d\n", n3->value->bin_op_node.type);
+  node* n4 = make_un_op(n3, EVAL_BOOL);
+  printf("%d\n", n4->value->un_op_node.type);
   libera(n3);
   printf("%d\n", n2->value->int_node);
   return yyparse();
