@@ -255,35 +255,35 @@ typedef union node_value {
   char char_node;
   char* string_node;
 
-  bin_op_node* bin_op_node;
-  un_op_node* un_op_node;
+  bin_op_node bin_op_node;
+  un_op_node un_op_node;
 
-  global_var_node* global_var_node;
-  type_decl_node* type_decl_node;
-  function_decl_node* function_decl_node;
+  global_var_node global_var_node;
+  type_decl_node type_decl_node;
+  function_decl_node function_decl_node;
 
-  local_var_node* local_var_node;
-  attr_node* attr_node;
-  attr_node* shift_l_node;
-  attr_node* shift_r_node;
-  function_call_node* function_call_node;
+  local_var_node local_var_node;
+  attr_node attr_node;
+  attr_node shift_l_node;
+  attr_node shift_r_node;
+  function_call_node function_call_node;
 
-  list_node* return_node;
-  list_node* break_node;
-  list_node* continue_node;
-  case_node* case_node;
+  list_node return_node;
+  list_node break_node;
+  list_node continue_node;
+  case_node case_node;
 
-  list_node* input_node;
-  list_node* output_node;
+  list_node input_node;
+  list_node output_node;
 
-  block_node* block_node;
+  block_node block_node;
 
-  if_node* if_node;
-  while_node* while_node;
-  while_node* do_while_node;
-  switch_node* switch_node;
-  for_node* for_node;
-  for_each_node* for_each_node;
+  if_node if_node;
+  while_node while_node;
+  while_node do_while_node;
+  switch_node switch_node;
+  for_node for_node;
+  for_each_node for_each_node;
 } node_value;
 
 

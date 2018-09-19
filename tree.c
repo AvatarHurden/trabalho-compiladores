@@ -33,9 +33,8 @@ void delete(node* node) {
       free(node->value->string_node);
       break;
     case BIN_OP:
-      delete(node->value->bin_op_node->left);
-      delete(node->value->bin_op_node->right);
-      free(node->value->bin_op_node);
+      delete(node->value->bin_op_node.left);
+      delete(node->value->bin_op_node.right);
       break;
     default:
       printf("Not implemented\n");
@@ -78,9 +77,8 @@ node* make_string(char* value) {
 
 node* make_bin_op(node* left, bin_op_type type, node* right) {
   node* n = make_node(BIN_OP);
-  n->value->bin_op_node = malloc(sizeof(bin_op_node));
-  n->value->bin_op_node->left = left;
-  n->value->bin_op_node->right = right;
-  n->value->bin_op_node->type = type;
+  n->value->bin_op_node.left = left;
+  n->value->bin_op_node.right = right;
+  n->value->bin_op_node.type = type;
   return n;
 }
