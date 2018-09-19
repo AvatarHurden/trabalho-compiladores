@@ -10,6 +10,7 @@ TEST_DIR := test
 TEST_EXE := $(TEST_DIR)/run_tests
 
 # Sources
+SRC_FILES := main.c tree.c
 TEST_SRC_FILES := catch.cpp parser_test.cpp scanner_test.cpp
 TEST_SRCS := $(addprefix $(TEST_DIR)/, $(TEST_SRC_FILES))
 
@@ -23,7 +24,7 @@ etapa=2
 # Rules
 all: lex.yy.o
 	@echo "\n - Link parser"
-	$(CC) $(CFLAGS) main.c lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
+	$(CC) $(CFLAGS) $(SRC_FILES) lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
 	@echo " - Done!"
 
 lex.yy.o: parser.y scanner.l

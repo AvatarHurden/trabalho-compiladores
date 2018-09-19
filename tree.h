@@ -291,26 +291,3 @@ node* make_float(float value);
 node* make_bool(bool value);
 node* make_char(char value);
 node* make_string(char* value);
-
-// int main() {
-//   node* a = (node*) malloc(sizeof(node));
-//   a->type = INT;
-//   if_node* n = (if_node*) malloc(sizeof(if_node));
-//   a->value = (node_value*) malloc(sizeof(node_value));
-//   a->value->int_node = 4;
-//
-//   switch (a->type) {
-//     case FUNCTION:
-//     node = a->value->function_decl_node
-//
-//     node->next
-//       printf("is if with value %d\n", 4);
-//       break;
-//     case INT:
-//       printf("is int with value %d\n", a->value->int_node);
-//       break;
-//     default:
-//       printf("is other value\n");
-//   }
-//
-// }
