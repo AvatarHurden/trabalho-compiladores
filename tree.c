@@ -6,7 +6,7 @@
 node* make_node(node_type type) {
   node* n = (node*) malloc(sizeof(node));
   n->type = type;
-  n->value = (node_value*) malloc(sizeof(node_value));
+  n->value = malloc(sizeof(union node_value));
   return n;
 }
 
@@ -16,6 +16,10 @@ void free_node(node* node) {
 }
 
 // Deletion Function
+
+void libera(node* node) {
+  delete(node);
+}
 
 void delete(node* node) {
   // Type-specific internal frees

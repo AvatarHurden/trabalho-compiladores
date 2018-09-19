@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-struct node;
-
-// ENUMS
+// Definition of nodes
 
 typedef enum {
   // Basic Values
@@ -40,6 +38,15 @@ typedef enum {
   FOR,
   FOREACH,
 } node_type;
+
+union node_value;
+
+typedef struct {
+  node_type type;
+  union node_value* value;
+} node;
+
+// ENUMS
 
 typedef enum {
   ADD,
@@ -87,13 +94,13 @@ typedef enum {
 // Operator Nodes
 
 typedef struct {
-  struct node* left_node;
-  struct node* right_node;
+  node* left;
+  node* right;
   bin_op_type type;
 } bin_op_node;
 
 typedef struct {
-  struct node* value_node;
+  node* value;
   un_op_type type;
 } un_op_node;
 
@@ -124,7 +131,7 @@ typedef struct {
   bool is_static;
   int array_size;
 
-  struct node* next;
+  node* next;
 } global_var_node;
 
 typedef struct {
@@ -132,7 +139,7 @@ typedef struct {
   int num_fields;
   field_node* fields;
 
-  struct node* next;
+  node* next;
 } type_decl_node;
 
 typedef struct {
@@ -143,9 +150,9 @@ typedef struct {
   int num_params;
   param_node* params;
 
-  struct node* body;
+  node* body;
 
-  struct node* next;
+  node* next;
 } function_decl_node;
 
 // Command Nodes
@@ -156,9 +163,9 @@ typedef struct {
   bool is_static;
   bool is_const;
 
-  struct node* init;
+  node* init;
 
-  struct node* next;
+  node* next;
 } local_var_node;
 
 typedef struct {
@@ -166,82 +173,82 @@ typedef struct {
   int index;
   char* field;
 
-  struct node* value;
+  node* value;
 
-  struct node* next;
+  node* next;
 } attr_node;
 
 typedef struct {
   char* identifier;
 
   int num_arguments;
-  struct node* arguments;
+  node* arguments;
 
-  struct node* next;
+  node* next;
 } function_call_node;
 
 typedef struct {
   int num_values;
-  struct node* values;
+  node* values;
 
-  struct node* next;
+  node* next;
 } list_node;
 
 typedef struct {
   int value;
-  struct node* next;
+  node* next;
 } case_node;
 
 typedef struct {
-  struct node* values;
+  node* values;
 
-  struct node* next;
+  node* next;
 } block_node;
 
 typedef struct {
-  struct node* cond;
-  struct node* then;
-  struct node* else_node;
+  node* cond;
+  node* then;
+  node* else_node;
 
-  struct node* next;
+  node* next;
 } if_node;
 
 typedef struct {
   char* id;
-  struct node* expressions;
-  struct node* body;
+  node* expressions;
+  node* body;
 
-  struct node* next;
+  node* next;
 } for_each_node;
 
 typedef struct {
-  struct node* initializers;
-  struct node* expression;
-  struct node* commands;
+  node* initializers;
+  node* expression;
+  node* commands;
 
-  struct node* body;
+  node* body;
 
-  struct node* next;
+  node* next;
 } for_node;
 
 typedef struct {
-  struct node* cond;
-  struct node* body;
+  node* cond;
+  node* body;
 
-  struct node* next;
+  node* next;
 } while_node;
 
 typedef struct {
-  struct node* expression;
+  node* expression;
 
-  struct node* body;
+  node* body;
 
-  struct node* next;
+  node* next;
 } switch_node;
 
 // Actual nodes
 
-typedef union {
+typedef union node_value {
   int int_node;
   float float_node;
   bool bool_node;
@@ -279,10 +286,6 @@ typedef union {
   for_each_node* for_each_node;
 } node_value;
 
-typedef struct {
-  node_type type;
-  node_value* value;
-} node;
 
 void delete(node* node);
 
@@ -291,3 +294,4 @@ node* make_float(float value);
 node* make_bool(bool value);
 node* make_char(char value);
 node* make_string(char* value);
+

@@ -7,6 +7,8 @@ Este arquivo será posterioremente substituído, não acrescente nada.
 #include "parser.tab.h" //arquivo gerado com bison -d parser.y
 #include "tree.h"
 
+void libera(void* arvore);
+
 int main (int argc, char **argv)
 {
   node* n = make_string("1234");
