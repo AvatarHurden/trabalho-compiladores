@@ -86,7 +86,7 @@ program: global_declarations | %empty;
 
 global_declarations: global_declaration global_declarations | global_declaration;
 
-global_declaration: new_type | global_var | function;
+global_declaration: new_type | global_var | function_declaration;
 
 new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' field_list ']' ';';
 field_list: field ':' field_list | field;
@@ -98,7 +98,7 @@ global_var:
   | TK_IDENTIFICADOR array_index static_opt type ';' // Array variable
   | TK_IDENTIFICADOR TK_PR_STATIC type ';';          // Static variable
 
-function:
+function_declaration:
   base_type TK_IDENTIFICADOR function_params body            // Base type function
   | TK_IDENTIFICADOR TK_IDENTIFICADOR function_params body   // Custom type function
   | TK_PR_STATIC type TK_IDENTIFICADOR function_params body; // Static function
@@ -122,7 +122,7 @@ command_with_comma: output;
 
 command_without_comma:
   local_var_decl
-  | local_var assign_or_shift
+  | variable_access assign_or_shift
   | function_call
   | flow_control
   | return
@@ -142,7 +142,7 @@ simple_local_var_decl:
 
 init_opt: TK_OC_LE lit_or_id | %empty;
 
-local_var: TK_IDENTIFICADOR array_or_field_access_opt;
+variable_access: TK_IDENTIFICADOR array_or_field_access_opt;
 
 array_or_field_access_opt: array_or_field_access | %empty;
 array_or_field_access:
@@ -184,62 +184,61 @@ while_do: TK_PR_WHILE '(' expression ')' TK_PR_DO block;
 switch: TK_PR_SWITCH '(' expression ')' block;
 
 function_call:
-  TK_IDENTIFICADOR function_args pipe_op function_call
-  | TK_IDENTIFICADOR function_args;
+  function
+  | function pipe_operator function_call;
 
-function_args: '(' argument_list_opt ')';
+function: TK_IDENTIFICADOR '(' argument_list_opt ')';
+
 argument_list_opt: argument_list | %empty;
 argument_list: argument ',' argument_list | argument;
 argument: expression | '.';
 
-pipe_op: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
-
 expression_list: expression ',' expression_list | expression;
-expression:
-   operand
-  | operand binary_operator expression
-  | operand '?' expression ':' expression;
+expression: pipe_expression;
 
-operand: unary_operator expression_element | expression_element;
+pipe_operator: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
+pipe_expression:
+  ternary_expression
+  | pipe_expression pipe_operator ternary_expression;
 
-expression_element:
-  local_var
-  | function_call
-  | TK_LIT_INT
-  | TK_LIT_FLOAT
-  | TK_LIT_TRUE
-  | TK_LIT_FALSE
-  | TK_LIT_CHAR
-  | TK_LIT_STRING
+ternary_expression:
+  logical_expression
+  | logical_expression '?' expression ':' ternary_expression;
+
+logical_operator: TK_OC_AND | TK_OC_OR | '&' | '|';
+logical_expression:
+  relational_expression
+  | logical_expression logical_operator relational_expression;
+
+relational_operator: TK_OC_EQ | TK_OC_NE | TK_OC_GE | TK_OC_LE | '>' | '<';
+relational_expression:
+  additive_expression
+  | relational_expression relational_operator additive_expression;
+
+additive_operator: '+' | '-';
+additive_expression:
+  multiplicative_expression
+  | additive_expression additive_operator multiplicative_expression;
+
+multiplicative_operator: '*' | '/' | '%';
+multiplicative_expression:
+  exponentiation_expression
+  | multiplicative_expression multiplicative_operator exponentiation_expression;
+
+exponentiation_expression:
+  unary_expression
+  | exponentiation_expression '^' unary_expression;
+
+unary_operator: '!' | '-' | '+' | '*' | '&' | '?' | '#';
+unary_expression:
+  operand
+  | unary_operator unary_expression;
+
+operand:
+  variable_access
+  | function
+  | literal
   | '(' expression ')';
-
-unary_operator:
-  '!'
-  | '-'
-  | '+'
-  | '*'
-  | '&'
-  | '?'
-  | '#';
-
-binary_operator:
-  '+'
-  | '-'
-  | '*'
-  | '/'
-  | '%'
-  | '|'
-  | '&'
-  | '^'
-  | '>'
-  | '<'
-  | '!'
-  | TK_OC_GE
-  | TK_OC_LE
-  | TK_OC_EQ
-  | TK_OC_NE
-  | TK_OC_AND
-  | TK_OC_OR;
 
 %%
 
