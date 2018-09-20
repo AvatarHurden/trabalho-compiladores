@@ -37,15 +37,15 @@ typedef enum {
   SWITCH,
   FOR,
   FOREACH,
-} node_type;
+} NodeType;
 
-union node_value;
+union NodeValue;
 
-typedef struct node {
-  node_type type;
-  union node_value* value;
-  struct node* next;
-} node;
+typedef struct Node {
+  NodeType type;
+  union NodeValue* value;
+  struct Node* next;
+} Node;
 
 // ENUMS
 
@@ -64,7 +64,7 @@ typedef enum {
   NOT_EQUAL,
   AND,
   OR
-} bin_op_type;
+  } BinOpType;
 
 typedef enum {
   NOT,
@@ -75,7 +75,7 @@ typedef enum {
   VALUE,
   EVAL_BOOL,
   HASH
-} un_op_type;
+} UnOpType;
 
 typedef enum {
   INT_T,
@@ -84,198 +84,188 @@ typedef enum {
   STRING_T,
   BOOL_T,
   CUSTOM_T
-} type_type;
+} TypeType;
 
 typedef enum {
   PRIVATE,
   PUBLIC,
   PROTECTED
-} scope;
+} Scope;
 
 // Operator Nodes
 
 typedef struct {
-  node* left;
-  node* right;
-  bin_op_type type;
-} bin_op_node;
+  Node* left;
+  Node* right;
+  BinOpType type;
+} BinOpNode;
 
 typedef struct {
-  node* value;
-  un_op_type type;
-} un_op_node;
+  Node* value;
+  UnOpType type;
+} UnOpNode;
 
 // Helper Nodes
 
 typedef struct {
-  type_type type;
+  TypeType type;
   char* name;
-} type_node;
+} TypeNode;
 
-typedef struct field_node {
-  scope scope;
-  type_node* type;
+typedef struct FieldNode {
+  Scope scope;
+  TypeNode* type;
   char* identifier;
 
-  struct field_node* next;
-} field_node;
+  struct FieldNode* next;
+} FieldNode;
 
-typedef struct param_node {
+typedef struct ParamNode {
   bool is_const;
-  type_node* type;
+  TypeNode* type;
   char* identifier;
 
-  struct param_node* next;
-} param_node;
+  struct ParamNode* next;
+} ParamNode;
 
 // Top-Level Construction Nodes
 
 typedef struct {
-  type_node* type;
+  TypeNode* type;
   char* identifier;
   bool is_static;
   int array_size;
-} global_var_node;
+} GlobalVarNode;
 
 typedef struct {
   char* identifier;
-  field_node* field;
-} type_decl_node;
+  FieldNode* field;
+} TypeDeclNode;
 
 typedef struct {
-  type_node* type;
+  TypeNode* type;
   char* identifier;
   bool is_static;
 
-  param_node* param;
+  ParamNode* param;
 
-  node* body;
-} function_decl_node;
+  Node* body;
+} FunctionDeclNode;
 
 // Command Nodes
 
 typedef struct {
-  type_node* type;
+  TypeNode* type;
   char* identifier;
   bool is_static;
   bool is_const;
 
-  node* init;
-} local_var_node;
+  Node* init;
+} LocalVarNode;
 
 typedef struct {
   char* identifier;
   int index;
   char* field;
 
-  node* value;
-} attr_node;
+  Node* value;
+} AttrNode;
 
 typedef struct {
   char* identifier;
 
-  int num_arguments;
-  node* arguments;
-} function_call_node;
+  Node* arguments;
+} FunctionCallNode;
 
 typedef struct {
-  int num_values;
-  node* values;
-} list_node;
+  Node* value;
+} ListNode;
 
 typedef struct {
-  int value;
-} case_node;
-
-typedef struct {
-  node* values;
-} block_node;
-
-typedef struct {
-  node* cond;
-  node* then;
-  node* else_node;
-} if_node;
+  Node* cond;
+  Node* then;
+  Node* else_node;
+} IfNode;
 
 typedef struct {
   char* id;
-  node* expressions;
-  node* body;
-} for_each_node;
+  Node* expressions;
+  Node* body;
+} ForEachNode;
 
 typedef struct {
-  node* initializers;
-  node* expression;
-  node* commands;
+  Node* initializers;
+  Node* expression;
+  Node* commands;
 
-  node* body;
-} for_node;
-
-typedef struct {
-  node* cond;
-  node* body;
-} while_node;
+  Node* body;
+} ForNode;
 
 typedef struct {
-  node* expression;
+  Node* cond;
+  Node* body;
+} WhileNode;
 
-  node* body;
-} switch_node;
+typedef struct {
+  Node* expression;
+
+  Node* body;
+} SwitchNode;
 
 // Actual nodes
 
-typedef union node_value {
+typedef union NodeValue {
   int int_node;
   float float_node;
   bool bool_node;
   char char_node;
   char* string_node;
 
-  bin_op_node bin_op_node;
-  un_op_node un_op_node;
+  BinOpNode bin_op_node;
+  UnOpNode un_op_node;
 
-  global_var_node global_var_node;
-  type_decl_node type_decl_node;
-  function_decl_node function_decl_node;
+  GlobalVarNode global_var_node;
+  TypeDeclNode type_decl_node;
+  FunctionDeclNode function_decl_node;
 
-  local_var_node local_var_node;
-  attr_node attr_node;
-  attr_node shift_l_node;
-  attr_node shift_r_node;
-  function_call_node function_call_node;
+  LocalVarNode local_var_node;
+  AttrNode attr_node;
+  AttrNode shift_l_node;
+  AttrNode shift_r_node;
+  FunctionCallNode function_call_node;
 
-  list_node return_node;
+  ListNode return_node;
   int case_node;
 
-  list_node input_node;
-  list_node output_node;
+  ListNode input_node;
+  ListNode output_node;
 
-  block_node block_node;
+  ListNode block_node;
 
-  if_node if_node;
-  while_node while_node;
-  while_node do_while_node;
-  switch_node switch_node;
-  for_node for_node;
-  for_each_node for_each_node;
-} node_value;
+  IfNode if_node;
+  WhileNode while_node;
+  WhileNode do_WhileNode;
+  SwitchNode switch_node;
+  ForNode for_node;
+  ForEachNode for_each_node;
+} NodeValue;
 
 
-void delete(node* node);
+void delete(Node* node);
 
-node* make_int(int value);
-node* make_float(float value);
-node* make_bool(bool value);
-node* make_char(char value);
-node* make_string(char* value);
+Node* make_int(int value);
+Node* make_float(float value);
+Node* make_bool(bool value);
+Node* make_char(char value);
+Node* make_string(char* value);
 
-node* make_bin_op(node* left, bin_op_type type, node* right);
-node* make_un_op(node* value, un_op_type type);
+Node* make_bin_op(Node* left, BinOpType type, Node* right);
+Node* make_un_op(Node* value, UnOpType type);
 
-type_node* make_type(type_type kind, char* name);
-field_node* make_field(scope scope, type_node* type, char* id, field_node* next);
-param_node* make_param(bool is_const, type_node* type, char* id, param_node* next);
+TypeNode* make_type(TypeType kind, char* name);
+FieldNode* make_field(Scope scope, TypeNode* type, char* id, FieldNode* next);
+ParamNode* make_param(bool is_const, TypeNode* type, char* id, ParamNode* next);
 
-node* make_global_var(type_node* type, char* id, bool is_static, int array_size);
-node* make_type_decl(char* id, field_node* field);
-node* make_function_decl(type_node* type, char* id, bool is_static, param_node* param, node* body);
+Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size);
+Node* make_type_decl(char* id, FieldNode* field);
+Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body);
