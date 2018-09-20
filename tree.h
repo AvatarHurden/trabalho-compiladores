@@ -41,9 +41,10 @@ typedef enum {
 
 union node_value;
 
-typedef struct {
+typedef struct node {
   node_type type;
   union node_value* value;
+  struct node* next;
 } node;
 
 // ENUMS
@@ -130,16 +131,12 @@ typedef struct {
   char* identifier;
   bool is_static;
   int array_size;
-
-  node* next;
 } global_var_node;
 
 typedef struct {
   char* identifier;
   int num_fields;
   field_node* fields;
-
-  node* next;
 } type_decl_node;
 
 typedef struct {
@@ -151,8 +148,6 @@ typedef struct {
   param_node* params;
 
   node* body;
-
-  node* next;
 } function_decl_node;
 
 // Command Nodes
@@ -164,8 +159,6 @@ typedef struct {
   bool is_const;
 
   node* init;
-
-  node* next;
 } local_var_node;
 
 typedef struct {
@@ -174,8 +167,6 @@ typedef struct {
   char* field;
 
   node* value;
-
-  node* next;
 } attr_node;
 
 typedef struct {
@@ -183,42 +174,31 @@ typedef struct {
 
   int num_arguments;
   node* arguments;
-
-  node* next;
 } function_call_node;
 
 typedef struct {
   int num_values;
   node* values;
-
-  node* next;
 } list_node;
 
 typedef struct {
   int value;
-  node* next;
 } case_node;
 
 typedef struct {
   node* values;
-
-  node* next;
 } block_node;
 
 typedef struct {
   node* cond;
   node* then;
   node* else_node;
-
-  node* next;
 } if_node;
 
 typedef struct {
   char* id;
   node* expressions;
   node* body;
-
-  node* next;
 } for_each_node;
 
 typedef struct {
@@ -227,23 +207,17 @@ typedef struct {
   node* commands;
 
   node* body;
-
-  node* next;
 } for_node;
 
 typedef struct {
   node* cond;
   node* body;
-
-  node* next;
 } while_node;
 
 typedef struct {
   node* expression;
 
   node* body;
-
-  node* next;
 } switch_node;
 
 // Actual nodes
@@ -269,9 +243,7 @@ typedef union node_value {
   function_call_node function_call_node;
 
   list_node return_node;
-  list_node break_node;
-  list_node continue_node;
-  case_node case_node;
+  int case_node;
 
   list_node input_node;
   list_node output_node;

@@ -48,7 +48,6 @@ void delete(node* node) {
       delete(node->value->un_op_node.value);
       break;
     case GLOBAL_VAR_DECL:
-      delete(node->value->global_var_node.next);
       delete_type(node->value->global_var_node.type);
       free(node->value->global_var_node.identifier);
     default:
@@ -56,6 +55,7 @@ void delete(node* node) {
   }
   // Free the actual node (and value)
   free_node(node);
+  delete(node->next);
 }
 
 // Construction Functions
