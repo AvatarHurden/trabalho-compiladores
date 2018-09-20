@@ -15,13 +15,21 @@ void free_node(node* node) {
   free(node);
 }
 
-// Deletion Function
+// Deletion Functions
 
 void libera(node* node) {
   delete(node);
 }
 
+void delete_type(type_node* type) {
+  if (type->name != NULL)
+    free(type->name);
+  free(type);
+}
+
 void delete(node* node) {
+  if (node == NULL)
+    return;
   // Type-specific internal frees
   switch (node->type) {
     case INT:
@@ -39,6 +47,10 @@ void delete(node* node) {
     case UN_OP:
       delete(node->value->un_op_node.value);
       break;
+    case GLOBAL_VAR_DECL:
+      delete(node->value->global_var_node.next);
+      delete_type(node->value->global_var_node.type);
+      free(node->value->global_var_node.identifier);
     default:
       printf("Not implemented\n");
   }
@@ -90,5 +102,22 @@ node* make_un_op(node* value, un_op_type type) {
   node* n = make_node(UN_OP);
   n->value->un_op_node.value = value;
   n->value->un_op_node.type = type;
+  return n;
+}
+
+type_node* make_type(type_type kind, char* name) {
+  type_node* n = (type_node*) malloc(sizeof(type_node));
+  n->type = kind;
+  if (kind == CUSTOM_T)
+    n->name = strdup(name);
+  return n;
+}
+
+node* make_global_var(type_node* type, char* id, bool is_static, int array_size) {
+  node* n = make_node(GLOBAL_VAR_DECL);
+  n->value->global_var_node.type = type;
+  n->value->global_var_node.identifier = strdup(id);
+  n->value->global_var_node.is_static = is_static;
+  n->value->global_var_node.array_size = array_size;
   return n;
 }

@@ -16,7 +16,7 @@ typedef enum {
   UN_OP,
   // Globals
   TYPE_DECL,
-  GL_VAR_DECL,
+  GLOBAL_VAR_DECL,
   FUNCTION_DECL,
   // Commands
   VAR_DECL,
@@ -297,3 +297,9 @@ node* make_string(char* value);
 
 node* make_bin_op(node* left, bin_op_type type, node* right);
 node* make_un_op(node* value, un_op_type type);
+
+type_node* make_type(type_type kind, char* name);
+
+node* make_global_var(type_node* type, char* id, bool is_static, int array_size);
+node* make_type_decl(node* value, un_op_type type);
+node* make_func_decl(node* value, un_op_type type);
