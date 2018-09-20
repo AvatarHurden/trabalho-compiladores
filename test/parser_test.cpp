@@ -237,6 +237,37 @@ TEST_CASE("Local Variable Declarations")
 
 }
 
+TEST_CASE("Command block")
+{
+    // Positive tests
+
+    SECTION("Empty block") {
+        yy_scan_string("int main() {"
+                       " {};"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Simple block")
+    {
+        yy_scan_string("int main() {"
+                       " {"
+                       "  int a;"
+                       " };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("No-semicolon block") {
+        yy_scan_string("int main() {"
+                       " {}"
+                       "}");
+        REQUIRE(yyparse() != 0);
+    }
+}
+
 TEST_CASE("Attributions")
 {
 
