@@ -121,3 +121,19 @@ node* make_global_var(type_node* type, char* id, bool is_static, int array_size)
   n->value->global_var_node.array_size = array_size;
   return n;
 }
+
+field_node* make_field(scope scope, type_node* type, char* id) {
+  field_node* n = (field_node*) malloc(sizeof(field_node));
+  n->scope = scope;
+  n->type = type;
+  n->identifier = strdup(id);
+  return n;
+}
+
+node* make_type_decl(char* id, int num_fields, field_node* fields) {
+  node* n = make_node(TYPE_DECL);
+  n->value->type_decl_node.identifier = strdup(id);
+  n->value->type_decl_node.num_fields = num_fields;
+  n->value->type_decl_node.fields = fields;
+  return n;
+}

@@ -271,7 +271,8 @@ node* make_bin_op(node* left, bin_op_type type, node* right);
 node* make_un_op(node* value, un_op_type type);
 
 type_node* make_type(type_type kind, char* name);
+field_node* make_field(scope scope, type_node* type, char* id);
 
 node* make_global_var(type_node* type, char* id, bool is_static, int array_size);
-node* make_type_decl(node* value, un_op_type type);
+node* make_type_decl(char* id, int num_fields, field_node* fields);
 node* make_func_decl(node* value, un_op_type type);
