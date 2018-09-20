@@ -7,6 +7,7 @@ node* make_node(node_type type) {
   node* n = (node*) malloc(sizeof(node));
   n->type = type;
   n->value = malloc(sizeof(union node_value));
+  n->next = NULL;
   return n;
 }
 
@@ -22,9 +23,29 @@ void libera(node* node) {
 }
 
 void delete_type(type_node* type) {
+  if (type == NULL)
+    return;
   if (type->name != NULL)
     free(type->name);
   free(type);
+}
+
+void delete_param(param_node* node) {
+  if (node == NULL)
+    return;
+  delete_type(node->type);
+  delete_param(node->next);
+  free(node->identifier);
+  free(node);
+}
+
+void delete_field(field_node* node) {
+  if (node == NULL)
+    return;
+  delete_type(node->type);
+  delete_field(node->next);
+  free(node->identifier);
+  free(node);
 }
 
 void delete(node* node) {
@@ -50,12 +71,21 @@ void delete(node* node) {
     case GLOBAL_VAR_DECL:
       delete_type(node->value->global_var_node.type);
       free(node->value->global_var_node.identifier);
+    case TYPE_DECL:
+      free(node->value->type_decl_node.identifier);
+      delete_field(node->value->type_decl_node.field);
+    case FUNCTION_DECL:
+      delete_type(node->value->function_decl_node.type);
+      free(node->value->function_decl_node.identifier);
+      delete_param(node->value->function_decl_node.param);
+      delete(node->value->function_decl_node.body);
+      break;
     default:
-      printf("Not implemented\n");
+      printf("Not implemented: %d\n", node->type);
   }
   // Free the actual node (and value)
-  free_node(node);
   delete(node->next);
+  free_node(node);
 }
 
 // Construction Functions
@@ -110,6 +140,8 @@ type_node* make_type(type_type kind, char* name) {
   n->type = kind;
   if (kind == CUSTOM_T)
     n->name = strdup(name);
+  else
+    n->name = NULL;
   return n;
 }
 
