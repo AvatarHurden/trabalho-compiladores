@@ -118,9 +118,10 @@ command_or_case: command ';'
 
 command: command_with_comma | command_without_comma;
 
+command_with_comma: output;
+
 command_without_comma:
   local_var_decl
-  | static_or_const_local_var_decl
   | local_var assign_or_shift
   | function_call
   | flow_control
@@ -131,27 +132,22 @@ command_without_comma:
   | block;
 
 local_var_decl:
-  base_type_local_var_decl
-  | custom_type_local_var_decl;
+  simple_local_var_decl
+  | TK_PR_STATIC const_opt simple_local_var_decl
+  | TK_PR_CONST simple_local_var_decl;
 
-base_type_local_var_decl:
-  base_type TK_IDENTIFICADOR init_opt;
+simple_local_var_decl:
+  base_type TK_IDENTIFICADOR init_opt    // Base type local var
+  | TK_IDENTIFICADOR TK_IDENTIFICADOR;   // Custom type local var
 
 init_opt: TK_OC_LE lit_or_id | %empty;
-
-custom_type_local_var_decl: TK_IDENTIFICADOR TK_IDENTIFICADOR;
-
-static_or_const_local_var_decl:
-  TK_PR_STATIC const_opt local_var_decl
-  | TK_PR_CONST local_var_decl;
-
-command_with_comma: output;
 
 local_var: TK_IDENTIFICADOR array_or_field_access_opt;
 
 array_or_field_access_opt: array_or_field_access | %empty;
-array_or_field_access: '[' expression ']' field_access_opt;
-        |  field_access;
+array_or_field_access:
+  '[' expression ']' field_access_opt;
+  | field_access;
 
 field_access_opt: field_access | %empty;
 field_access: '$' TK_IDENTIFICADOR;
@@ -226,7 +222,8 @@ unary_operator:
   | '?'
   | '#';
 
-binary_operator: '+'
+binary_operator:
+  '+'
   | '-'
   | '*'
   | '/'
