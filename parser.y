@@ -82,7 +82,7 @@ array_index: '[' TK_LIT_INT ']';
 
 // Grammar
 
-program: global_declarations;
+program: global_declarations | %empty;
 
 global_declarations: global_declaration global_declarations | global_declaration;
 

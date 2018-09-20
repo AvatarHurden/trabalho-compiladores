@@ -10,6 +10,12 @@ struct yy_buffer_state;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 extern YY_BUFFER_STATE yy_scan_string(const char* str);
 
+TEST_CASE("Empty program")
+{
+    yy_scan_string("");
+    REQUIRE(yyparse() == 0);
+}
+
 TEST_CASE("Type Declarations")
 {
 
