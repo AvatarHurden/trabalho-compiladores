@@ -122,37 +122,37 @@ node* make_global_var(type_node* type, char* id, bool is_static, int array_size)
   return n;
 }
 
-field_node* make_field(scope scope, type_node* type, char* id) {
+field_node* make_field(scope scope, type_node* type, char* id, field_node* next) {
   field_node* n = (field_node*) malloc(sizeof(field_node));
   n->scope = scope;
   n->type = type;
   n->identifier = strdup(id);
+  n->next = next;
   return n;
 }
 
-node* make_type_decl(char* id, int num_fields, field_node* fields) {
+node* make_type_decl(char* id, field_node* field) {
   node* n = make_node(TYPE_DECL);
   n->value->type_decl_node.identifier = strdup(id);
-  n->value->type_decl_node.num_fields = num_fields;
-  n->value->type_decl_node.fields = fields;
+  n->value->type_decl_node.field = field;
   return n;
 }
 
-param_node* make_param(bool is_const, type_node* type, char* id) {
+param_node* make_param(bool is_const, type_node* type, char* id, param_node* next) {
   param_node* n = (param_node*) malloc(sizeof(param_node));
   n->is_const = is_const;
   n->type = type;
   n->identifier = strdup(id);
+  n->next = next;
   return n;
 }
 
-node* make_function_decl(type_node* type, char* id, bool is_static, int num_params, param_node* params, node* body) {
+node* make_function_decl(type_node* type, char* id, bool is_static, param_node* param, node* body) {
   node* n = make_node(FUNCTION_DECL);
   n->value->function_decl_node.type = type;
   n->value->function_decl_node.identifier = strdup(id);
   n->value->function_decl_node.is_static = is_static;
-  n->value->function_decl_node.num_params = num_params;
-  n->value->function_decl_node.params = params;
+  n->value->function_decl_node.param = param;
   n->value->function_decl_node.body = body;
   return n;
 }

@@ -112,16 +112,20 @@ typedef struct {
   char* name;
 } type_node;
 
-typedef struct {
+typedef struct field_node {
   scope scope;
   type_node* type;
   char* identifier;
+
+  struct field_node* next;
 } field_node;
 
-typedef struct {
+typedef struct param_node {
   bool is_const;
   type_node* type;
   char* identifier;
+
+  struct param_node* next;
 } param_node;
 
 // Top-Level Construction Nodes
@@ -135,8 +139,7 @@ typedef struct {
 
 typedef struct {
   char* identifier;
-  int num_fields;
-  field_node* fields;
+  field_node* field;
 } type_decl_node;
 
 typedef struct {
@@ -144,8 +147,7 @@ typedef struct {
   char* identifier;
   bool is_static;
 
-  int num_params;
-  param_node* params;
+  param_node* param;
 
   node* body;
 } function_decl_node;
@@ -271,9 +273,9 @@ node* make_bin_op(node* left, bin_op_type type, node* right);
 node* make_un_op(node* value, un_op_type type);
 
 type_node* make_type(type_type kind, char* name);
-field_node* make_field(scope scope, type_node* type, char* id);
-param_node* make_param(bool is_const, type_node* type, char* id);
+field_node* make_field(scope scope, type_node* type, char* id, field_node* next);
+param_node* make_param(bool is_const, type_node* type, char* id, param_node* next);
 
 node* make_global_var(type_node* type, char* id, bool is_static, int array_size);
-node* make_type_decl(char* id, int num_fields, field_node* fields);
-node* make_function_decl(type_node* type, char* id, bool is_static, int num_params, param_node* params, node* body);
+node* make_type_decl(char* id, field_node* field);
+node* make_function_decl(type_node* type, char* id, bool is_static, param_node* param, node* body);
