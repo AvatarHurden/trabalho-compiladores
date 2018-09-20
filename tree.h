@@ -272,7 +272,8 @@ node* make_un_op(node* value, un_op_type type);
 
 type_node* make_type(type_type kind, char* name);
 field_node* make_field(scope scope, type_node* type, char* id);
+param_node* make_param(bool is_const, type_node* type, char* id);
 
 node* make_global_var(type_node* type, char* id, bool is_static, int array_size);
 node* make_type_decl(char* id, int num_fields, field_node* fields);
-node* make_func_decl(node* value, un_op_type type);
+node* make_function_decl(type_node* type, char* id, bool is_static, int num_params, param_node* params, node* body);

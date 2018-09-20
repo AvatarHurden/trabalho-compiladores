@@ -137,3 +137,22 @@ node* make_type_decl(char* id, int num_fields, field_node* fields) {
   n->value->type_decl_node.fields = fields;
   return n;
 }
+
+param_node* make_param(bool is_const, type_node* type, char* id) {
+  param_node* n = (param_node*) malloc(sizeof(param_node));
+  n->is_const = is_const;
+  n->type = type;
+  n->identifier = strdup(id);
+  return n;
+}
+
+node* make_function_decl(type_node* type, char* id, bool is_static, int num_params, param_node* params, node* body) {
+  node* n = make_node(FUNCTION_DECL);
+  n->value->function_decl_node.type = type;
+  n->value->function_decl_node.identifier = strdup(id);
+  n->value->function_decl_node.is_static = is_static;
+  n->value->function_decl_node.num_params = num_params;
+  n->value->function_decl_node.params = params;
+  n->value->function_decl_node.body = body;
+  return n;
+}
