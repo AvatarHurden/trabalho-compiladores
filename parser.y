@@ -202,13 +202,18 @@ pipe_expression:
   | pipe_expression pipe_operator ternary_expression;
 
 ternary_expression:
-  logical_expression
-  | logical_expression '?' expression ':' ternary_expression;
+  logical_or_expression
+  | logical_or_expression '?' expression ':' ternary_expression;
 
-logical_operator: TK_OC_AND | TK_OC_OR | '&' | '|';
-logical_expression:
+logical_or_operator: TK_OC_OR | '|';
+logical_or_expression:
+  logical_and_expression
+  | logical_or_expression logical_or_operator logical_and_expression;
+
+logical_and_operator: TK_OC_AND | '&';
+logical_and_expression:
   relational_expression
-  | logical_expression logical_operator relational_expression;
+  | logical_and_expression logical_and_operator relational_expression;
 
 relational_operator: TK_OC_EQ | TK_OC_NE | TK_OC_GE | TK_OC_LE | '>' | '<';
 relational_expression:
