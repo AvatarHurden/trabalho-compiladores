@@ -80,6 +80,33 @@ void delete(Node* node) {
       delete_param(node->value->function_decl_node.param);
       delete(node->value->function_decl_node.body);
       break;
+    case VAR_DECL:
+      delete_type(node->value->local_var_node.type);
+      free(node->value->local_var_node.identifier);
+      delete(node->value->local_var_node.init);
+      break;
+    case ATTR:
+      free(node->value->attr_node.identifier);
+      if (node->value->attr_node.field != NULL)
+        free(node->value->attr_node.field);
+      delete(node->value->attr_node.value);
+      break;
+    case SHIFT_L:
+      free(node->value->shift_l_node.identifier);
+      if (node->value->shift_l_node.field != NULL)
+        free(node->value->shift_l_node.field);
+      delete(node->value->shift_l_node.value);
+      break;
+    case SHIFT_R:
+      free(node->value->shift_r_node.identifier);
+      if (node->value->shift_r_node.field != NULL)
+        free(node->value->shift_r_node.field);
+      delete(node->value->shift_r_node.value);
+      break;
+    case FUNCTION_CALL:
+      free(node->value->function_call_node.identifier);
+      delete(node->value->function_call_node.arguments);
+      break;
     default:
       printf("Not implemented: %d\n", node->type);
   }
@@ -186,5 +213,58 @@ Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* pa
   n->value->function_decl_node.is_static = is_static;
   n->value->function_decl_node.param = param;
   n->value->function_decl_node.body = body;
+  return n;
+}
+
+Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init) {
+  Node* n = make_node(VAR_DECL);
+  n->value->local_var_node.type = type;
+  n->value->local_var_node.identifier = strdup(id);
+  n->value->local_var_node.is_static = is_static;
+  n->value->local_var_node.is_const = is_const;
+  n->value->local_var_node.init = init;
+  return n;
+}
+
+Node* make_attr(char* id, int index, char* field, Node* value) {
+  Node* n = make_node(ATTR);
+  n->value->attr_node.identifier = strdup(id);
+  n->value->attr_node.index = index;
+  if (field != NULL)
+    n->value->attr_node.field = strdup(field);
+  else
+    n->value->attr_node.field = NULL;
+  n->value->attr_node.value = value;
+  return n;
+}
+
+Node* make_shift_l(char* id, int index, char* field, Node* value) {
+  Node* n = make_node(SHIFT_L);
+  n->value->shift_l_node.identifier = strdup(id);
+  n->value->shift_l_node.index = index;
+  if (field != NULL)
+    n->value->shift_l_node.field = strdup(field);
+  else
+    n->value->shift_l_node.field = NULL;
+  n->value->shift_l_node.value = value;
+  return n;
+}
+
+Node* make_shift_r(char* id, int index, char* field, Node* value) {
+  Node* n = make_node(SHIFT_R);
+  n->value->shift_r_node.identifier = strdup(id);
+  n->value->shift_r_node.index = index;
+  if (field != NULL)
+    n->value->shift_r_node.field = strdup(field);
+  else
+    n->value->shift_r_node.field = NULL;
+  n->value->shift_r_node.value = value;
+  return n;
+}
+
+Node* make_function_call(char* id, Node* arguments) {
+  Node* n = make_node(FUNCTION_CALL);
+  n->value->function_call_node.identifier = strdup(id);
+  n->value->function_call_node.arguments = arguments;
   return n;
 }

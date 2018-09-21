@@ -269,3 +269,10 @@ ParamNode* make_param(bool is_const, TypeNode* type, char* id, ParamNode* next);
 Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size);
 Node* make_type_decl(char* id, FieldNode* field);
 Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body);
+
+Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init);
+Node* make_attr(char* id, int index, char* field, Node* value);
+Node* make_shift_l(char* id, int index, char* field, Node* value);
+Node* make_shift_r(char* id, int index, char* field, Node* value);
+
+Node* make_function_call(char* id, Node* arguments);
