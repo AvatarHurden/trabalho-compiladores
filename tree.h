@@ -37,7 +37,7 @@ typedef enum {
   DO_WHILE,
   SWITCH,
   FOR,
-  FOREACH,
+  FOR_EACH,
 } NodeType;
 
 union NodeValue;
@@ -190,13 +190,13 @@ typedef struct {
 
 typedef struct {
   char* id;
-  Node* expressions;
+  Node* expression;
   Node* body;
 } ForEachNode;
 
 typedef struct {
   Node* initializers;
-  Node* expression;
+  Node* expressions;
   Node* commands;
 
   Node* body;
@@ -209,7 +209,6 @@ typedef struct {
 
 typedef struct {
   Node* expression;
-
   Node* body;
 } SwitchNode;
 
@@ -245,7 +244,7 @@ typedef union NodeValue {
 
   IfNode if_node;
   WhileNode while_node;
-  WhileNode do_WhileNode;
+  WhileNode do_while_node;
   SwitchNode switch_node;
   ForNode for_node;
   ForEachNode for_each_node;
@@ -287,3 +286,10 @@ Node* make_input(Node* value);
 Node* make_output(Node* value);
 
 Node* make_block(Node* value);
+
+Node* make_if(Node* cond, Node* then, Node* else_node);
+Node* make_for_each(char* id, Node* expression, Node* body);
+Node* make_for(Node* initializers, Node* expressions, Node* commands, Node* body);
+Node* make_while(Node* cond, Node* body);
+Node* make_do_while(Node* cond, Node* body);
+Node* make_switch(Node* expression, Node* body);

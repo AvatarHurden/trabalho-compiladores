@@ -123,6 +123,34 @@ void delete(Node* node) {
     case BLOCK:
       delete(node->value->block_node.value);
       break;
+    case IF:
+      delete(node->value->if_node.cond);
+      delete(node->value->if_node.then);
+      delete(node->value->if_node.else_node);
+      break;
+    case WHILE:
+      delete(node->value->while_node.cond);
+      delete(node->value->while_node.body);
+      break;
+    case DO_WHILE:
+      delete(node->value->do_while_node.cond);
+      delete(node->value->do_while_node.body);
+      break;
+    case SWITCH:
+      delete(node->value->switch_node.expression);
+      delete(node->value->switch_node.body);
+      break;
+    case FOR:
+      delete(node->value->for_node.initializers);
+      delete(node->value->for_node.expressions);
+      delete(node->value->for_node.commands);
+      delete(node->value->for_node.body);
+      break;
+    case FOR_EACH:
+      delete(node->value->for_each_node.expression);
+      delete(node->value->for_each_node.body);
+      free(node->value->for_each_node.id);
+      break;
     default:
       printf("Not implemented: %d\n", node->type);
   }
@@ -328,5 +356,51 @@ Node* make_output(Node* value) {
 Node* make_block(Node* value) {
   Node* n = make_node(BLOCK);
   n->value->block_node.value = value;
+  return n;
+}
+
+Node* make_if(Node* cond, Node* then, Node* else_node) {
+  Node* n = make_node(IF);
+  n->value->if_node.cond = cond;
+  n->value->if_node.then = then;
+  n->value->if_node.else_node = else_node;
+  return n;
+}
+
+Node* make_for_each(char* id, Node* expression, Node* body) {
+  Node* n = make_node(FOR_EACH);
+  n->value->for_each_node.id = strdup(id);
+  n->value->for_each_node.expression = expression;
+  n->value->for_each_node.body = body;
+  return n;
+}
+
+Node* make_for(Node* initializers, Node* expressions, Node* commands, Node* body) {
+  Node* n = make_node(FOR);
+  n->value->for_node.initializers = initializers;
+  n->value->for_node.expressions = expressions;
+  n->value->for_node.commands = commands;
+  n->value->for_node.body = body;
+  return n;
+}
+
+Node* make_while(Node* cond, Node* body) {
+  Node* n = make_node(WHILE);
+  n->value->while_node.cond = cond;
+  n->value->while_node.body = body;
+  return n;
+}
+
+Node* make_do_while(Node* cond, Node* body) {
+  Node* n = make_node(DO_WHILE);
+  n->value->do_while_node.cond = cond;
+  n->value->do_while_node.body = body;
+  return n;
+}
+
+Node* make_switch(Node* expression, Node* body) {
+  Node* n = make_node(SWITCH);
+  n->value->switch_node.expression = expression;
+  n->value->switch_node.body = body;
   return n;
 }
