@@ -29,6 +29,7 @@ typedef enum {
   OUTPUT,
   BREAK,
   CONTINUE,
+  CASE,
   BLOCK,
   // Flow Controls
   IF,
@@ -276,3 +277,13 @@ Node* make_shift_l(char* id, int index, char* field, Node* value);
 Node* make_shift_r(char* id, int index, char* field, Node* value);
 
 Node* make_function_call(char* id, Node* arguments);
+
+Node* make_return(Node* value);
+Node* make_break();
+Node* make_continue();
+Node* make_case(int value);
+
+Node* make_input(Node* value);
+Node* make_output(Node* value);
+
+Node* make_block(Node* value);

@@ -107,6 +107,22 @@ void delete(Node* node) {
       free(node->value->function_call_node.identifier);
       delete(node->value->function_call_node.arguments);
       break;
+    case RETURN:
+      delete(node->value->return_node.value);
+      break;
+    case BREAK:
+    case CONTINUE:
+    case CASE:
+      break;
+    case INPUT:
+      delete(node->value->input_node.value);
+      break;
+    case OUTPUT:
+      delete(node->value->output_node.value);
+      break;
+    case BLOCK:
+      delete(node->value->block_node.value);
+      break;
     default:
       printf("Not implemented: %d\n", node->type);
   }
@@ -266,5 +282,51 @@ Node* make_function_call(char* id, Node* arguments) {
   Node* n = make_node(FUNCTION_CALL);
   n->value->function_call_node.identifier = strdup(id);
   n->value->function_call_node.arguments = arguments;
+  return n;
+}
+
+Node* make_return(Node* value) {
+  Node* n = make_node(RETURN);
+  n->value->return_node.value = value;
+  return n;
+}
+
+Node* make_break() {
+  Node* n = (Node*) malloc(sizeof(Node));
+  n->type = BREAK;
+  n->value = NULL;
+  n->next = NULL;
+  return n;
+}
+
+Node* make_continue() {
+  Node* n = (Node*) malloc(sizeof(Node));
+  n->type = CONTINUE;
+  n->value = NULL;
+  n->next = NULL;
+  return n;
+}
+
+Node* make_case(int value) {
+  Node* n = make_node(CASE);
+  n->value->case_node = value;
+  return n;
+}
+
+Node* make_input(Node* value) {
+  Node* n = make_node(INPUT);
+  n->value->input_node.value = value;
+  return n;
+}
+
+Node* make_output(Node* value) {
+  Node* n = make_node(OUTPUT);
+  n->value->output_node.value = value;
+  return n;
+}
+
+Node* make_block(Node* value) {
+  Node* n = make_node(BLOCK);
+  n->value->block_node.value = value;
   return n;
 }
