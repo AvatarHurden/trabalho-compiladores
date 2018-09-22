@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "lex.yy.h"
+
 int yylex(void);
 void yyerror (char const *s);
 
