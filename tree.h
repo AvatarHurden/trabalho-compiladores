@@ -25,6 +25,7 @@ typedef enum {
   SHIFT_L,
   SHIFT_R,
   FUNCTION_CALL,
+  DOT,
   RETURN,
   INPUT,
   OUTPUT,
@@ -284,6 +285,7 @@ Node* make_shift_l(char* id, int index, char* field, Node* value);
 Node* make_shift_r(char* id, int index, char* field, Node* value);
 
 Node* make_function_call(char* id, Node* arguments);
+Node* make_dot();
 
 Node* make_return(Node* value);
 Node* make_break();

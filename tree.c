@@ -112,6 +112,8 @@ void delete(Node* node) {
       free(node->value->function_call_node.identifier);
       delete(node->value->function_call_node.arguments);
       break;
+    case DOT:
+      break;
     case RETURN:
       delete(node->value->return_node.value);
       break;
@@ -326,6 +328,14 @@ Node* make_function_call(char* id, Node* arguments) {
   Node* n = make_node(FUNCTION_CALL);
   n->value->function_call_node.identifier = strdup(id);
   n->value->function_call_node.arguments = arguments;
+  return n;
+}
+
+Node* make_dot() {
+  Node* n = (Node*) malloc(sizeof(Node));
+  n->type = DOT;
+  n->value = NULL;
+  n->next = NULL;
   return n;
 }
 
