@@ -166,6 +166,50 @@ void delete(Node* node) {
   free_node(node);
 }
 
+// Print Function
+
+void indent(int n) {
+  for (int i = 0; i < n; i++)
+    putchar('\t');
+}
+
+void print_offset(Node* node, int offset) {
+  if (node == NULL)
+    return;
+  // Type-specific internal frees
+  switch (node->type) {
+    case INT:
+      indent(offset);
+      printf("%d", node->value->int_node);
+      break;
+    case FLOAT:
+      indent(offset);
+      printf("%f", node->value->float_node);
+      break;
+    case BOOL:
+      indent(offset);
+      if (node->value->bool_node)
+        printf("true");
+      else
+        printf("false");
+      break;
+    case CHAR:
+      indent(offset);
+      printf("%c", node->value->char_node);
+      break;
+    case STRING:
+      indent(offset);
+      printf("%s", node->value->string_node);
+      break;
+    default:
+      printf("Printing not implemented: %d\n", node->type);
+  }
+}
+
+void print(Node* node) {
+  print_offset(node, 0);
+}
+
 // Construction Functions
 
 Node* make_int(int value) {

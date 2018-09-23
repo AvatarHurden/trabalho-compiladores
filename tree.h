@@ -260,6 +260,7 @@ typedef union NodeValue {
 } NodeValue;
 
 void delete(Node* node);
+void print(Node* node);
 
 Node* make_int(int value);
 Node* make_float(float value);
