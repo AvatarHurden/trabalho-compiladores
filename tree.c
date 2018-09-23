@@ -61,6 +61,11 @@ void delete(Node* node) {
     case STRING:
       free(node->value->string_node);
       break;
+    case VARIABLE:
+      free(node->value->var_node.identifier);
+      if (node->value->var_node.field != NULL)
+        free(node->value->var_node.field);
+      break;
     case BIN_OP:
       delete(node->value->bin_op_node.left);
       delete(node->value->bin_op_node.right);
@@ -188,6 +193,17 @@ Node* make_char(char value) {
 Node* make_string(char* value) {
   Node* n = make_node(STRING);
   n->value->string_node = strdup(value);
+  return n;
+}
+
+Node* make_variable(char* id, int index, char* field) {
+  Node* n = make_node(VARIABLE);
+  n->value->var_node.identifier = strdup(id);
+  n->value->var_node.index = index;
+  if (field != NULL)
+    n->value->var_node.field = strdup(field);
+  else
+    n->value->var_node.field = NULL;
   return n;
 }
 

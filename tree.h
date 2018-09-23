@@ -11,6 +11,7 @@ typedef enum {
   BOOL,
   CHAR,
   STRING,
+  VARIABLE,
   // Operators
   BIN_OP,
   UN_OP,
@@ -168,6 +169,12 @@ typedef struct {
   char* identifier;
   int index;
   char* field;
+} VariableNode;
+
+typedef struct {
+  char* identifier;
+  int index;
+  char* field;
 
   Node* value;
 } AttrNode;
@@ -220,6 +227,7 @@ typedef union NodeValue {
   bool bool_node;
   char char_node;
   char* string_node;
+  VariableNode var_node;
 
   BinOpNode bin_op_node;
   UnOpNode un_op_node;
@@ -250,7 +258,6 @@ typedef union NodeValue {
   ForEachNode for_each_node;
 } NodeValue;
 
-
 void delete(Node* node);
 
 Node* make_int(int value);
@@ -258,6 +265,7 @@ Node* make_float(float value);
 Node* make_bool(bool value);
 Node* make_char(char value);
 Node* make_string(char* value);
+Node* make_variable(char* id, int index, char* field);
 
 Node* make_bin_op(Node* left, BinOpType type, Node* right);
 Node* make_un_op(Node* value, UnOpType type);
