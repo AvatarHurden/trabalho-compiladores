@@ -4,6 +4,7 @@
 int yylex(void);
 void yyerror (char const *s);
 extern int get_line_number();
+extern int get_column_number();
 %}
 
 %token TK_PR_INT
@@ -49,6 +50,8 @@ extern int get_line_number();
 %token TK_LIT_STRING
 %token TK_IDENTIFICADOR
 %token TOKEN_ERRO
+
+%error-verbose
 
 %start program
 
@@ -248,6 +251,6 @@ operand:
 %%
 
 void yyerror(const char* msg) {
-    char error_msg[] = "%s: Unexpected '%s' found near line %d\n";
-    fprintf(stderr, error_msg, msg, yytext, get_line_number());
+    char error_msg[] = "%s at line %d, column %d\n";
+    fprintf(stderr, error_msg, msg, get_line_number(), get_column_number());
 }
