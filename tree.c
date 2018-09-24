@@ -369,16 +369,43 @@ void print_offset(Node* node, int offset) {
       break;
     case GLOBAL_VAR_DECL:
       indent(offset);
-      bool is_static = node->value->global_var_node.is_static;
-      if (node->value->global_var_node.array_size >= 0) {
-        printf("%s int %s[%d];", is_static ? "static" : "", node->value->global_var_node.identifier, node->value->global_var_node.array_size);
-      } else {
-        printf("%s int %s;", is_static ? "static" : "", node->value->global_var_node.identifier);
+      GlobalVarNode var_decl = node->value->global_var_node;
+      if (var_decl.is_static)
+        printf("static ");
+      print_type(var_decl.type);
+      printf(" %s", var_decl.identifier);
+      if (var_decl.array_size >= 0)
+        printf("[%d]", var_decl.array_size);
+      printf(";");
+      break;
+    case FUNCTION_DECL:
+      indent(offset);
+      FunctionDeclNode func_decl = node->value->function_decl_node;
+      if (func_decl.is_static)
+        printf("static ");
+      print_type(func_decl.type);
+      printf(" %s(", func_decl.identifier);
+
+      ParamNode* param = func_decl.param;
+      while (param != NULL) {
+        if (param->is_const)
+          printf("const ");
+          print_type(param->type);
+          printf(" %s", param->identifier);
+          if (param->next != NULL)
+            printf(", ");
+          param = param->next;
       }
-    break;
+      printf(") {\n");
+      print_offset(func_decl.body, offset+1);
+      printf("\n}");
+      break;
     default:
       printf("Printing not implemented: %d\n", node->type);
   }
+
+  if (node->next == NULL)
+    return;
 
   if (node->type == TYPE_DECL
     || node->type == GLOBAL_VAR_DECL
