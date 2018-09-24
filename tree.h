@@ -66,14 +66,15 @@ typedef enum {
   EQUAL,
   NOT_EQUAL,
   AND,
-  OR
+  OR,
+  BIT_AND,
+  BIT_OR
   } BinOpType;
 
 typedef enum {
   NOT,
   MINUS,
   PLUS,
-  POINTER,
   ADDRESS,
   VALUE,
   EVAL_BOOL,

@@ -158,8 +158,6 @@ void delete(Node* node) {
       delete(node->value->for_each_node.body);
       free(node->value->for_each_node.id);
       break;
-    default:
-      printf("Not implemented: %d\n", node->type);
   }
   // Free the actual node (and value)
   delete(node->next);
@@ -200,6 +198,108 @@ void print_offset(Node* node, int offset) {
     case STRING:
       indent(offset);
       printf("%s", node->value->string_node);
+      break;
+    case VARIABLE:
+      indent(offset);
+      VariableNode var = node->value->var_node;
+      printf("%s", var.identifier);
+      if (var.index >= 0)
+        printf("[%d]", var.index);
+      if (var.field != NULL)
+        printf("$%s", var.field);
+      break;
+    case BIN_OP:
+      indent(offset);
+      BinOpNode bin = node->value->bin_op_node;
+      printf("(");
+      print_offset(bin.left, 0);
+
+      switch (bin.type) {
+        case ADD:
+          printf(" + ");
+          break;
+        case SUBTRACT:
+          printf(" - ");
+          break;
+        case MULTIPLY:
+          printf(" * ");
+          break;
+        case DIVIDE:
+          printf(" / ");
+          break;
+        case MODULO:
+          printf(" %% ");
+          break;
+        case POW:
+          printf(" ^ ");
+          break;
+        case GREATER:
+          printf(" > ");
+          break;
+        case LESS_THAN:
+          printf(" < ");
+          break;
+        case GREATER_EQUAL:
+          printf(" >= ");
+          break;
+        case LESS_EQUAL:
+          printf(" <= ");
+          break;
+        case EQUAL:
+          printf(" == ");
+          break;
+        case NOT_EQUAL:
+          printf(" != ");
+          break;
+        case AND:
+          printf(" && ");
+          break;
+        case OR:
+          printf(" || ");
+          break;
+        case BIT_AND:
+          printf(" & ");
+          break;
+        case BIT_OR:
+          printf(" | ");
+          break;
+      }
+
+      print_offset(bin.right, 0);
+      printf(")");
+      break;
+    case UN_OP:
+      indent(offset);
+
+      UnOpNode un = node->value->un_op_node;
+      printf("(");
+
+      switch (un.type) {
+        case NOT:
+          printf("!");
+          break;
+        case MINUS:
+          printf("-");
+          break;
+        case PLUS:
+          printf("+");
+          break;
+        case ADDRESS:
+          printf("&");
+          break;
+        case VALUE:
+          printf("*");
+          break;
+        case EVAL_BOOL:
+          printf("?");
+          break;
+        case HASH:
+          printf("#");
+          break;
+      }
+
+      print_offset(un.value, 0);
+      printf(")");
       break;
     default:
       printf("Printing not implemented: %d\n", node->type);
