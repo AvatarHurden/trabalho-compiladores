@@ -199,7 +199,7 @@ void print_type(TypeNode* type) {
   }
 }
 
-void print_offset(Node* node, int offset) {
+void print_offset(Node* node, int offset, char* sep) {
   if (node == NULL)
     return;
   // Type-specific internal frees
@@ -240,7 +240,7 @@ void print_offset(Node* node, int offset) {
       indent(offset);
       BinOpNode bin = node->value->bin_op_node;
       printf("(");
-      print_offset(bin.left, 0);
+      print_offset(bin.left, 0, NULL);
 
       switch (bin.type) {
         case ADD:
@@ -293,7 +293,7 @@ void print_offset(Node* node, int offset) {
           break;
       }
 
-      print_offset(bin.right, 0);
+      print_offset(bin.right, 0, NULL);
       printf(")");
       break;
     case UN_OP:
@@ -326,18 +326,18 @@ void print_offset(Node* node, int offset) {
           break;
       }
 
-      print_offset(un.value, 0);
+      print_offset(un.value, 0, NULL);
       printf(")");
       break;
     case TERN_OP:
       indent(offset);
       TernOpNode tern = node->value->tern_op_node;
       printf("(");
-      print_offset(tern.cond, 0);
+      print_offset(tern.cond, 0, NULL);
       printf(" ? ");
-      print_offset(tern.exp1, 0);
+      print_offset(tern.exp1, 0, NULL);
       printf(" : ");
-      print_offset(tern.exp2, 0);
+      print_offset(tern.exp2, 0, NULL);
       printf(")");
       break;
     case TYPE_DECL:
@@ -397,12 +397,29 @@ void print_offset(Node* node, int offset) {
           param = param->next;
       }
       printf(") {\n");
-      print_offset(func_decl.body, offset+1);
+      print_offset(func_decl.body, offset+1, ";");
       printf("\n}");
+      break;
+    case VAR_DECL:
+      indent(offset);
+      LocalVarNode local_var_decl = node->value->local_var_node;
+      if (local_var_decl.is_static)
+        printf("static ");
+      if (local_var_decl.is_const)
+        printf("const ");
+      print_type(local_var_decl.type);
+      printf(" %s", local_var_decl.identifier);
+      if (local_var_decl.init != NULL) {
+        printf(" <= ");
+        print_offset(local_var_decl.init, 0, NULL);
+      }
       break;
     default:
       printf("Printing not implemented: %d\n", node->type);
   }
+
+  if (sep != NULL)
+    printf("%s", sep);
 
   if (node->next == NULL)
     return;
@@ -411,16 +428,16 @@ void print_offset(Node* node, int offset) {
     || node->type == GLOBAL_VAR_DECL
     || node->type == FUNCTION_DECL) {
     printf("\n\n");
-    print_offset(node->next, offset);
+    print_offset(node->next, offset, sep);
   } else {
     printf("\n");
-    print_offset(node->next, offset);
+    print_offset(node->next, offset, sep);
   }
 
 }
 
 void print(Node* node) {
-  print_offset(node, 0);
+  print_offset(node, 0, NULL);
 }
 
 // Construction Functions
