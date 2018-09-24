@@ -73,6 +73,11 @@ void delete(Node* node) {
     case UN_OP:
       delete(node->value->un_op_node.value);
       break;
+    case TERN_OP:
+      delete(node->value->tern_op_node.cond);
+      delete(node->value->tern_op_node.exp1);
+      delete(node->value->tern_op_node.exp2);
+      break;
     case GLOBAL_VAR_DECL:
       delete_type(node->value->global_var_node.type);
       free(node->value->global_var_node.identifier);
@@ -301,6 +306,17 @@ void print_offset(Node* node, int offset) {
       print_offset(un.value, 0);
       printf(")");
       break;
+    case TERN_OP:
+      indent(offset);
+      TernOpNode tern = node->value->tern_op_node;
+      printf("(");
+      print_offset(tern.cond, 0);
+      printf(" ? ");
+      print_offset(tern.exp1, 0);
+      printf(" : ");
+      print_offset(tern.exp2, 0);
+      printf(")");
+      break;
     default:
       printf("Printing not implemented: %d\n", node->type);
   }
@@ -365,6 +381,14 @@ Node* make_un_op(Node* value, UnOpType type) {
   Node* n = make_node(UN_OP);
   n->value->un_op_node.value = value;
   n->value->un_op_node.type = type;
+  return n;
+}
+
+Node* make_tern_op(Node* cond, Node* exp1, Node* exp2) {
+  Node* n = make_node(TERN_OP);
+  n->value->tern_op_node.cond = cond;
+  n->value->tern_op_node.exp1 = exp1;
+  n->value->tern_op_node.exp2 = exp2;
   return n;
 }
 

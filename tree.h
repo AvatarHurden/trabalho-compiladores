@@ -15,6 +15,7 @@ typedef enum {
   // Operators
   BIN_OP,
   UN_OP,
+  TERN_OP,
   // Globals
   TYPE_DECL,
   GLOBAL_VAR_DECL,
@@ -108,6 +109,12 @@ typedef struct {
   Node* value;
   UnOpType type;
 } UnOpNode;
+
+typedef struct {
+  Node* cond;
+  Node* exp1;
+  Node* exp2;
+} TernOpNode;
 
 // Helper Nodes
 
@@ -233,6 +240,7 @@ typedef union NodeValue {
 
   BinOpNode bin_op_node;
   UnOpNode un_op_node;
+  TernOpNode tern_op_node;
 
   GlobalVarNode global_var_node;
   TypeDeclNode type_decl_node;
@@ -272,6 +280,7 @@ Node* make_variable(char* id, int index, char* field);
 
 Node* make_bin_op(Node* left, BinOpType type, Node* right);
 Node* make_un_op(Node* value, UnOpType type);
+Node* make_tern_op(Node* cond, Node* exp1, Node* exp2);
 
 TypeNode* make_type(TypeType kind, char* name);
 FieldNode* make_field(Scope scope, TypeNode* type, char* id, FieldNode* next);
