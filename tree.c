@@ -176,6 +176,29 @@ void indent(int n) {
     putchar('\t');
 }
 
+void print_type(TypeNode* type) {
+  switch (type->type) {
+    case INT_T:
+      printf("int");
+      break;
+    case FLOAT_T:
+      printf("float");
+      break;
+    case CHAR_T:
+      printf("char");
+      break;
+    case STRING_T:
+      printf("string");
+      break;
+    case BOOL_T:
+      printf("bool");
+      break;
+    case CUSTOM_T:
+      printf("%s", type->name);
+      break;
+  }
+}
+
 void print_offset(Node* node, int offset) {
   if (node == NULL)
     return;
@@ -317,9 +340,56 @@ void print_offset(Node* node, int offset) {
       print_offset(tern.exp2, 0);
       printf(")");
       break;
+    case TYPE_DECL:
+      indent(offset);
+      TypeDeclNode decl = node->value->type_decl_node;
+      printf("class %s [\n", decl.identifier);
+
+      FieldNode* f = decl.field;
+      while (f != NULL) {
+        indent(offset+1);
+        switch (f->scope) {
+          case PRIVATE:
+            printf("private ");
+            break;
+          case PUBLIC:
+            printf("public ");
+            break;
+          case PROTECTED:
+            printf("protected ");
+            break;
+        }
+        print_type(f->type);
+        printf(" %s%s\n", f->identifier, f->next == NULL ? "" : ",");
+        f = f->next;
+      }
+
+      indent(offset);
+      printf("];");
+      break;
+    case GLOBAL_VAR_DECL:
+      indent(offset);
+      bool is_static = node->value->global_var_node.is_static;
+      if (node->value->global_var_node.array_size >= 0) {
+        printf("%s int %s[%d];", is_static ? "static" : "", node->value->global_var_node.identifier, node->value->global_var_node.array_size);
+      } else {
+        printf("%s int %s;", is_static ? "static" : "", node->value->global_var_node.identifier);
+      }
+    break;
     default:
       printf("Printing not implemented: %d\n", node->type);
   }
+
+  if (node->type == TYPE_DECL
+    || node->type == GLOBAL_VAR_DECL
+    || node->type == FUNCTION_DECL) {
+    printf("\n\n");
+    print_offset(node->next, offset);
+  } else {
+    printf("\n");
+    print_offset(node->next, offset);
+  }
+
 }
 
 void print(Node* node) {
