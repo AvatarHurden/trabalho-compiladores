@@ -515,8 +515,81 @@ void print_offset(Node* node, int offset) {
       indent(offset);
       printf("}");
       break; }
-    default:
-      printf("Printing not implemented: %d\n", node->type);
+    case IF: {
+      indent(offset);
+      IfNode iff = node->value->if_node;
+      printf("if (");
+      print_offset(iff.cond, 0);
+      printf(")\n");
+      print_offset(iff.then, offset);
+      printf("\n");
+      indent(offset);
+      printf("else\n");
+      print_offset(iff.else_node, offset);
+      break; }
+    case WHILE: {
+      indent(offset);
+      WhileNode whilee = node->value->while_node;
+      printf("while (");
+      print_offset(whilee.cond, 0);
+      printf(")\n");
+      print_offset(whilee.body, offset);
+      break; }
+    case DO_WHILE: {
+      indent(offset);
+      WhileNode whilee = node->value->do_while_node;
+      printf("do\n");
+      print_offset(whilee.body, offset);
+      printf(" while (");
+      print_offset(whilee.cond, 0);
+      printf(")");
+      break; }
+    case SWITCH: {
+      indent(offset);
+      SwitchNode switchh = node->value->switch_node;
+      printf("switch (");
+      print_offset(switchh.expression, 0);
+      printf(")\n");
+      print_offset(switchh.body, offset);
+      break; }
+    case FOR: {
+      indent(offset);
+      ForNode forr = node->value->for_node;
+      printf("for (");
+      Node* init = forr.initializers;
+      while (init != NULL) {
+        print_offset(init, 0);
+        if (init->next != NULL)
+          printf(", ");
+        init = init->next;
+      }
+      printf(" : ");
+      print_offset(forr.expressions, 0);
+      printf(" : ");
+      Node* command = forr.commands;
+      while (command != NULL) {
+        print_offset(command, 0);
+        if (command->next != NULL)
+          printf(", ");
+        command = command->next;
+      }
+      printf(")\n");
+      print_offset(forr.body, offset);
+      break; }
+    case FOR_EACH: {
+      indent(offset);
+      ForEachNode for_each = node->value->for_each_node;
+      printf("foreach (%s : ", for_each.id);
+      Node* expr = for_each.expression;
+      while (expr != NULL) {
+        print_offset(expr, 0);
+        if (expr->next != NULL)
+          printf(", ");
+        expr = expr->next;
+      }
+      printf(")\n");
+      print_offset(for_each.body, offset);
+      break; }
   }
 
   if (node->next == NULL)
