@@ -221,11 +221,11 @@ void print_offset(Node* node, int offset) {
       break;
     case CHAR:
       indent(offset);
-      printf("%c", node->value->char_node);
+      printf("'%c'", node->value->char_node);
       break;
     case STRING:
       indent(offset);
-      printf("%s", node->value->string_node);
+      printf("\"%s\"", node->value->string_node);
       break;
     case VARIABLE:
       indent(offset);
@@ -446,19 +446,75 @@ void print_offset(Node* node, int offset) {
       printf(" >> ");
       print_offset(shift_r.value, 0);
       break;
-    case BLOCK:
+    case FUNCTION_CALL: {
+      indent(offset);
+      FunctionCallNode func_call = node->value->function_call_node;
+      printf("%s(", func_call.identifier);
+      Node* value = func_call.arguments;
+      while (value != NULL) {
+        print_offset(value, 0);
+        if (value->next)
+          printf(", ");
+        value = value->next;
+      }
+      printf(")");
+      break; }
+    case DOT: {
+      indent(offset);
+      printf(".");
+      break; }
+    case RETURN: {
+      indent(offset);
+      ListNode ret = node->value->return_node;
+      printf("return ");
+      print_offset(ret.value, 0);
+      break; }
+    case INPUT: {
+      indent(offset);
+      ListNode input = node->value->input_node;
+      printf("input ");
+      print_offset(input.value, 0);
+      break; }
+    case OUTPUT: {
+      indent(offset);
+      ListNode output = node->value->output_node;
+      printf("output ");
+      Node* value = output.value;
+      while (value != NULL) {
+        print_offset(value, 0);
+        if (value->next)
+          printf(", ");
+        value = value->next;
+      }
+      break; }
+    case BREAK: {
+      indent(offset);
+      printf("break");
+      break; }
+    case CONTINUE: {
+      indent(offset);
+      printf("continue");
+      break; }
+    case CASE: {
+      indent(offset);
+      printf("case %d:", node->value->case_node);
+      break; }
+    case BLOCK: {
       indent(offset);
       ListNode block = node->value->block_node;
       printf("{\n");
       Node* value = block.value;
       while (value != NULL) {
         print_offset(value, offset+1);
-        printf(";\n");
+        if (value->type != CASE)
+          printf(";\n");
+        else
+          printf("\n");
         value = value->next;
       }
       indent(offset);
       printf("}");
-      break;
+      break; }
     default:
       printf("Printing not implemented: %d\n", node->type);
   }
