@@ -396,9 +396,8 @@ void print_offset(Node* node, int offset) {
             printf(", ");
           param = param->next;
       }
-      printf(") {\n");
-      print_offset(func_decl.body, offset+1);
-      printf("\n}");
+      printf(") ");
+      print_offset(func_decl.body, 0);
       break;
     case VAR_DECL:
       indent(offset);
@@ -414,6 +413,52 @@ void print_offset(Node* node, int offset) {
         print_offset(local_var_decl.init, 0);
       }
       break;
+    case ATTR:
+      indent(offset);
+      AttrNode attr = node->value->attr_node;
+      printf("%s", attr.identifier);
+      if (attr.index >= 0)
+        printf("[%d]", attr.index);
+      if (attr.field != NULL)
+        printf("$%s", attr.field);
+      printf(" = ");
+      print_offset(attr.value, 0);
+      break;
+    case SHIFT_L:
+      indent(offset);
+      AttrNode shift_l = node->value->shift_l_node;
+      printf("%s", shift_l.identifier);
+      if (shift_l.index >= 0)
+        printf("[%d]", shift_l.index);
+      if (shift_l.field != NULL)
+        printf("$%s", shift_l.field);
+      printf(" << ");
+      print_offset(shift_l.value, 0);
+      break;
+    case SHIFT_R:
+      indent(offset);
+      AttrNode shift_r = node->value->shift_r_node;
+      printf("%s", shift_r.identifier);
+      if (shift_r.index >= 0)
+        printf("[%d]", shift_r.index);
+      if (shift_r.field != NULL)
+        printf("$%s", shift_r.field);
+      printf(" >> ");
+      print_offset(shift_r.value, 0);
+      break;
+    case BLOCK:
+      indent(offset);
+      ListNode block = node->value->block_node;
+      printf("{\n");
+      Node* value = block.value;
+      while (value != NULL) {
+        print_offset(value, offset+1);
+        printf(";\n");
+        value = value->next;
+      }
+      indent(offset);
+      printf("}");
+      break;
     default:
       printf("Printing not implemented: %d\n", node->type);
   }
@@ -426,9 +471,9 @@ void print_offset(Node* node, int offset) {
     || node->type == FUNCTION_DECL) {
     printf("\n\n");
     print_offset(node->next, offset);
-  } else {
-    printf("\n");
-    print_offset(node->next, offset);
+  // } else {
+  //   printf("\n");
+  //   print_offset(node->next, offset);
   }
 
 }
