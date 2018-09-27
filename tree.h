@@ -92,7 +92,8 @@ typedef enum {
 typedef enum {
   PRIVATE,
   PUBLIC,
-  PROTECTED
+  PROTECTED,
+  NO_SCOPE
 } Scope;
 
 // Operator Nodes
@@ -258,6 +259,39 @@ typedef union NodeValue {
   ForNode for_node;
   ForEachNode for_each_node;
 } NodeValue;
+
+typedef enum {
+	BASH_PIPE,
+	FORWARD_PIPE
+} PipeOpType;
+
+typedef enum  {
+  TYPE_KEYWORD,
+  SCOPE_KEYWORD,
+  SPECIAL_CHAR,
+  BINARY_OPERATOR,
+  PIPE_OPERATOR,
+  IDENTIFIER,
+  INT_LITERAL,
+  FLOAT_LITERAL,
+  CHAR_LITERAL,
+  BOOL_LITERAL,
+  STRING_LITERAL
+} TokenCategory;
+
+typedef union {
+  TypeType type_keyword;
+  Scope scope;
+  char special_char;
+  BinOpType binary_operator;
+  PipeOpType pipe;
+  char* identifier;
+  int int_literal;
+  float float_literal;
+  char char_literal;
+  bool bool_literal;
+  char* string_literal;
+} TokenValue;
 
 void delete(Node* node);
 
