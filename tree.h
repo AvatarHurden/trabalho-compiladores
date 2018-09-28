@@ -66,7 +66,9 @@ typedef enum {
   EQUAL,
   NOT_EQUAL,
   AND,
-  OR
+  OR,
+  BASH_PIPE,
+  FORWARD_PIPE
   } BinOpType;
 
 typedef enum {
@@ -260,17 +262,11 @@ typedef union NodeValue {
   ForEachNode for_each_node;
 } NodeValue;
 
-typedef enum {
-	BASH_PIPE,
-	FORWARD_PIPE
-} PipeOpType;
-
 typedef enum  {
   TYPE_KEYWORD,
   SCOPE_KEYWORD,
   SPECIAL_CHAR,
   BINARY_OPERATOR,
-  PIPE_OPERATOR,
   IDENTIFIER,
   INT_LITERAL,
   FLOAT_LITERAL,
@@ -284,7 +280,6 @@ typedef union {
   Scope scope;
   char special_char;
   BinOpType binary_operator;
-  PipeOpType pipe;
   char* identifier;
   int int_literal;
   float float_literal;

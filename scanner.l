@@ -255,13 +255,13 @@ BLOCK_COMMENT_END "*/"
 }
 
 "%>%" {
-  assign_token_value(PIPE_OPERATOR, FORWARD_PIPE);
+  assign_token_value(BINARY_OPERATOR, FORWARD_PIPE);
   update_column();
   return TK_OC_FORWARD_PIPE;
 }
 
 "%|%" {
-  assign_token_value(PIPE_OPERATOR, BASH_PIPE);
+  assign_token_value(BINARY_OPERATOR, BASH_PIPE);
   update_column();
   return TK_OC_BASH_PIPE;
 }
@@ -332,28 +332,25 @@ void assign_token_value(TokenCategory category, TokenValue value) {
 		case BINARY_OPERATOR:
 			yylval.token.value.binary_operator = value;
 			break;
-		case PIPE_OPERATOR:
-			yylval.token.value.pipe = value;
-			break;
-        case IDENTIFIER:
-            yylval.token.value.identifier = strdup(yytext);
-            break;
-        case INT_LITERAL:
-            yylval.token.value.int_literal = atoi(yytext);
-        case FLOAT_LITERAL:
-            yylval.token.value.float_literal = atof(yytext);
-            break;
-        case CHAR_LITERAL:
-            yylval.token.value.char_literal = yytext[1];
-            break;
-        case STRING_LITERAL:
-            yylval.token.value.string_literal = strndup(yytext + 1, strlen(yytext) - 2);
-            break;
-        case BOOL_LITERAL:
-            yylval.token.value.bool_literal = value;
-            break;
-        default:
-            break;
+    case IDENTIFIER:
+        yylval.token.value.identifier = strdup(yytext);
+        break;
+    case INT_LITERAL:
+        yylval.token.value.int_literal = atoi(yytext);
+    case FLOAT_LITERAL:
+        yylval.token.value.float_literal = atof(yytext);
+        break;
+    case CHAR_LITERAL:
+        yylval.token.value.char_literal = yytext[1];
+        break;
+    case STRING_LITERAL:
+        yylval.token.value.string_literal = strndup(yytext + 1, strlen(yytext) - 2);
+        break;
+    case BOOL_LITERAL:
+        yylval.token.value.bool_literal = value;
+        break;
+    default:
+        break;
     }
 }
 

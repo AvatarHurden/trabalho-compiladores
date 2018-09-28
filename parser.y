@@ -137,7 +137,7 @@ extern int get_column_number();
 %type <node> exponentiation_expression
 %type <node> unary_expression
 %type <node> operand
-%type <token.value.pipe> pipe_operator
+%type <token.value.binary_operator> pipe_operator
 %type <token.value.binary_operator> logical_or_operator
 %type <token.value.binary_operator> logical_and_operator
 %type <token.value.binary_operator> relational_operator
