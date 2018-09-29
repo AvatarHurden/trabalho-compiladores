@@ -1,6 +1,8 @@
 %{
 #include "parser.tab.h"
 
+void assign_token_value(int type);
+
 int column = 1;
 void update_column();
 
@@ -45,26 +47,31 @@ BLOCK_COMMENT_END "*/"
 
 "int" {
   update_column();
+  assign_token_value(TYPE_KEYWORD, INT_T);
   return TK_PR_INT;
 }
 
 "float" {
   update_column();
+  assign_token_value(TYPE_KEYWORD, FLOAT_T);
   return TK_PR_FLOAT;
 }
 
 "bool" {
   update_column();
+  assign_token_value(TYPE_KEYWORD, BOOL_T);
   return TK_PR_BOOL;
 }
 
 "char" {
   update_column();
+  assign_token_value(TYPE_KEYWORD, CHAR_T);
   return TK_PR_CHAR;
 }
 
 "string" {
   update_column();
+  assign_token_value(TYPE_KEYWORD, STRING_T);
   return TK_PR_STRING;
 }
 
@@ -155,16 +162,19 @@ BLOCK_COMMENT_END "*/"
 
 "private" {
   update_column();
+  assign_token_value(SCOPE_KEYWORD, PRIVATE);
   return TK_PR_PRIVATE;
 }
 
 "public" {
   update_column();
+  assign_token_value(SCOPE_KEYWORD, PUBLIC);
   return TK_PR_PUBLIC;
 }
 
 "protected" {
   update_column();
+  assign_token_value(SCOPE_KEYWORD, PROTECTED);
   return TK_PR_PROTECTED;
 }
 
@@ -193,36 +203,43 @@ BLOCK_COMMENT_END "*/"
 "^" |
 "." |
 "$" {
+  assign_token_value(SPECIAL_CHAR, yytext[0]);
   update_column();
   return yytext[0];
 }
 
 "<=" {
+  assign_token_value(BINARY_OPERATOR, LESS_EQUAL);
   update_column();
   return TK_OC_LE;
 }
 
 ">=" {
+  assign_token_value(BINARY_OPERATOR, GREATER_EQUAL);
   update_column();
   return TK_OC_GE;
 }
 
 "==" {
+  assign_token_value(BINARY_OPERATOR, EQUAL);
   update_column();
   return TK_OC_EQ;
 }
 
 "!=" {
+  assign_token_value(BINARY_OPERATOR, NOT_EQUAL);
   update_column();
   return TK_OC_NE;
 }
 
 "&&" {
+  assign_token_value(BINARY_OPERATOR, AND);
   update_column();
   return TK_OC_AND;
 }
 
 "||" {
+  assign_token_value(BINARY_OPERATOR, OR);
   update_column();
   return TK_OC_OR;
 }
@@ -238,46 +255,55 @@ BLOCK_COMMENT_END "*/"
 }
 
 "%>%" {
+  assign_token_value(BINARY_OPERATOR, FORWARD_PIPE);
   update_column();
   return TK_OC_FORWARD_PIPE;
 }
 
 "%|%" {
+  assign_token_value(BINARY_OPERATOR, BASH_PIPE);
   update_column();
   return TK_OC_BASH_PIPE;
 }
 
 {INT} {
+  assign_token_value(INT_LITERAL, NULL);
   update_column();
   return TK_LIT_INT;
 }
 
 {FLOAT} {
+  assign_token_value(FLOAT_LITERAL, NULL);
   update_column();
   return TK_LIT_FLOAT;
 }
 
 "true" {
+  assign_token_value(BOOL_LITERAL, true);
   update_column();
   return TK_LIT_TRUE;
 }
 
 "false" {
+  assign_token_value(BOOL_LITERAL, false);
   update_column();
   return TK_LIT_FALSE;
 }
 
 {CHAR} {
+  assign_token_value(CHAR_LITERAL, NULL);
   update_column();
   return TK_LIT_CHAR;
 }
 
 {STRING} {
+  assign_token_value(STRING_LITERAL, NULL);
   update_column();
   return TK_LIT_STRING;
 }
 
 {ID} {
+  assign_token_value(IDENTIFIER, NULL);
   update_column();
   return TK_IDENTIFICADOR;
 }
@@ -287,6 +313,46 @@ BLOCK_COMMENT_END "*/"
 }
 
 %%
+
+void assign_token_value(TokenCategory category, TokenValue value) {
+    yylval.line = yylineno;
+    yylval.column = column;
+    yylval.token.category = category;
+
+    switch (category) {
+		case TYPE_KEYWORD:
+			yylval.token.value.type_keyword = value;
+			break;
+		case SCOPE_KEYWORD:
+			yylval.token.value.scope = value;
+			break;
+		case SPECIAL_CHAR:
+			yylval.token.value.special_char = value;
+			break;
+		case BINARY_OPERATOR:
+			yylval.token.value.binary_operator = value;
+			break;
+    case IDENTIFIER:
+        yylval.token.value.identifier = strdup(yytext);
+        break;
+    case INT_LITERAL:
+        yylval.token.value.int_literal = atoi(yytext);
+    case FLOAT_LITERAL:
+        yylval.token.value.float_literal = atof(yytext);
+        break;
+    case CHAR_LITERAL:
+        yylval.token.value.char_literal = yytext[1];
+        break;
+    case STRING_LITERAL:
+        yylval.token.value.string_literal = strndup(yytext + 1, strlen(yytext) - 2);
+        break;
+    case BOOL_LITERAL:
+        yylval.token.value.bool_literal = value;
+        break;
+    default:
+        break;
+    }
+}
 
 void update_column() {
     int i;

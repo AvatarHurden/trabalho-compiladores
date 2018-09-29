@@ -70,6 +70,8 @@ typedef enum {
   OR,
   BIT_AND,
   BIT_OR
+  BASH_PIPE,
+  FORWARD_PIPE
   } BinOpType;
 
 typedef enum {
@@ -94,7 +96,8 @@ typedef enum {
 typedef enum {
   PRIVATE,
   PUBLIC,
-  PROTECTED
+  PROTECTED,
+  NO_SCOPE
 } Scope;
 
 // Operator Nodes
@@ -267,6 +270,32 @@ typedef union NodeValue {
   ForNode for_node;
   ForEachNode for_each_node;
 } NodeValue;
+
+typedef enum  {
+  TYPE_KEYWORD,
+  SCOPE_KEYWORD,
+  SPECIAL_CHAR,
+  BINARY_OPERATOR,
+  IDENTIFIER,
+  INT_LITERAL,
+  FLOAT_LITERAL,
+  CHAR_LITERAL,
+  BOOL_LITERAL,
+  STRING_LITERAL
+} TokenCategory;
+
+typedef union {
+  TypeType type_keyword;
+  Scope scope;
+  char special_char;
+  BinOpType binary_operator;
+  char* identifier;
+  int int_literal;
+  float float_literal;
+  char char_literal;
+  bool bool_literal;
+  char* string_literal;
+} TokenValue;
 
 void delete(Node* node);
 void print(Node* node);

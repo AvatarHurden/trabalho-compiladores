@@ -7,11 +7,27 @@ extern int get_line_number();
 extern int get_column_number();
 %}
 
-%token TK_PR_INT
-%token TK_PR_FLOAT
-%token TK_PR_BOOL
-%token TK_PR_CHAR
-%token TK_PR_STRING
+%code requires {
+#include "tree.h"
+}
+
+%union {
+  struct Token {
+    int line;
+    int column;
+    TokenCategory category;
+    TokenValue value;
+  } token;
+  Node* node;
+  bool optional;
+  UnOpType unary_operator;
+}
+
+%token <token> TK_PR_INT
+%token <token> TK_PR_FLOAT
+%token <token> TK_PR_BOOL
+%token <token> TK_PR_CHAR
+%token <token> TK_PR_STRING
 %token TK_PR_IF
 %token TK_PR_THEN
 %token TK_PR_ELSE
@@ -29,27 +45,105 @@ extern int get_column_number();
 %token TK_PR_BREAK
 %token TK_PR_CONTINUE
 %token TK_PR_CLASS
-%token TK_PR_PRIVATE
-%token TK_PR_PUBLIC
-%token TK_PR_PROTECTED
-%token TK_OC_LE
-%token TK_OC_GE
-%token TK_OC_EQ
-%token TK_OC_NE
-%token TK_OC_AND
-%token TK_OC_OR
-%token TK_OC_SL
-%token TK_OC_SR
-%token TK_OC_FORWARD_PIPE
-%token TK_OC_BASH_PIPE
-%token TK_LIT_INT
-%token TK_LIT_FLOAT
-%token TK_LIT_FALSE
-%token TK_LIT_TRUE
-%token TK_LIT_CHAR
-%token TK_LIT_STRING
-%token TK_IDENTIFICADOR
+%token <token> TK_PR_PRIVATE
+%token <token> TK_PR_PUBLIC
+%token <token> TK_PR_PROTECTED
+%token <token> TK_OC_LE
+%token <token> TK_OC_GE
+%token <token> TK_OC_EQ
+%token <token> TK_OC_NE
+%token <token> TK_OC_AND
+%token <token> TK_OC_OR
+%token <token> TK_OC_SL
+%token <token> TK_OC_SR
+%token <token> TK_OC_FORWARD_PIPE
+%token <token> TK_OC_BASH_PIPE
+%token <token> TK_LIT_INT
+%token <token> TK_LIT_FLOAT
+%token <token> TK_LIT_FALSE
+%token <token> TK_LIT_TRUE
+%token <token> TK_LIT_CHAR
+%token <token> TK_LIT_STRING
+%token <token> TK_IDENTIFICADOR
 %token TOKEN_ERRO
+
+%type <token> literal
+%type <token> lit_or_id
+%type <token.value.type> base_type
+%type <token> type
+%type <token.value.scope> scope
+%type <token.value.scope> scope_opt
+%type <optional> static_opt
+%type <optional> const_opt
+%type <token.value.int_literal> array_index
+
+%type <node> program
+%type <node> global_declarations
+%type <node> global_declaration
+
+%type <node> new_type;
+%type <node> field_list;
+%type <node> field;
+
+%type <node> global_var
+
+%type <node> function_declaration
+%type <node> function_params
+%type <node> param_list
+%type <node> param
+
+%type <node> body
+%type <node> block
+%type <node> commands
+%type <node> command_or_case
+%type <node> command
+%type <node> command_with_comma
+%type <node> command_without_comma
+%type <node> local_var_decl
+%type <node> simple_local_var_decl
+%type <node> init_opt
+%type <node> variable_access
+%type <node> array_or_field_access_opt
+%type <node> array_or_field_access
+%type <node> field_access_opt
+%type <token.value.identifier> field_access
+%type <node> assign_or_shift
+%type <node> input
+%type <node> output
+%type <node> return
+%type <node> flow_control
+%type <node> if
+%type <node> else_opt
+%type <node> foreach
+%type <node> for
+%type <node> commands_comma_separated
+%type <node> do_while
+%type <node> while_do
+%type <node> switch
+%type <node> function_call
+%type <node> function
+%type <node> argument_list_opt
+%type <node> argument_list
+%type <node> argument
+%type <node> expression_list
+%type <node> expression
+%type <node> pipe_expression
+%type <node> ternary_expression
+%type <node> logical_or_expression
+%type <node> logical_and_expression
+%type <node> relational_expression
+%type <node> additive_expression
+%type <node> multiplicative_expression
+%type <node> exponentiation_expression
+%type <node> unary_expression
+%type <node> operand
+%type <token.value.binary_operator> pipe_operator
+%type <token.value.binary_operator> logical_or_operator
+%type <token.value.binary_operator> logical_and_operator
+%type <token.value.binary_operator> relational_operator
+%type <token.value.binary_operator> additive_operator
+%type <token.value.binary_operator> multiplicative_operator
+%type <unary_operator> unary_operator
 
 %error-verbose
 
@@ -106,8 +200,7 @@ function_declaration:
   | TK_IDENTIFICADOR TK_IDENTIFICADOR function_params body   // Custom type function
   | TK_PR_STATIC type TK_IDENTIFICADOR function_params body; // Static function
 
-function_params: '(' param_list_opt ')';
-param_list_opt: param_list | %empty;
+function_params: '(' ')' | '(' param_list ')';
 param_list: param ',' param_list | param;
 param: const_opt type TK_IDENTIFICADOR;
 
