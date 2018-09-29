@@ -53,19 +53,19 @@ extern int get_column_number();
 %token TK_PR_BREAK
 %token TK_PR_CONTINUE
 %token TK_PR_CLASS
-%token <token> TK_PR_PRIVATE
-%token <token> TK_PR_PUBLIC
-%token <token> TK_PR_PROTECTED
-%token <token> TK_OC_LE
-%token <token> TK_OC_GE
-%token <token> TK_OC_EQ
-%token <token> TK_OC_NE
-%token <token> TK_OC_AND
-%token <token> TK_OC_OR
+%token <token.value.scope> TK_PR_PRIVATE
+%token <token.value.scope> TK_PR_PUBLIC
+%token <token.value.scope> TK_PR_PROTECTED
+%token <token.value.binary_operator> TK_OC_LE
+%token <token.value.binary_operator> TK_OC_GE
+%token <token.value.binary_operator> TK_OC_EQ
+%token <token.value.binary_operator> TK_OC_NE
+%token <token.value.binary_operator> TK_OC_AND
+%token <token.value.binary_operator> TK_OC_OR
 %token <token> TK_OC_SL
 %token <token> TK_OC_SR
-%token <token> TK_OC_FORWARD_PIPE
-%token <token> TK_OC_BASH_PIPE
+%token <token.value.binary_operator> TK_OC_FORWARD_PIPE
+%token <token.value.binary_operator> TK_OC_BASH_PIPE
 %token <token.value.int_literal> TK_LIT_INT
 %token <token.value.float_literal> TK_LIT_FLOAT
 %token <token.value.bool_literal> TK_LIT_FALSE
@@ -337,51 +337,81 @@ expression: pipe_expression;
 pipe_operator: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
 pipe_expression:
   ternary_expression
-  | pipe_expression pipe_operator ternary_expression;
+  | pipe_expression pipe_operator ternary_expression
+      { $$ = make_bin_op($1, $2, $3); };
 
 ternary_expression:
   logical_or_expression
-  | logical_or_expression '?' expression ':' ternary_expression;
+  | logical_or_expression '?' expression ':' ternary_expression
+      { $$ = make_tern_op($1, $3, $5); };
 
-logical_or_operator: TK_OC_OR | '|';
+logical_or_operator:
+      TK_OC_OR
+    | '|' { $$ = BIT_OR; } ;
 logical_or_expression:
   logical_and_expression
-  | logical_or_expression logical_or_operator logical_and_expression;
+  | logical_or_expression logical_or_operator logical_and_expression
+      { $$ = make_bin_op($1, $2, $3); };
 
-logical_and_operator: TK_OC_AND | '&';
+logical_and_operator:
+      TK_OC_AND
+    | '&' { $$ = BIT_AND; } ;
 logical_and_expression:
   relational_expression
-  | logical_and_expression logical_and_operator relational_expression;
+  | logical_and_expression logical_and_operator relational_expression
+      { $$ = make_bin_op($1, $2, $3); };
 
-relational_operator: TK_OC_EQ | TK_OC_NE | TK_OC_GE | TK_OC_LE | '>' | '<';
+relational_operator:
+      TK_OC_EQ
+    | TK_OC_NE
+    | TK_OC_GE
+    | TK_OC_LE
+    | '>' { $$ = GREATER; }
+    | '<' { $$ = LESS_THAN; };
 relational_expression:
   additive_expression
-  | relational_expression relational_operator additive_expression;
+  | relational_expression relational_operator additive_expression
+      { $$ = make_bin_op($1, $2, $3); };
 
-additive_operator: '+' | '-';
+additive_operator:
+      '+' { $$ = ADD; }
+    | '-' { $$ = SUBTRACT; };
 additive_expression:
   multiplicative_expression
-  | additive_expression additive_operator multiplicative_expression;
+  | additive_expression additive_operator multiplicative_expression
+      { $$ = make_bin_op($1, $2, $3); };
 
-multiplicative_operator: '*' | '/' | '%';
+multiplicative_operator:
+      '*' { $$ = MULTIPLY; }
+    | '/' { $$ = DIVIDE; }
+    | '%' { $$ = MODULO; };
 multiplicative_expression:
   exponentiation_expression
-  | multiplicative_expression multiplicative_operator exponentiation_expression;
+  | multiplicative_expression multiplicative_operator exponentiation_expression
+      { $$ = make_bin_op($1, $2, $3); };
 
 exponentiation_expression:
   unary_expression
-  | exponentiation_expression '^' unary_expression;
+  | exponentiation_expression '^' unary_expression
+      { $$ = make_bin_op($1, POW, $3); };
 
-unary_operator: '!' | '-' | '+' | '*' | '&' | '?' | '#';
+unary_operator:
+      '!' { $$ = NOT; }
+    | '-' { $$ = MINUS; }
+    | '+' { $$ = PLUS; }
+    | '*' { $$ = VALUE; }
+    | '&' { $$ = ADDRESS; }
+    | '?' { $$ = EVAL_BOOL; }
+    | '#' { $$ = HASH; } ;
 unary_expression:
   operand
-  | unary_operator unary_expression;
+  | unary_operator unary_expression { $$ = make_un_op($2, $1); };
 
 operand:
   variable_access
   | function
   | literal
-  | '(' expression ')';
+  | '(' expression ')' { $$ = $2; };
 
 %%
 
