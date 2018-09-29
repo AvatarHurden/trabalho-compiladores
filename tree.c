@@ -4,19 +4,15 @@
 // Private functions
 
 Node* make_node(NodeType type) {
-  printf("\nMalloc Node");
   Node* n = (Node*) malloc(sizeof(Node));
   n->type = type;
-  printf("\nMalloc NodeValue");
   n->value = malloc(sizeof(union NodeValue));
   n->next = NULL;
   return n;
 }
 
 void free_node(Node* node) {
-  printf("\nFree NodeValue");
   free(node->value);
-  printf("\nFree Node\n\n");
   free(node);
 }
 
@@ -31,7 +27,6 @@ void delete_type(TypeNode* type) {
     return;
   if (type->name != NULL)
     free(type->name);
-  printf("\nFree TypeNode");
   free(type);
 }
 
@@ -93,7 +88,6 @@ void delete(Node* node) {
       break;
     case GLOBAL_VAR_DECL:
       delete_type(node->value->global_var_node.type);
-      printf("\nFree global_var_node.identifier");
       free(node->value->global_var_node.identifier);
       break;
     case TYPE_DECL:
@@ -666,16 +660,16 @@ Node* make_char(char value) {
 
 Node* make_string(char* value) {
   Node* n = make_node(STRING);
-  n->value->string_node = strdup(value);
+  n->value->string_node = value;
   return n;
 }
 
 Node* make_variable(char* id, Node* index, char* field) {
   Node* n = make_node(VARIABLE);
-  n->value->var_node.identifier = strdup(id);
+  n->value->var_node.identifier = id;
   n->value->var_node.index = index;
   if (field != NULL)
-    n->value->var_node.field = strdup(field);
+    n->value->var_node.field = field;
   else
     n->value->var_node.field = NULL;
   return n;
@@ -705,11 +699,10 @@ Node* make_tern_op(Node* cond, Node* exp1, Node* exp2) {
 }
 
 TypeNode* make_type(TypeType kind, char* name) {
-  printf("\nMalloc TypeNode");
   TypeNode* n = (TypeNode*) malloc(sizeof(TypeNode));
   n->type = kind;
   if (kind == CUSTOM_T)
-    n->name = strdup(name);
+    n->name = name;
   else
     n->name = NULL;
   return n;
@@ -718,8 +711,7 @@ TypeNode* make_type(TypeType kind, char* name) {
 Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size) {
   Node* n = make_node(GLOBAL_VAR_DECL);
   n->value->global_var_node.type = type;
-  printf("\nMalloc global_var_node.identifier");
-  n->value->global_var_node.identifier = strdup(id);
+  n->value->global_var_node.identifier = id;
   n->value->global_var_node.is_static = is_static;
   n->value->global_var_node.array_size = array_size;
   return n;
@@ -729,14 +721,14 @@ FieldNode* make_field(Scope scope, TypeNode* type, char* id) {
   FieldNode* n = (FieldNode*) malloc(sizeof(FieldNode));
   n->scope = scope;
   n->type = type;
-  n->identifier = strdup(id);
+  n->identifier = id;
   n->next = NULL;
   return n;
 }
 
 Node* make_type_decl(char* id, FieldNode* field) {
   Node* n = make_node(TYPE_DECL);
-  n->value->type_decl_node.identifier = strdup(id);
+  n->value->type_decl_node.identifier = id;
   n->value->type_decl_node.field = field;
   return n;
 }
@@ -745,7 +737,7 @@ ParamNode* make_param(bool is_const, TypeNode* type, char* id) {
   ParamNode* n = (ParamNode*) malloc(sizeof(ParamNode));
   n->is_const = is_const;
   n->type = type;
-  n->identifier = strdup(id);
+  n->identifier = id;
   n->next = NULL;
   return n;
 }
@@ -753,7 +745,7 @@ ParamNode* make_param(bool is_const, TypeNode* type, char* id) {
 Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body) {
   Node* n = make_node(FUNCTION_DECL);
   n->value->function_decl_node.type = type;
-  n->value->function_decl_node.identifier = strdup(id);
+  n->value->function_decl_node.identifier = id;
   n->value->function_decl_node.is_static = is_static;
   n->value->function_decl_node.param = param;
   n->value->function_decl_node.body = body;
@@ -763,7 +755,7 @@ Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* pa
 Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init) {
   Node* n = make_node(VAR_DECL);
   n->value->local_var_node.type = type;
-  n->value->local_var_node.identifier = strdup(id);
+  n->value->local_var_node.identifier = id;
   n->value->local_var_node.is_static = is_static;
   n->value->local_var_node.is_const = is_const;
   n->value->local_var_node.init = init;
@@ -793,7 +785,7 @@ Node* make_shift_r(VariableNode* var, Node* value) {
 
 Node* make_function_call(char* id, Node* arguments) {
   Node* n = make_node(FUNCTION_CALL);
-  n->value->function_call_node.identifier = strdup(id);
+  n->value->function_call_node.identifier = id;
   n->value->function_call_node.arguments = arguments;
   return n;
 }
@@ -862,7 +854,7 @@ Node* make_if(Node* cond, Node* then, Node* else_node) {
 
 Node* make_for_each(char* id, Node* expression, Node* body) {
   Node* n = make_node(FOR_EACH);
-  n->value->for_each_node.id = strdup(id);
+  n->value->for_each_node.id = id;
   n->value->for_each_node.expression = expression;
   n->value->for_each_node.body = body;
   return n;
