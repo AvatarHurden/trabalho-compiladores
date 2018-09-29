@@ -67,16 +67,16 @@ extern int get_column_number();
 %token <token> TK_OC_FORWARD_PIPE
 %token <token> TK_OC_BASH_PIPE
 %token <token.value.int_literal> TK_LIT_INT
-%token <token> TK_LIT_FLOAT
-%token <token> TK_LIT_FALSE
-%token <token> TK_LIT_TRUE
-%token <token> TK_LIT_CHAR
-%token <token> TK_LIT_STRING
+%token <token.value.float_literal> TK_LIT_FLOAT
+%token <token.value.bool_literal> TK_LIT_FALSE
+%token <token.value.bool_literal> TK_LIT_TRUE
+%token <token.value.char_literal> TK_LIT_CHAR
+%token <token.value.string_literal> TK_LIT_STRING
 %token <token.value.identifier> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
-%type <token> literal
-%type <token> lit_or_id
+%type <node> literal
+%type <node> lit_or_id
 %type <type> base_type
 %type <type> type
 %type <token.value.scope> scope
@@ -161,14 +161,15 @@ extern int get_column_number();
 
 // Utilities
 
-literal: TK_LIT_INT
-       | TK_LIT_FLOAT
-       | TK_LIT_CHAR
-       | TK_LIT_STRING
-       | TK_LIT_TRUE
-       | TK_LIT_FALSE;
+literal: TK_LIT_INT { $$ = make_int($1); }
+       | TK_LIT_FLOAT { $$ = make_float($1); }
+       | TK_LIT_CHAR { $$ = make_char($1); }
+       | TK_LIT_STRING { $$ = make_string($1); }
+       | TK_LIT_TRUE { $$ = make_bool($1); }
+       | TK_LIT_FALSE { $$ = make_bool($1); };
 
-lit_or_id: literal | TK_IDENTIFICADOR;
+lit_or_id: literal
+         | TK_IDENTIFICADOR { $$ = make_variable($1, -1, NULL); };
 
 base_type: TK_PR_INT { $$ = make_type($1, NULL); }
          | TK_PR_BOOL { $$ = make_type($1, NULL); }
@@ -260,13 +261,21 @@ command_without_comma:
 local_var_decl:
   simple_local_var_decl
   | TK_PR_STATIC const_opt simple_local_var_decl
-  | TK_PR_CONST simple_local_var_decl;
+      { $3->value->local_var_node.is_static = true;
+        $3->value->local_var_node.is_const = $2;
+        $$ = $3; }
+  | TK_PR_CONST simple_local_var_decl
+    { $2->value->local_var_node.is_const = true;
+      $$ = $2; };
 
 simple_local_var_decl:
   base_type TK_IDENTIFICADOR init_opt    // Base type local var
-  | TK_IDENTIFICADOR TK_IDENTIFICADOR;   // Custom type local var
+      { $$ = make_local_var($1, $2, false, false, $3); }
+  | TK_IDENTIFICADOR TK_IDENTIFICADOR   // Custom type local var
+      { $$ = make_local_var(make_type(CUSTOM_T, $1), $2, false, false, NULL); };
 
-init_opt: TK_OC_LE lit_or_id | %empty;
+init_opt: TK_OC_LE lit_or_id { $$ = $2; }
+        | %empty { $$ = NULL; };
 
 variable_access: TK_IDENTIFICADOR array_or_field_access_opt;
 
