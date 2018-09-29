@@ -332,13 +332,21 @@ switch: TK_PR_SWITCH '(' expression ')' block
 
 function_call:
   function
-  | function pipe_operator function_call;
+  | function pipe_operator function_call
+        { $$ = make_bin_op($1, $2, $3); };
 
-function: TK_IDENTIFICADOR '(' argument_list_opt ')';
+function: TK_IDENTIFICADOR '(' argument_list_opt ')'
+      { $$ = make_function_call($1, $3); };
 
-argument_list_opt: argument_list | %empty;
-argument_list: argument ',' argument_list | argument;
-argument: expression | '.';
+argument_list_opt:
+      argument_list
+    | %empty { $$ = NULL; };
+argument_list:
+      argument ',' argument_list { $1->next = $3; $$ = $1; }
+    | argument;
+argument:
+      expression
+    | '.' { $$ = make_dot(); };
 
 expression_list:
       expression ',' expression_list { $1->next = $3; $$ = $1; }
