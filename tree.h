@@ -69,7 +69,7 @@ typedef enum {
   AND,
   OR,
   BIT_AND,
-  BIT_OR
+  BIT_OR,
   BASH_PIPE,
   FORWARD_PIPE
   } BinOpType;

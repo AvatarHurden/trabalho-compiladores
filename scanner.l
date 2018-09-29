@@ -1,7 +1,7 @@
 %{
 #include "parser.tab.h"
 
-void assign_token_value(int type);
+void assign_token_value(TokenCategory category, void* value);
 
 int column = 1;
 void update_column();
@@ -314,9 +314,9 @@ BLOCK_COMMENT_END "*/"
 
 %%
 
-void assign_token_value(TokenCategory category, TokenValue value) {
-    yylval.line = yylineno;
-    yylval.column = column;
+void assign_token_value(TokenCategory category, void* value) {
+    yylval.token.line = yylineno;
+    yylval.token.column = column;
     yylval.token.category = category;
 
     switch (category) {

@@ -291,6 +291,12 @@ void print_offset(Node* node, int offset) {
         case BIT_OR:
           printf(" | ");
           break;
+        case BASH_PIPE:
+          printf(" %%|%% ");
+          break;
+        case FORWARD_PIPE:
+          printf(" %%>%% ");
+          break;
       }
 
       print_offset(bin.right, 0);
@@ -357,6 +363,8 @@ void print_offset(Node* node, int offset) {
             break;
           case PROTECTED:
             printf("protected ");
+            break;
+          case NO_SCOPE:
             break;
         }
         print_type(f->type);
@@ -609,6 +617,10 @@ void print_offset(Node* node, int offset) {
 
 void print(Node* node) {
   print_offset(node, 0);
+}
+
+void descompila(Node* arvore) {
+  print_offset(arvore, 0);
 }
 
 // Construction Functions
