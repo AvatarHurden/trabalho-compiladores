@@ -306,8 +306,10 @@ flow_control: if
             | while_do
             | switch;
 
-if: TK_PR_IF '(' expression ')' TK_PR_THEN block else_opt;
-else_opt: TK_PR_ELSE block | %empty;
+if: TK_PR_IF '(' expression ')' TK_PR_THEN block else_opt
+      { $$ = make_if($3, $6, $7); };
+else_opt: TK_PR_ELSE block { $$ = $2; }
+        | %empty { $$ = NULL; };
 
 foreach: TK_PR_FOREACH '(' TK_IDENTIFICADOR ':' expression_list ')' block;
 

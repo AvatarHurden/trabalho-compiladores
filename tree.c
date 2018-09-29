@@ -535,12 +535,14 @@ void print_offset(Node* node, int offset) {
       IfNode iff = node->value->if_node;
       printf("if (");
       print_offset(iff.cond, 0);
-      printf(")\n");
+      printf(") then\n");
       print_offset(iff.then, offset);
       printf("\n");
       indent(offset);
-      printf("else\n");
-      print_offset(iff.else_node, offset);
+      if (iff.else_node != NULL) {
+        printf("else\n");
+        print_offset(iff.else_node, offset);
+      }
       break; }
     case WHILE: {
       indent(offset);
