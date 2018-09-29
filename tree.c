@@ -368,7 +368,7 @@ void print_offset(Node* node, int offset) {
             break;
         }
         print_type(f->type);
-        printf(" %s%s\n", f->identifier, f->next == NULL ? "" : ",");
+        printf(" %s%s\n", f->identifier, f->next == NULL ? "" : " :");
         f = f->next;
       }
 
@@ -378,12 +378,13 @@ void print_offset(Node* node, int offset) {
     case GLOBAL_VAR_DECL:
       indent(offset);
       GlobalVarNode var_decl = node->value->global_var_node;
-      if (var_decl.is_static)
-        printf("static ");
-      print_type(var_decl.type);
-      printf(" %s", var_decl.identifier);
+      printf("%s", var_decl.identifier);
       if (var_decl.array_size >= 0)
         printf("[%d]", var_decl.array_size);
+      if (var_decl.is_static)
+        printf(" static");
+      printf(" ");
+      print_type(var_decl.type);
       printf(";");
       break;
     case FUNCTION_DECL:
@@ -708,12 +709,11 @@ Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size) 
   return n;
 }
 
-FieldNode* make_field(Scope scope, TypeNode* type, char* id, FieldNode* next) {
+FieldNode* make_field(Scope scope, TypeNode* type, char* id) {
   FieldNode* n = (FieldNode*) malloc(sizeof(FieldNode));
   n->scope = scope;
   n->type = type;
   n->identifier = strdup(id);
-  n->next = next;
   return n;
 }
 

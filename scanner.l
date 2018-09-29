@@ -337,6 +337,7 @@ void assign_token_value(TokenCategory category, void* value) {
         break;
     case INT_LITERAL:
         yylval.token.value.int_literal = atoi(yytext);
+        break;
     case FLOAT_LITERAL:
         yylval.token.value.float_literal = atof(yytext);
         break;

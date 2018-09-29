@@ -3,9 +3,14 @@
 #include "lex.yy.h"
 int yylex(void);
 void yyerror (char const *s);
+
+extern void *arvore;
+
 extern int get_line_number();
 extern int get_column_number();
 %}
+
+
 
 %code requires {
 #include "tree.h"
@@ -19,15 +24,18 @@ extern int get_column_number();
     TokenValue value;
   } token;
   Node* node;
+  TypeNode* type;
+  FieldNode* field;
+  ParamNode* param;
   bool optional;
   UnOpType unary_operator;
 }
 
-%token <token> TK_PR_INT
-%token <token> TK_PR_FLOAT
-%token <token> TK_PR_BOOL
-%token <token> TK_PR_CHAR
-%token <token> TK_PR_STRING
+%token <token.value.type_keyword> TK_PR_INT
+%token <token.value.type_keyword> TK_PR_FLOAT
+%token <token.value.type_keyword> TK_PR_BOOL
+%token <token.value.type_keyword> TK_PR_CHAR
+%token <token.value.type_keyword> TK_PR_STRING
 %token TK_PR_IF
 %token TK_PR_THEN
 %token TK_PR_ELSE
@@ -58,19 +66,19 @@ extern int get_column_number();
 %token <token> TK_OC_SR
 %token <token> TK_OC_FORWARD_PIPE
 %token <token> TK_OC_BASH_PIPE
-%token <token> TK_LIT_INT
+%token <token.value.int_literal> TK_LIT_INT
 %token <token> TK_LIT_FLOAT
 %token <token> TK_LIT_FALSE
 %token <token> TK_LIT_TRUE
 %token <token> TK_LIT_CHAR
 %token <token> TK_LIT_STRING
-%token <token> TK_IDENTIFICADOR
+%token <token.value.identifier> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
 %type <token> literal
 %type <token> lit_or_id
-%type <token.value.type> base_type
-%type <token> type
+%type <type> base_type
+%type <type> type
 %type <token.value.scope> scope
 %type <token.value.scope> scope_opt
 %type <optional> static_opt
@@ -82,8 +90,8 @@ extern int get_column_number();
 %type <node> global_declaration
 
 %type <node> new_type;
-%type <node> field_list;
-%type <node> field;
+%type <field> field_list;
+%type <field> field;
 
 %type <node> global_var
 
@@ -162,38 +170,50 @@ literal: TK_LIT_INT
 
 lit_or_id: literal | TK_IDENTIFICADOR;
 
-base_type: TK_PR_INT
-         | TK_PR_BOOL
-         | TK_PR_CHAR
-         | TK_PR_STRING
-         | TK_PR_FLOAT;
-type: base_type | TK_IDENTIFICADOR;
+base_type: TK_PR_INT { $$ = make_type($1, NULL); }
+         | TK_PR_BOOL { $$ = make_type($1, NULL); }
+         | TK_PR_CHAR { $$ = make_type($1, NULL); }
+         | TK_PR_STRING { $$ = make_type($1, NULL); }
+         | TK_PR_FLOAT { $$ = make_type($1, NULL); };
+type: base_type { $$ = $1; }
+    | TK_IDENTIFICADOR { $$ = make_type(CUSTOM_T, $1); };
 
 scope: TK_PR_PRIVATE | TK_PR_PUBLIC | TK_PR_PROTECTED;
-scope_opt: scope | %empty;
+scope_opt: scope { $$ = $1; }
+         | %empty { $$ = NO_SCOPE; };
 
-static_opt: TK_PR_STATIC | %empty;
+static_opt: TK_PR_STATIC { $$ = true; }
+          | %empty { $$ = false; };
 const_opt: TK_PR_CONST | %empty;
 
-array_index: '[' TK_LIT_INT ']';
+array_index: '[' TK_LIT_INT ']' { $$ = $2; };
 
 // Grammar
 
-program: global_declarations | %empty;
+program: global_declarations { arvore = $$; }
+       | %empty { arvore = NULL; };
 
-global_declarations: global_declaration global_declarations | global_declaration;
+global_declarations: global_declaration global_declarations { $1->next = $2; $$ = $1; }
+                   | global_declaration { $$ = $1; };
 
-global_declaration: new_type | global_var | function_declaration;
+global_declaration: new_type { $$ = $1; }
+                  | global_var { $$ = $1; }
+                  | function_declaration;
 
-new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' field_list ']' ';';
-field_list: field ':' field_list | field;
-field: scope_opt base_type TK_IDENTIFICADOR;
+new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' field_list ']' ';' { $$ = make_type_decl($2, $4); };
+field_list: field ':' field_list { $1->next = $3; $$ = $1; }
+          | field { $$ = $1; };
+field: scope_opt base_type TK_IDENTIFICADOR { $$ = make_field($1, $2, $3); };
 
 global_var:
   TK_IDENTIFICADOR base_type ';'                     // Base type variable
+      { $$ = make_global_var($2, $1, false, -1); }
   | TK_IDENTIFICADOR TK_IDENTIFICADOR ';'            // Custom type variable
+      { $$ = make_global_var(make_type(CUSTOM_T, $2), $1, false, -1); }
   | TK_IDENTIFICADOR array_index static_opt type ';' // Array variable
-  | TK_IDENTIFICADOR TK_PR_STATIC type ';';          // Static variable
+      { $$ = make_global_var($4, $1, $3, $2); }
+  | TK_IDENTIFICADOR TK_PR_STATIC type ';'          // Static variable
+      { $$ = make_global_var($3, $1, true, -1); };
 
 function_declaration:
   base_type TK_IDENTIFICADOR function_params body            // Base type function

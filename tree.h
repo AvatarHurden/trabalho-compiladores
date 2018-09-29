@@ -312,7 +312,7 @@ Node* make_un_op(Node* value, UnOpType type);
 Node* make_tern_op(Node* cond, Node* exp1, Node* exp2);
 
 TypeNode* make_type(TypeType kind, char* name);
-FieldNode* make_field(Scope scope, TypeNode* type, char* id, FieldNode* next);
+FieldNode* make_field(Scope scope, TypeNode* type, char* id);
 ParamNode* make_param(bool is_const, TypeNode* type, char* id, ParamNode* next);
 
 Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size);
