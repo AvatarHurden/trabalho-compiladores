@@ -1,0 +1,6 @@
+//E também podem ser utilizados em atribuições:
+int f()
+{
+  int a;
+  a = f() %>% g(., a) %|% z(.);
+}
