@@ -294,10 +294,10 @@ assign_or_shift: variable_access '=' expression
                | variable_access TK_OC_SR expression
                     { $$ = make_shift_r(&$1->value->var_node, $3); };
 
-input: TK_PR_INPUT expression;
-output: TK_PR_OUTPUT expression_list;
+input: TK_PR_INPUT expression { $$ = make_input($2); };
+output: TK_PR_OUTPUT expression_list { $$ = make_output($2); };
 
-return: TK_PR_RETURN expression;
+return: TK_PR_RETURN expression { $$ = make_return($2); };
 
 flow_control: if
             | foreach
@@ -331,7 +331,10 @@ argument_list_opt: argument_list | %empty;
 argument_list: argument ',' argument_list | argument;
 argument: expression | '.';
 
-expression_list: expression ',' expression_list | expression;
+expression_list:
+      expression ',' expression_list { $1->next = $3; $$ = $1; }
+    | expression;
+
 expression: pipe_expression;
 
 pipe_operator: TK_OC_BASH_PIPE | TK_OC_FORWARD_PIPE;
