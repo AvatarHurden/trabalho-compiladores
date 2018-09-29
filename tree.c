@@ -48,6 +48,13 @@ void delete_field(FieldNode* node) {
   free(node);
 }
 
+void delete_var(VariableNode* var) {
+  free(var->identifier);
+  delete(var->index);
+  if (var->field != NULL)
+    free(var->field);
+}
+
 void delete(Node* node) {
   if (node == NULL)
     return;
@@ -63,6 +70,7 @@ void delete(Node* node) {
       break;
     case VARIABLE:
       free(node->value->var_node.identifier);
+      delete(node->value->var_node.index);
       if (node->value->var_node.field != NULL)
         free(node->value->var_node.field);
       break;
@@ -98,21 +106,15 @@ void delete(Node* node) {
       delete(node->value->local_var_node.init);
       break;
     case ATTR:
-      free(node->value->attr_node.identifier);
-      if (node->value->attr_node.field != NULL)
-        free(node->value->attr_node.field);
+      delete_var(node->value->attr_node.var);
       delete(node->value->attr_node.value);
       break;
     case SHIFT_L:
-      free(node->value->shift_l_node.identifier);
-      if (node->value->shift_l_node.field != NULL)
-        free(node->value->shift_l_node.field);
+      delete_var(node->value->attr_node.var);
       delete(node->value->shift_l_node.value);
       break;
     case SHIFT_R:
-      free(node->value->shift_r_node.identifier);
-      if (node->value->shift_r_node.field != NULL)
-        free(node->value->shift_r_node.field);
+      delete_var(node->value->attr_node.var);
       delete(node->value->shift_r_node.value);
       break;
     case FUNCTION_CALL:
@@ -201,6 +203,17 @@ void print_type(TypeNode* type) {
   }
 }
 
+void print_variable(VariableNode* var) {
+  printf("%s", var->identifier);
+  if (var->index != NULL) {
+    printf("[");
+    print(var->index);
+    printf("]");
+  }
+  if (var->field != NULL)
+    printf("$%s", var->field);
+}
+
 void print_offset(Node* node, int offset) {
   if (node == NULL)
     return;
@@ -233,8 +246,11 @@ void print_offset(Node* node, int offset) {
       indent(offset);
       VariableNode var = node->value->var_node;
       printf("%s", var.identifier);
-      if (var.index >= 0)
-        printf("[%d]", var.index);
+      if (var.index != NULL) {
+        printf("[");
+        print_offset(var.index, 0);
+        printf("]");
+      }
       if (var.field != NULL)
         printf("$%s", var.field);
       break;
@@ -427,33 +443,21 @@ void print_offset(Node* node, int offset) {
     case ATTR:
       indent(offset);
       AttrNode attr = node->value->attr_node;
-      printf("%s", attr.identifier);
-      if (attr.index >= 0)
-        printf("[%d]", attr.index);
-      if (attr.field != NULL)
-        printf("$%s", attr.field);
+      print_variable(attr.var);
       printf(" = ");
       print_offset(attr.value, 0);
       break;
     case SHIFT_L:
       indent(offset);
       AttrNode shift_l = node->value->shift_l_node;
-      printf("%s", shift_l.identifier);
-      if (shift_l.index >= 0)
-        printf("[%d]", shift_l.index);
-      if (shift_l.field != NULL)
-        printf("$%s", shift_l.field);
+      print_variable(shift_l.var);
       printf(" << ");
       print_offset(shift_l.value, 0);
       break;
     case SHIFT_R:
       indent(offset);
       AttrNode shift_r = node->value->shift_r_node;
-      printf("%s", shift_r.identifier);
-      if (shift_r.index >= 0)
-        printf("[%d]", shift_r.index);
-      if (shift_r.field != NULL)
-        printf("$%s", shift_r.field);
+      print_variable(shift_r.var);
       printf(" >> ");
       print_offset(shift_r.value, 0);
       break;
@@ -658,7 +662,7 @@ Node* make_string(char* value) {
   return n;
 }
 
-Node* make_variable(char* id, int index, char* field) {
+Node* make_variable(char* id, Node* index, char* field) {
   Node* n = make_node(VARIABLE);
   n->value->var_node.identifier = strdup(id);
   n->value->var_node.index = index;
@@ -754,38 +758,23 @@ Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, No
   return n;
 }
 
-Node* make_attr(char* id, int index, char* field, Node* value) {
+Node* make_attr(VariableNode* var, Node* value) {
   Node* n = make_node(ATTR);
-  n->value->attr_node.identifier = strdup(id);
-  n->value->attr_node.index = index;
-  if (field != NULL)
-    n->value->attr_node.field = strdup(field);
-  else
-    n->value->attr_node.field = NULL;
+  n->value->attr_node.var = var;
   n->value->attr_node.value = value;
   return n;
 }
 
-Node* make_shift_l(char* id, int index, char* field, Node* value) {
+Node* make_shift_l(VariableNode* var, Node* value) {
   Node* n = make_node(SHIFT_L);
-  n->value->shift_l_node.identifier = strdup(id);
-  n->value->shift_l_node.index = index;
-  if (field != NULL)
-    n->value->shift_l_node.field = strdup(field);
-  else
-    n->value->shift_l_node.field = NULL;
+  n->value->shift_l_node.var = var;
   n->value->shift_l_node.value = value;
   return n;
 }
 
-Node* make_shift_r(char* id, int index, char* field, Node* value) {
+Node* make_shift_r(VariableNode* var, Node* value) {
   Node* n = make_node(SHIFT_R);
-  n->value->shift_r_node.identifier = strdup(id);
-  n->value->shift_r_node.index = index;
-  if (field != NULL)
-    n->value->shift_r_node.field = strdup(field);
-  else
-    n->value->shift_r_node.field = NULL;
+  n->value->shift_r_node.var = var;
   n->value->shift_r_node.value = value;
   return n;
 }

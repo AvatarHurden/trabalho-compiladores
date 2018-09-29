@@ -179,14 +179,12 @@ typedef struct {
 
 typedef struct {
   char* identifier;
-  int index;
+  Node* index;
   char* field;
 } VariableNode;
 
 typedef struct {
-  char* identifier;
-  int index;
-  char* field;
+  VariableNode* var;
 
   Node* value;
 } AttrNode;
@@ -305,7 +303,7 @@ Node* make_float(float value);
 Node* make_bool(bool value);
 Node* make_char(char value);
 Node* make_string(char* value);
-Node* make_variable(char* id, int index, char* field);
+Node* make_variable(char* id, Node* index, char* field);
 
 Node* make_bin_op(Node* left, BinOpType type, Node* right);
 Node* make_un_op(Node* value, UnOpType type);
@@ -320,9 +318,9 @@ Node* make_type_decl(char* id, FieldNode* field);
 Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body);
 
 Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init);
-Node* make_attr(char* id, int index, char* field, Node* value);
-Node* make_shift_l(char* id, int index, char* field, Node* value);
-Node* make_shift_r(char* id, int index, char* field, Node* value);
+Node* make_attr(VariableNode* var, Node* value);
+Node* make_shift_l(VariableNode* var, Node* value);
+Node* make_shift_r(VariableNode* var, Node* value);
 
 Node* make_function_call(char* id, Node* arguments);
 Node* make_dot();
