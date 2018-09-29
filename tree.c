@@ -81,9 +81,11 @@ void delete(Node* node) {
     case GLOBAL_VAR_DECL:
       delete_type(node->value->global_var_node.type);
       free(node->value->global_var_node.identifier);
+      break;
     case TYPE_DECL:
       free(node->value->type_decl_node.identifier);
       delete_field(node->value->type_decl_node.field);
+      break;
     case FUNCTION_DECL:
       delete_type(node->value->function_decl_node.type);
       free(node->value->function_decl_node.identifier);
