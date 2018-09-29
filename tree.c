@@ -110,11 +110,11 @@ void delete(Node* node) {
       delete(node->value->attr_node.value);
       break;
     case SHIFT_L:
-      delete_var(node->value->attr_node.var);
+      delete_var(node->value->shift_l_node.var);
       delete(node->value->shift_l_node.value);
       break;
     case SHIFT_R:
-      delete_var(node->value->attr_node.var);
+      delete_var(node->value->shift_r_node.var);
       delete(node->value->shift_r_node.value);
       break;
     case FUNCTION_CALL:
@@ -417,11 +417,11 @@ void print_offset(Node* node, int offset) {
       while (param != NULL) {
         if (param->is_const)
           printf("const ");
-          print_type(param->type);
-          printf(" %s", param->identifier);
-          if (param->next != NULL)
-            printf(", ");
-          param = param->next;
+		print_type(param->type);
+		printf(" %s", param->identifier);
+		if (param->next != NULL)
+			printf(", ");
+	  param = param->next;
       }
       printf(") ");
       print_offset(func_decl.body, 0);
@@ -549,7 +549,7 @@ void print_offset(Node* node, int offset) {
       WhileNode whilee = node->value->while_node;
       printf("while (");
       print_offset(whilee.cond, 0);
-      printf(")\n");
+      printf(") do\n");
       print_offset(whilee.body, offset);
       break; }
     case DO_WHILE: {
