@@ -722,6 +722,7 @@ FieldNode* make_field(Scope scope, TypeNode* type, char* id) {
   n->scope = scope;
   n->type = type;
   n->identifier = strdup(id);
+  n->next = NULL;
   return n;
 }
 
@@ -737,6 +738,7 @@ ParamNode* make_param(bool is_const, TypeNode* type, char* id) {
   n->is_const = is_const;
   n->type = type;
   n->identifier = strdup(id);
+  n->next = NULL;
   return n;
 }
 
