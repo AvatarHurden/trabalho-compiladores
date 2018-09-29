@@ -111,9 +111,7 @@ extern int get_column_number();
 %type <node> simple_local_var_decl
 %type <node> init_opt
 %type <node> variable_access
-%type <node> array_or_field_access_opt
-%type <node> array_or_field_access
-%type <node> field_access_opt
+%type <token.value.identifier> field_access_opt
 %type <token.value.identifier> field_access
 %type <node> assign_or_shift
 %type <node> input
@@ -169,7 +167,7 @@ literal: TK_LIT_INT { $$ = make_int($1); }
        | TK_LIT_FALSE { $$ = make_bool($1); };
 
 lit_or_id: literal
-         | TK_IDENTIFICADOR { $$ = make_variable($1, -1, NULL); };
+         | TK_IDENTIFICADOR { $$ = make_variable($1, NULL, NULL); };
 
 base_type: TK_PR_INT { $$ = make_type($1, NULL); }
          | TK_PR_BOOL { $$ = make_type($1, NULL); }
@@ -249,7 +247,7 @@ command_with_comma: output;
 
 command_without_comma:
   local_var_decl
-  | variable_access assign_or_shift
+  | assign_or_shift
   | function_call
   | flow_control
   | return
@@ -277,19 +275,24 @@ simple_local_var_decl:
 init_opt: TK_OC_LE lit_or_id { $$ = $2; }
         | %empty { $$ = NULL; };
 
-variable_access: TK_IDENTIFICADOR array_or_field_access_opt;
+variable_access:
+  TK_IDENTIFICADOR
+      { $$ = make_variable($1, NULL, NULL); }
+  | TK_IDENTIFICADOR '[' expression ']' field_access_opt
+      { $$ = make_variable($1, $3, $5); }
+  | TK_IDENTIFICADOR field_access
+    { $$ = make_variable($1, NULL, $2); };
 
-array_or_field_access_opt: array_or_field_access | %empty;
-array_or_field_access:
-  '[' expression ']' field_access_opt;
-  | field_access;
+field_access_opt: field_access
+                | %empty { $$ = NULL; };
+field_access: '$' TK_IDENTIFICADOR { $$ = $2; };
 
-field_access_opt: field_access | %empty;
-field_access: '$' TK_IDENTIFICADOR;
-
-assign_or_shift: '=' expression
-               | TK_OC_SL expression
-               | TK_OC_SR expression;
+assign_or_shift: variable_access '=' expression
+                    { $$ = make_attr(&$1->value->var_node, $3); }
+               | variable_access TK_OC_SL expression
+                    { $$ = make_shift_l(&$1->value->var_node, $3); }
+               | variable_access TK_OC_SR expression
+                    { $$ = make_shift_r(&$1->value->var_node, $3); };
 
 input: TK_PR_INPUT expression;
 output: TK_PR_OUTPUT expression_list;
