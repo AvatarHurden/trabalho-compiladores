@@ -311,17 +311,24 @@ if: TK_PR_IF '(' expression ')' TK_PR_THEN block else_opt
 else_opt: TK_PR_ELSE block { $$ = $2; }
         | %empty { $$ = NULL; };
 
-foreach: TK_PR_FOREACH '(' TK_IDENTIFICADOR ':' expression_list ')' block;
+foreach: TK_PR_FOREACH '(' TK_IDENTIFICADOR ':' expression_list ')' block
+      { $$ = make_for_each($3, $5, $7); };
 
-for: TK_PR_FOR '(' commands_comma_separated ':' expression ':' commands_comma_separated ')' block;
+for: TK_PR_FOR '(' commands_comma_separated ':' expression ':' commands_comma_separated ')' block
+      { $$ = make_for($3, $5, $7, $9); };
 
-commands_comma_separated: command_without_comma ',' commands_comma_separated | command_without_comma;
+commands_comma_separated:
+      command_without_comma ',' commands_comma_separated { $1->next = $3; $$ = $1; }
+    | command_without_comma;
 
-do_while: TK_PR_DO block TK_PR_WHILE '(' expression ')';
+do_while: TK_PR_DO block TK_PR_WHILE '(' expression ')'
+      { $$ = make_do_while($5, $2); };
 
-while_do: TK_PR_WHILE '(' expression ')' TK_PR_DO block;
+while_do: TK_PR_WHILE '(' expression ')' TK_PR_DO block
+      { $$ = make_while($3, $6); };
 
-switch: TK_PR_SWITCH '(' expression ')' block;
+switch: TK_PR_SWITCH '(' expression ')' block
+      { $$ = make_switch($3, $5); };
 
 function_call:
   function
