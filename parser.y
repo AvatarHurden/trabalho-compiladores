@@ -228,19 +228,21 @@ function_params: '(' ')' { $$ = NULL; }
                | '(' param_list ')' { $$ = $2; };
 
 param_list: param ',' param_list { $1->next = $3; $$ = $1; }
-          | param { $$ = $1; };
+          | param;
 
 param: const_opt type TK_IDENTIFICADOR { $$ = make_param($1, $2, $3); };
 
-body: block { $$ = NULL; };
+body: block;
 
-block: '{' commands '}';
-commands: command_or_case commands | %empty;
+block: '{' commands '}' { $$ = make_block($2); };
+commands: command_or_case commands { $1->next = $2; $$ = $1; }
+        | %empty { $$ = NULL; };
 
 command_or_case: command ';'
-               | TK_PR_CASE TK_LIT_INT ':';
+               | TK_PR_CASE TK_LIT_INT ':' { $$ = make_case($2); };
 
-command: command_with_comma | command_without_comma;
+command: command_with_comma
+       | command_without_comma;
 
 command_with_comma: output;
 
@@ -251,8 +253,8 @@ command_without_comma:
   | flow_control
   | return
   | input
-  | TK_PR_BREAK
-  | TK_PR_CONTINUE
+  | TK_PR_BREAK { $$ = make_break(); }
+  | TK_PR_CONTINUE { $$ = make_continue(); }
   | block;
 
 local_var_decl:
