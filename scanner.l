@@ -1,10 +1,8 @@
 %{
 #include "parser.tab.h"
 
-void assign_token_value(TokenCategory category, void* value);
-
 int column = 1;
-void update_column();
+void update_token_position();
 
 %}
 
@@ -27,154 +25,162 @@ BLOCK_COMMENT_END "*/"
 
 %%
 
-{WHITESPACE} { update_column(); }
-{LINE_COMMENT} { update_column(); }
+{WHITESPACE} { update_token_position(); }
+{LINE_COMMENT} { update_token_position(); }
 
 {BLOCK_COMMENT_START} {
-  update_column();
+  update_token_position();
   BEGIN(BLOCK_COMMENT);
 }
 
 <BLOCK_COMMENT>{
   {BLOCK_COMMENT_END} {
-    update_column();
+    update_token_position();
     BEGIN(INITIAL);
   }
 
-  "\n" { update_column(); }
-  . { update_column(); }
+  "\n" { update_token_position(); }
+  . { update_token_position(); }
 }
 
 "int" {
-  update_column();
-  assign_token_value(TYPE_KEYWORD, INT_T);
+  update_token_position();
+  yylval.token.category = TYPE_KEYWORD;
+  yylval.token.value.type_keyword = INT_T;
   return TK_PR_INT;
 }
 
 "float" {
-  update_column();
-  assign_token_value(TYPE_KEYWORD, FLOAT_T);
+  update_token_position();
+  yylval.token.category = TYPE_KEYWORD;
+  yylval.token.value.type_keyword = FLOAT_T;
   return TK_PR_FLOAT;
 }
 
 "bool" {
-  update_column();
-  assign_token_value(TYPE_KEYWORD, BOOL_T);
+  update_token_position();
+  yylval.token.category = TYPE_KEYWORD;
+  yylval.token.value.type_keyword = BOOL_T;
   return TK_PR_BOOL;
 }
 
 "char" {
-  update_column();
-  assign_token_value(TYPE_KEYWORD, CHAR_T);
+  update_token_position();
+  yylval.token.category = TYPE_KEYWORD;
+  yylval.token.value.type_keyword = CHAR_T;
   return TK_PR_CHAR;
 }
 
 "string" {
-  update_column();
-  assign_token_value(TYPE_KEYWORD, STRING_T);
+  update_token_position();
+  yylval.token.category = TYPE_KEYWORD;
+  yylval.token.value.type_keyword = STRING_T;
   return TK_PR_STRING;
 }
 
 "if" {
-  update_column();
+  update_token_position();
   return TK_PR_IF;
 }
 
 "then" {
-  update_column();
+  update_token_position();
   return TK_PR_THEN;
 }
 
 "else" {
-  update_column();
+  update_token_position();
   return TK_PR_ELSE;
 }
 
 "while" {
-  update_column();
+  update_token_position();
   return TK_PR_WHILE;
 }
 
 "do" {
-  update_column();
+  update_token_position();
   return TK_PR_DO;
 }
 
 "input" {
-  update_column();
+  update_token_position();
   return TK_PR_INPUT;
 }
 
 "output" {
-  update_column();
+  update_token_position();
   return TK_PR_OUTPUT;
 }
 
 "return" {
-  update_column();
+  update_token_position();
   return TK_PR_RETURN;
 }
 
 "const" {
-  update_column();
+  update_token_position();
   return TK_PR_CONST;
 }
 
 "static" {
-  update_column();
+  update_token_position();
   return TK_PR_STATIC;
 }
 
 "foreach" {
-  update_column();
+  update_token_position();
   return TK_PR_FOREACH;
 }
 
 "for" {
-  update_column();
+  update_token_position();
   return TK_PR_FOR;
 }
 
 "switch" {
-  update_column();
+  update_token_position();
   return TK_PR_SWITCH;
 }
 
 "case" {
-  update_column();
+  update_token_position();
   return TK_PR_CASE;
 }
 
 "break" {
-  update_column();
+  update_token_position();
   return TK_PR_BREAK;
 }
 
 "continue" {
-  update_column();
+  update_token_position();
   return TK_PR_CONTINUE;
 }
 
 "class" {
-  update_column();
+  update_token_position();
   return TK_PR_CLASS;
 }
 
 "private" {
-  update_column();
-  assign_token_value(SCOPE_KEYWORD, PRIVATE);
+  update_token_position();
+  yylval.token.category = SCOPE_KEYWORD;
+  yylval.token.value.scope = PRIVATE;
   return TK_PR_PRIVATE;
 }
 
 "public" {
-  update_column();
-  assign_token_value(SCOPE_KEYWORD, PUBLIC);
+  update_token_position();
+  yylval.token.category = SCOPE_KEYWORD;
+  yylval.token.value.scope = PUBLIC;
   return TK_PR_PUBLIC;
 }
 
 "protected" {
-  update_column();
-  assign_token_value(SCOPE_KEYWORD, PROTECTED);
+  update_token_position();
+  yylval.token.category = SCOPE_KEYWORD;
+  yylval.token.value.scope = PROTECTED;
   return TK_PR_PROTECTED;
 }
 
@@ -203,108 +209,124 @@ BLOCK_COMMENT_END "*/"
 "^" |
 "." |
 "$" {
-  assign_token_value(SPECIAL_CHAR, yytext[0]);
-  update_column();
+  update_token_position();
+  yylval.token.category = SPECIAL_CHAR;
+  yylval.token.value.special_char = yytext[0];
   return yytext[0];
 }
 
 "<=" {
-  assign_token_value(BINARY_OPERATOR, LESS_EQUAL);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = LESS_EQUAL;
   return TK_OC_LE;
 }
 
 ">=" {
-  assign_token_value(BINARY_OPERATOR, GREATER_EQUAL);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = GREATER_EQUAL;
   return TK_OC_GE;
 }
 
 "==" {
-  assign_token_value(BINARY_OPERATOR, EQUAL);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = EQUAL;
   return TK_OC_EQ;
 }
 
 "!=" {
-  assign_token_value(BINARY_OPERATOR, NOT_EQUAL);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = NOT_EQUAL;
   return TK_OC_NE;
 }
 
 "&&" {
-  assign_token_value(BINARY_OPERATOR, AND);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = AND;
   return TK_OC_AND;
 }
 
 "||" {
-  assign_token_value(BINARY_OPERATOR, OR);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = OR;
   return TK_OC_OR;
 }
 
 ">>" {
-  update_column();
+  update_token_position();
   return TK_OC_SR;
 }
 
 "<<" {
-  update_column();
+  update_token_position();
   return TK_OC_SL;
 }
 
 "%>%" {
-  assign_token_value(BINARY_OPERATOR, FORWARD_PIPE);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = FORWARD_PIPE;
   return TK_OC_FORWARD_PIPE;
 }
 
 "%|%" {
-  assign_token_value(BINARY_OPERATOR, BASH_PIPE);
-  update_column();
+  update_token_position();
+  yylval.token.category = BINARY_OPERATOR;
+  yylval.token.value.binary_operator = BASH_PIPE;
   return TK_OC_BASH_PIPE;
 }
 
 {INT} {
-  assign_token_value(INT_LITERAL, NULL);
-  update_column();
+  update_token_position();
+  yylval.token.category = INT_LITERAL;
+  yylval.token.value.int_literal = atoi(yytext);
   return TK_LIT_INT;
 }
 
 {FLOAT} {
-  assign_token_value(FLOAT_LITERAL, NULL);
-  update_column();
+  update_token_position();
+  yylval.token.category = FLOAT_LITERAL;
+  yylval.token.value.float_literal = atof(yytext);
   return TK_LIT_FLOAT;
 }
 
 "true" {
-  assign_token_value(BOOL_LITERAL, true);
-  update_column();
+  update_token_position();
+  yylval.token.category = BOOL_LITERAL;
+  yylval.token.value.bool_literal = true;
   return TK_LIT_TRUE;
 }
 
 "false" {
-  assign_token_value(BOOL_LITERAL, false);
-  update_column();
+  update_token_position();
+  yylval.token.category = BOOL_LITERAL;
+  yylval.token.value.bool_literal = false;
   return TK_LIT_FALSE;
 }
 
 {CHAR} {
-  assign_token_value(CHAR_LITERAL, NULL);
-  update_column();
+  update_token_position();
+  yylval.token.category = CHAR_LITERAL;
+  yylval.token.value.char_literal = yytext[1];
   return TK_LIT_CHAR;
 }
 
 {STRING} {
-  assign_token_value(STRING_LITERAL, NULL);
-  update_column();
+  update_token_position();
+  yylval.token.category = STRING_LITERAL;
+  yylval.token.value.string_literal = strndup(yytext + 1, strlen(yytext) - 2);
   return TK_LIT_STRING;
 }
 
 {ID} {
-  assign_token_value(IDENTIFIER, NULL);
-  update_column();
+  update_token_position();
+  yylval.token.category = IDENTIFIER;
+  yylval.token.value.identifier = strdup(yytext);
   return TK_IDENTIFICADOR;
 }
 
@@ -314,48 +336,7 @@ BLOCK_COMMENT_END "*/"
 
 %%
 
-void assign_token_value(TokenCategory category, void* value) {
-    yylval.token.line = yylineno;
-    yylval.token.column = column;
-    yylval.token.category = category;
-
-    switch (category) {
-		case TYPE_KEYWORD:
-			yylval.token.value.type_keyword = value;
-			break;
-		case SCOPE_KEYWORD:
-			yylval.token.value.scope = value;
-			break;
-		case SPECIAL_CHAR:
-			yylval.token.value.special_char = value;
-			break;
-		case BINARY_OPERATOR:
-			yylval.token.value.binary_operator = value;
-			break;
-    case IDENTIFIER:
-        yylval.token.value.identifier = strdup(yytext);
-        break;
-    case INT_LITERAL:
-        yylval.token.value.int_literal = atoi(yytext);
-        break;
-    case FLOAT_LITERAL:
-        yylval.token.value.float_literal = atof(yytext);
-        break;
-    case CHAR_LITERAL:
-        yylval.token.value.char_literal = yytext[1];
-        break;
-    case STRING_LITERAL:
-        yylval.token.value.string_literal = strndup(yytext + 1, strlen(yytext) - 2);
-        break;
-    case BOOL_LITERAL:
-        yylval.token.value.bool_literal = value;
-        break;
-    default:
-        break;
-    }
-}
-
-void update_column() {
+void update_token_position() {
     int i;
     for (i = 0; yytext[i] != '\0'; i++) {
         if (yytext[i] == '\n') {
@@ -364,6 +345,9 @@ void update_column() {
             column++;
         }
     }
+
+    yylval.token.line = yylineno;
+    yylval.token.column = column;
 }
 
 int get_line_number() {
