@@ -96,9 +96,9 @@ extern int get_column_number();
 %type <node> global_var
 
 %type <node> function_declaration
-%type <node> function_params
-%type <node> param_list
-%type <node> param
+%type <param> function_params
+%type <param> param_list
+%type <param> param
 
 %type <node> body
 %type <node> block
@@ -184,7 +184,8 @@ scope_opt: scope { $$ = $1; }
 
 static_opt: TK_PR_STATIC { $$ = true; }
           | %empty { $$ = false; };
-const_opt: TK_PR_CONST | %empty;
+const_opt: TK_PR_CONST { $$ = true; }
+         | %empty { $$ = false; };
 
 array_index: '[' TK_LIT_INT ']' { $$ = $2; };
 
@@ -198,7 +199,7 @@ global_declarations: global_declaration global_declarations { $1->next = $2; $$ 
 
 global_declaration: new_type { $$ = $1; }
                   | global_var { $$ = $1; }
-                  | function_declaration;
+                  | function_declaration { $$ = $1; };
 
 new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' field_list ']' ';' { $$ = make_type_decl($2, $4); };
 field_list: field ':' field_list { $1->next = $3; $$ = $1; }
@@ -217,14 +218,21 @@ global_var:
 
 function_declaration:
   base_type TK_IDENTIFICADOR function_params body            // Base type function
+      { $$ = make_function_decl($1, $2, false, $3, $4); }
   | TK_IDENTIFICADOR TK_IDENTIFICADOR function_params body   // Custom type function
-  | TK_PR_STATIC type TK_IDENTIFICADOR function_params body; // Static function
+      { $$ = make_function_decl(make_type(CUSTOM_T, $1), $2, false, $3, $4); }
+  | TK_PR_STATIC type TK_IDENTIFICADOR function_params body // Static function
+      { $$ = make_function_decl($2, $3, true, $4, $5); };
 
-function_params: '(' ')' | '(' param_list ')';
-param_list: param ',' param_list | param;
-param: const_opt type TK_IDENTIFICADOR;
+function_params: '(' ')' { $$ = NULL; }
+               | '(' param_list ')' { $$ = $2; };
 
-body: block;
+param_list: param ',' param_list { $1->next = $3; $$ = $1; }
+          | param { $$ = $1; };
+
+param: const_opt type TK_IDENTIFICADOR { $$ = make_param($1, $2, $3); };
+
+body: block { $$ = NULL; };
 
 block: '{' commands '}';
 commands: command_or_case commands | %empty;

@@ -724,12 +724,11 @@ Node* make_type_decl(char* id, FieldNode* field) {
   return n;
 }
 
-ParamNode* make_param(bool is_const, TypeNode* type, char* id, ParamNode* next) {
+ParamNode* make_param(bool is_const, TypeNode* type, char* id) {
   ParamNode* n = (ParamNode*) malloc(sizeof(ParamNode));
   n->is_const = is_const;
   n->type = type;
   n->identifier = strdup(id);
-  n->next = next;
   return n;
 }
 
