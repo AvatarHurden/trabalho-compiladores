@@ -1,0 +1,6 @@
+//Identificadores de tipos primitivos simples podem receber valores assim:
+a[10] int;
+int f()
+{
+  a[2] = 2;
+}

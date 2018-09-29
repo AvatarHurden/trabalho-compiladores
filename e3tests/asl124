@@ -1,0 +1,7 @@
+//ERROR: do while sem o do
+int main()
+{
+  {
+    int x;
+  } while ( true );
+}

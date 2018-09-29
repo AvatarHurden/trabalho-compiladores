@@ -4,15 +4,19 @@
 // Private functions
 
 Node* make_node(NodeType type) {
+  printf("\nMalloc Node");
   Node* n = (Node*) malloc(sizeof(Node));
   n->type = type;
+  printf("\nMalloc NodeValue");
   n->value = malloc(sizeof(union NodeValue));
   n->next = NULL;
   return n;
 }
 
 void free_node(Node* node) {
+  printf("\nFree NodeValue");
   free(node->value);
+  printf("\nFree Node\n\n");
   free(node);
 }
 
@@ -27,6 +31,7 @@ void delete_type(TypeNode* type) {
     return;
   if (type->name != NULL)
     free(type->name);
+  printf("\nFree TypeNode");
   free(type);
 }
 
@@ -88,6 +93,7 @@ void delete(Node* node) {
       break;
     case GLOBAL_VAR_DECL:
       delete_type(node->value->global_var_node.type);
+      printf("\nFree global_var_node.identifier");
       free(node->value->global_var_node.identifier);
       break;
     case TYPE_DECL:
@@ -699,6 +705,7 @@ Node* make_tern_op(Node* cond, Node* exp1, Node* exp2) {
 }
 
 TypeNode* make_type(TypeType kind, char* name) {
+  printf("\nMalloc TypeNode");
   TypeNode* n = (TypeNode*) malloc(sizeof(TypeNode));
   n->type = kind;
   if (kind == CUSTOM_T)
@@ -711,6 +718,7 @@ TypeNode* make_type(TypeType kind, char* name) {
 Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size) {
   Node* n = make_node(GLOBAL_VAR_DECL);
   n->value->global_var_node.type = type;
+  printf("\nMalloc global_var_node.identifier");
   n->value->global_var_node.identifier = strdup(id);
   n->value->global_var_node.is_static = is_static;
   n->value->global_var_node.array_size = array_size;
