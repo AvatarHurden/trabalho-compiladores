@@ -288,11 +288,11 @@ field_access_opt: field_access
 field_access: '$' TK_IDENTIFICADOR { $$ = $2; };
 
 assign_or_shift: variable_access '=' expression
-                    { $$ = make_attr(&$1->value->var_node, $3); }
+                    { $$ = make_attr($1, $3); }
                | variable_access TK_OC_SL expression
-                    { $$ = make_shift_l(&$1->value->var_node, $3); }
+                    { $$ = make_shift_l($1, $3); }
                | variable_access TK_OC_SR expression
-                    { $$ = make_shift_r(&$1->value->var_node, $3); };
+                    { $$ = make_shift_r($1, $3); };
 
 input: TK_PR_INPUT expression { $$ = make_input($2); };
 output: TK_PR_OUTPUT expression_list { $$ = make_output($2); };

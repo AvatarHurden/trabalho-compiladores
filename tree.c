@@ -668,10 +668,7 @@ Node* make_variable(char* id, Node* index, char* field) {
   Node* n = make_node(VARIABLE);
   n->value->var_node.identifier = id;
   n->value->var_node.index = index;
-  if (field != NULL)
-    n->value->var_node.field = field;
-  else
-    n->value->var_node.field = NULL;
+  n->value->var_node.field = field;
   return n;
 }
 
@@ -762,21 +759,34 @@ Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, No
   return n;
 }
 
-Node* make_attr(VariableNode* var, Node* value) {
+Node* make_attr(Node* node_var, Node* value) {
+  VariableNode old_var = node_var->value->var_node;
+  VariableNode* new_var = (VariableNode*)malloc(sizeof(VariableNode));
+  new_var->field = old_var.field;
+  new_var->identifier = old_var.identifier;
+  new_var->index = old_var.index;
+  
+  old_var.field = NULL;
+  old_var.identifier = NULL;
+  old_var.index = NULL;
+
+  free(node_var->value);
+  free(node_var);
+
   Node* n = make_node(ATTR);
-  n->value->attr_node.var = var;
+  n->value->attr_node.var = new_var;
   n->value->attr_node.value = value;
   return n;
 }
 
-Node* make_shift_l(VariableNode* var, Node* value) {
+Node* make_shift_l(Node* var, Node* value) {
   Node* n = make_node(SHIFT_L);
   n->value->shift_l_node.var = var;
   n->value->shift_l_node.value = value;
   return n;
 }
 
-Node* make_shift_r(VariableNode* var, Node* value) {
+Node* make_shift_r(Node* var, Node* value) {
   Node* n = make_node(SHIFT_R);
   n->value->shift_r_node.var = var;
   n->value->shift_r_node.value = value;

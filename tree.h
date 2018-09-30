@@ -318,9 +318,9 @@ Node* make_type_decl(char* id, FieldNode* field);
 Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body);
 
 Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init);
-Node* make_attr(VariableNode* var, Node* value);
-Node* make_shift_l(VariableNode* var, Node* value);
-Node* make_shift_r(VariableNode* var, Node* value);
+Node* make_attr(Node* var, Node* value);
+Node* make_shift_l(Node* var, Node* value);
+Node* make_shift_r(Node* var, Node* value);
 
 Node* make_function_call(char* id, Node* arguments);
 Node* make_dot();
