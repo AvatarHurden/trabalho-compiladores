@@ -257,7 +257,8 @@ void print_offset(Node* node, int offset) {
     case BIN_OP:
       indent(offset);
       BinOpNode bin = node->value->bin_op_node;
-      printf("(");
+      if (bin.type != BASH_PIPE && bin.type != FORWARD_PIPE)
+        printf("(");
       print_offset(bin.left, 0);
 
       switch (bin.type) {
@@ -318,7 +319,8 @@ void print_offset(Node* node, int offset) {
       }
 
       print_offset(bin.right, 0);
-      printf(")");
+      if (bin.type != BASH_PIPE && bin.type != FORWARD_PIPE)
+        printf(")");
       break;
     case UN_OP:
       indent(offset);
@@ -765,7 +767,7 @@ Node* make_attr(Node* node_var, Node* value) {
   new_var->field = old_var.field;
   new_var->identifier = old_var.identifier;
   new_var->index = old_var.index;
-  
+
   old_var.field = NULL;
   old_var.identifier = NULL;
   old_var.index = NULL;
