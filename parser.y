@@ -1,10 +1,12 @@
 %{
 #include <stdio.h>
+#include <stdbool.h>
 #include "lex.yy.h"
 int yylex(void);
 void yyerror (char const *s);
 
 extern void *arvore;
+bool invalid_input;
 
 extern int get_line_number();
 extern int get_column_number();
@@ -155,6 +157,11 @@ extern int get_column_number();
 
 %start program
 
+%destructor { if (invalid_input) { delete($$); } else { arvore = $$; } } program
+%destructor { delete($$); } <node>
+%destructor { free($$); $$ = NULL; } <token.value.string_literal>
+%destructor { free($$); $$ = NULL; } <token.value.identifier>
+
 %%
 
 // Utilities
@@ -190,8 +197,8 @@ array_index: '[' TK_LIT_INT ']' { $$ = $2; };
 
 // Grammar
 
-program: global_declarations { arvore = $$; }
-       | %empty { arvore = NULL; };
+program: global_declarations { $$ = $1; }
+       | %empty { $$ = NULL; };
 
 global_declarations: global_declaration global_declarations { $1->next = $2; $$ = $1; }
                    | global_declaration { $$ = $1; };
@@ -436,6 +443,7 @@ operand:
 %%
 
 void yyerror(const char* msg) {
+    invalid_input = true;
     char error_msg[] = "%s at line %d, column %d\n";
     fprintf(stderr, error_msg, msg, get_line_number(), get_column_number());
 }
