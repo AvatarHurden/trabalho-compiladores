@@ -53,6 +53,7 @@ void delete_var(VariableNode* var) {
   delete(var->index);
   if (var->field != NULL)
     free(var->field);
+  free(var);
 }
 
 void delete(Node* node) {
@@ -781,16 +782,42 @@ Node* make_attr(Node* node_var, Node* value) {
   return n;
 }
 
-Node* make_shift_l(Node* var, Node* value) {
+Node* make_shift_l(Node* node_var, Node* value) {
+  VariableNode old_var = node_var->value->var_node;
+  VariableNode* new_var = (VariableNode*)malloc(sizeof(VariableNode));
+  new_var->field = old_var.field;
+  new_var->identifier = old_var.identifier;
+  new_var->index = old_var.index;
+
+  old_var.field = NULL;
+  old_var.identifier = NULL;
+  old_var.index = NULL;
+
+  free(node_var->value);
+  free(node_var);
+
   Node* n = make_node(SHIFT_L);
-  n->value->shift_l_node.var = var;
+  n->value->shift_l_node.var = new_var;
   n->value->shift_l_node.value = value;
   return n;
 }
 
-Node* make_shift_r(Node* var, Node* value) {
+Node* make_shift_r(Node* node_var, Node* value) {
+  VariableNode old_var = node_var->value->var_node;
+  VariableNode* new_var = (VariableNode*)malloc(sizeof(VariableNode));
+  new_var->field = old_var.field;
+  new_var->identifier = old_var.identifier;
+  new_var->index = old_var.index;
+
+  old_var.field = NULL;
+  old_var.identifier = NULL;
+  old_var.index = NULL;
+
+  free(node_var->value);
+  free(node_var);
+
   Node* n = make_node(SHIFT_R);
-  n->value->shift_r_node.var = var;
+  n->value->shift_r_node.var = new_var;
   n->value->shift_r_node.value = value;
   return n;
 }
