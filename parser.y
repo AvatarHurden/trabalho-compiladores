@@ -162,6 +162,10 @@ extern int get_column_number();
 %destructor { free($$); $$ = NULL; } <token.value.string_literal>
 %destructor { free($$); $$ = NULL; } <token.value.identifier>
 
+%destructor { delete_type($$); $$ = NULL; } <type>
+%destructor { delete_param($$); $$ = NULL; } <param>
+%destructor { delete_field($$); $$ = NULL; } <field>
+
 %%
 
 // Utilities

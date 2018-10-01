@@ -296,6 +296,10 @@ typedef union {
 } TokenValue;
 
 void delete(Node* node);
+void delete_field(FieldNode* node);
+void delete_param(ParamNode* node);
+void delete_type(TypeNode* type);
+
 void print(Node* node);
 
 Node* make_int(int value);
