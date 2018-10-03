@@ -10,6 +10,7 @@ TEST_DIR := test
 TEST_EXE := $(TEST_DIR)/run_tests
 
 # Sources
+SRC_FILES := main.c tree.c
 TEST_SRC_FILES := catch.cpp parser_test.cpp scanner_test.cpp
 TEST_SRCS := $(addprefix $(TEST_DIR)/, $(TEST_SRC_FILES))
 
@@ -18,12 +19,12 @@ TEST_OBJ_FILES := $(TEST_SRC_FILES:%.cpp=%.o)
 TEST_OBJS := $(addprefix $(TEST_DIR)/, $(TEST_OBJ_FILES))
 
 # Variables
-etapa=2
+etapa=3
 
 # Rules
 all: lex.yy.o
 	@echo "\n - Link parser"
-	$(CC) $(CFLAGS) main.c lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
+	$(CC) $(CFLAGS) $(SRC_FILES) lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
 	@echo " - Done!"
 
 lex.yy.o: parser.y scanner.l
@@ -43,7 +44,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CPPC) -c $< -o $@
 
 zip:
-	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y
+	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y tree.h tree.c
 
 clean:
 	rm -f etapa* lex.yy.* parser.tab.* *.o test/scanner_test.o test/parser_test.o $(TEST_EXE)

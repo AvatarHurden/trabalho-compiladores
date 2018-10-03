@@ -1,0 +1,6 @@
+//ERROR: foreach com campos obrigatórios
+int main() {
+  foreach( ) {
+
+  };
+}

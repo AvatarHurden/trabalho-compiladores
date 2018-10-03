@@ -14,9 +14,55 @@ class Complex [
   protected float i :
   float r
 ];
+l[5] int;
+
+class Real [
+  private float value
+];
 
 a static Complex;
 
-static int length(Complex a) {}
+static int length(Complex a) {
+  float b;
+  const Complex a;
+  static char t <= 'a';
+  a = 4;
+  a$b << 5;
+  a[3+1]$c >> 'a';
+  case 4:
+  break;
+  continue;
+  input (5 ? 3 : 1);
+  output 4, 'a', x[3], 5 ^ 1;
+  return true;
+  if (4 + 5) then {
+    a << a;
+  } else {
+    return 5;
+  };
+  if (4) then {
+    break;
+  };
+  foreach (x : 4, 3, 'a') {
+    return a;
+  };
+  for (i = 3, a << 2 : 4 : break, { }, return 3) {
+    break;
+  };
+  while (a > 3) do {
+    break;
+  };
+  do {
+    break;
+  } while (4);
+  switch (3) {
+  case 1:
+    break;
+    case 3:
+    break;
+  };
+  f(.);
+  return f(a, 4, .) %>% g();
+}
 
 int sum(int a, const int b) {}

@@ -10,6 +10,12 @@ struct yy_buffer_state;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 extern YY_BUFFER_STATE yy_scan_string(const char* str);
 
+TEST_CASE("Empty program")
+{
+    yy_scan_string("");
+    REQUIRE(yyparse() == 0);
+}
+
 TEST_CASE("Type Declarations")
 {
 
@@ -229,6 +235,37 @@ TEST_CASE("Local Variable Declarations")
         REQUIRE(yyparse() == 1);
     }
 
+}
+
+TEST_CASE("Command block")
+{
+    // Positive tests
+
+    SECTION("Empty block") {
+        yy_scan_string("int main() {"
+                       " {};"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    SECTION("Simple block")
+    {
+        yy_scan_string("int main() {"
+                       " {"
+                       "  int a;"
+                       " };"
+                       "}");
+        REQUIRE(yyparse() == 0);
+    }
+
+    // Negative tests
+
+    SECTION("No-semicolon block") {
+        yy_scan_string("int main() {"
+                       " {}"
+                       "}");
+        REQUIRE(yyparse() != 0);
+    }
 }
 
 TEST_CASE("Attributions")
