@@ -14,3 +14,8 @@
 - Analisador sintático que utiliza a ferramenta `bison`
 - A gramática da linguagem é definida no arquivo `parser.y`
   - O arquivo `tokens.h` deixa de existir, pois os tokens são definidos no `parser.y`
+
+## Etapa 3: Árvore Sintática Abstrata
+
+- Construção da árvore sintática durante o processo de parsing
+- Impressão da árvore construída (`descomplilação`)
