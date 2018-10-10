@@ -27,11 +27,14 @@ struct SymbolElement {
   bool isSeparator;
   Symbol* symbol;
   char* name;
+  struct SymbolElement* next;
 };
 
 typedef struct SymbolsTable {
   struct SymbolElement* head;
 } SymbolsTable;
+
+SymbolsTable* createTable();
 
 void pushScope(SymbolsTable* table);
 void popScope(SymbolsTable* table);
