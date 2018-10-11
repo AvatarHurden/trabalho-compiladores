@@ -94,7 +94,7 @@ typedef enum {
   STRING_T,
   BOOL_T,
   CUSTOM_T
-} TypeType;
+} TypeKind;
 
 typedef enum {
   PRIVATE,
@@ -125,7 +125,7 @@ typedef struct {
 // Helper Nodes
 
 typedef struct {
-  TypeType type;
+  TypeKind kind;
   char* name;
 } TypeNode;
 
@@ -286,7 +286,7 @@ typedef enum  {
 } TokenCategory;
 
 typedef union {
-  TypeType type_keyword;
+  TypeKind type_keyword;
   Scope scope;
   char special_char;
   BinOpType binary_operator;
@@ -316,7 +316,7 @@ Node* make_bin_op(Node* left, BinOpType type, Node* right);
 Node* make_un_op(Node* value, UnOpType type);
 Node* make_tern_op(Node* cond, Node* exp1, Node* exp2);
 
-TypeNode* make_type(TypeType kind, char* name);
+TypeNode* make_type(TypeKind kind, char* name);
 FieldNode* make_field(Scope scope, TypeNode* type, char* id);
 ParamNode* make_param(bool is_const, TypeNode* type, char* id);
 

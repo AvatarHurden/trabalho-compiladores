@@ -182,7 +182,7 @@ void indent(int n) {
 }
 
 void print_type(TypeNode* type) {
-  switch (type->type) {
+  switch (type->kind) {
     case INT_T:
       printf("int");
       break;
@@ -698,9 +698,9 @@ Node* make_tern_op(Node* cond, Node* exp1, Node* exp2) {
   return n;
 }
 
-TypeNode* make_type(TypeType kind, char* name) {
+TypeNode* make_type(TypeKind kind, char* name) {
   TypeNode* n = (TypeNode*) malloc(sizeof(TypeNode));
-  n->type = kind;
+  n->kind = kind;
   if (kind == CUSTOM_T)
     n->name = name;
   else
