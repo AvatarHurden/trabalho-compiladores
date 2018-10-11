@@ -1,3 +1,6 @@
+#ifndef EXAMPLE_H
+#define EXAMPLE_H
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -345,3 +348,5 @@ Node* make_for(Node* initializers, Node* expressions, Node* commands, Node* body
 Node* make_while(Node* cond, Node* body);
 Node* make_do_while(Node* cond, Node* body);
 Node* make_switch(Node* expression, Node* body);
+
+#endif
