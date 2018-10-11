@@ -10,7 +10,7 @@ TEST_DIR := test
 TEST_EXE := $(TEST_DIR)/run_tests
 
 # Sources
-SRC_FILES := main.c tree.c table.c
+SRC_FILES := main.c tree.c table.c semantic.c
 TEST_SRC_FILES := catch.cpp parser_test.cpp scanner_test.cpp
 TEST_SRCS := $(addprefix $(TEST_DIR)/, $(TEST_SRC_FILES))
 
