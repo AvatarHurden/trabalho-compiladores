@@ -1,4 +1,26 @@
 #include "semantic.h"
+#include <string.h>
+
+bool match(TypeNode* t1, TypeNode* t2) {
+  if (t1->kind == CUSTOM_T && t2->kind == CUSTOM_T)
+    return strcmp(t1->name, t2->name) == 0;
+  else
+    return t1->kind == t2->kind;
+}
+
+int size_for_type(TypeNode* type, SymbolsTable* table) {
+  switch (type->kind) {
+    case INT_T: return 4;
+    case FLOAT_T: return 8;
+    case CHAR_T: return 1;
+    case BOOL_T: return 1;
+    case STRING_T: return -1;
+    case CUSTOM_T: {
+      Symbol* s = getSymbol(table, type->name);
+      if (s == NULL) return -1;
+      else return s->size; }
+  }
+}
 
 int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
