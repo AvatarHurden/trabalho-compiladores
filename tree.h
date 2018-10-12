@@ -304,6 +304,7 @@ void delete_param(ParamNode* node);
 void delete_type(TypeNode* type);
 
 void print(Node* node);
+void print_type(TypeNode* type);
 
 Node* make_int(int value);
 Node* make_float(float value);
