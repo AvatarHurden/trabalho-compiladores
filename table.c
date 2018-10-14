@@ -4,6 +4,7 @@
 SymbolsTable* createTable() {
   SymbolsTable* table = malloc(sizeof(SymbolsTable));
   table->head = NULL;
+  table->return_symbol = NULL;
   return table;
 }
 
@@ -23,6 +24,19 @@ Symbol* getSymbol(SymbolsTable* table, char* name) {
     element = element->next;
   if (element == NULL) return NULL;
   else return element->symbol;
+}
+
+void setReturn(SymbolsTable* table, Symbol* symbol) {
+  table->return_symbol = symbol;
+}
+
+// Se retorno não está definido, encerra execução
+Symbol* getReturn(SymbolsTable* table) {
+  if (table->return_symbol == NULL) {
+    printf("Return statement without a defined return type\n");
+    exit(-1);
+  }
+  return table->return_symbol;
 }
 
 void delete_symbol(Symbol* symbol) {
