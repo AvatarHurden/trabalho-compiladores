@@ -190,6 +190,16 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       if (var.index != NULL && s->nature != NAT_VECTOR) return ERR_VARIABLE;
       // Significa que foi usada como simples, mas declarada como vetor
       if (var.index == NULL && s->nature == NAT_VECTOR) return ERR_VECTOR;
+      if (var.index != NULL) {
+        TypeNode index;
+        int check = typecheck(var.index, table, &index);
+        if (check != 0) return check;
+
+        TypeNode intNode;
+        intNode.kind = INT_T;
+        if (convert(intNode, index) != 0)
+          return ERR_WRONG_TYPE;
+      }
       *out = *(s->type);
       return 0; }
     case TYPE_DECL: {
