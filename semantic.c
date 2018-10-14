@@ -178,6 +178,12 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       VariableNode var = node->value->var_node;
       Symbol* s = getSymbol(table, var.identifier);
       if (s == NULL) return ERR_UNDECLARED;
+      if (s->nature == NAT_FUNCTION) return ERR_FUNCTION;
+      if (s->nature == NAT_CLASS) return ERR_USER;
+      // Significa que foi usada como vetor e não é vetor na declaração (só pode ser simples)
+      if (var.index != NULL && s->nature != NAT_VECTOR) return ERR_VARIABLE;
+      // Significa que foi usada como simples, mas declarada como vetor
+      if (var.index == NULL && s->nature == NAT_VECTOR) return ERR_VECTOR;
       *out = *(s->type);
       return 0; }
     case FUNCTION_DECL: {
