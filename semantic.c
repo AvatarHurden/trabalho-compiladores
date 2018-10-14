@@ -205,6 +205,9 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
     case TYPE_DECL: {
       TypeDeclNode decl = node->value->type_decl_node;
 
+      if (getSymbol(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
+
       Symbol* s = makeSymbol(NAT_CLASS, NULL, table);
       if (s == NULL) return ERR_UNDECLARED;
       s->fields = decl.field;
@@ -223,6 +226,9 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
     case GLOBAL_VAR_DECL: {
       GlobalVarNode decl = node->value->global_var_node;
 
+      if (getSymbol(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
+
       enum Nature kind;
       if (decl.array_size >= 0)
         kind = NAT_VECTOR;
@@ -236,6 +242,9 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
     }
     case FUNCTION_DECL: {
       FunctionDeclNode decl = node->value->function_decl_node;
+
+      if (getSymbol(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
 
       Symbol* s = makeSymbol(NAT_FUNCTION, decl.type, table);
       if (s == NULL) return ERR_UNDECLARED;
