@@ -200,7 +200,23 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         if (convert(intNode, index) != 0)
           return ERR_WRONG_TYPE;
       }
-      *out = *(s->type);
+
+      if (var.field != NULL) {
+        char* type_name = s->type->name;
+        Symbol* s = getSymbol(table, type_name);
+        FieldNode* f = s->fields;
+        FieldNode* valid = NULL;
+        while (f != NULL) {
+          if (strcmp(f->identifier, var.field) == 0)
+            valid = f;
+          f = f->next;
+        }
+        if (valid == NULL) return ERR_UNDECLARED;
+        *out = *(valid->type);
+      } else {
+        *out = *(s->type);
+      }
+
       return 0; }
     case TYPE_DECL: {
       TypeDeclNode decl = node->value->type_decl_node;
