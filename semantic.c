@@ -140,6 +140,40 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       }
 
     }
+    case UN_OP: {
+      UnOpNode un = node->value->un_op_node;
+
+      TypeNode value_type;
+      int type = typecheck(un.value, table, &value_type);
+      if (type != 0) return type;
+
+      TypeNode bool_node;
+      bool_node.kind = BOOL_T;
+
+      switch (un.type) {
+        case NOT: {
+          int kind = convert(bool_node, value_type);
+          if (kind == -1) return kind;
+          out->kind = kind;
+          return 0; }
+        case MINUS:
+        case PLUS: {
+          int kind = infer(bool_node, value_type);
+          if (kind == -1) return kind;
+          out->kind = kind;
+          return 0; }
+        case ADDRESS:
+        case VALUE:
+          return ERR_WRONG_TYPE;
+        case EVAL_BOOL: {
+          int kind = convert(bool_node, value_type);
+          if (kind == -1) return kind;
+          out->kind = kind;
+          return 0; }
+        case HASH:
+          return ERR_WRONG_TYPE;
+      }
+    }
     case VARIABLE: {
       VariableNode var = node->value->var_node;
       Symbol* s = getSymbol(table, var.identifier);
