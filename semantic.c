@@ -210,6 +210,20 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
       return typecheck(node->next, table, out);
     }
+    case GLOBAL_VAR_DECL: {
+      GlobalVarNode decl = node->value->global_var_node;
+
+      enum Nature kind;
+      if (decl.array_size >= 0)
+        kind = NAT_VECTOR;
+      else
+        kind = NAT_VARIABLE;
+      Symbol* s = makeSymbol(kind, decl.type, table);
+      if (s == NULL) return ERR_UNDECLARED;
+      addSymbol(table, decl.identifier, s);
+
+      return typecheck(node->next, table, out);
+    }
     case FUNCTION_DECL: {
       FunctionDeclNode decl = node->value->function_decl_node;
 
