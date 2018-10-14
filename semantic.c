@@ -23,9 +23,13 @@ Symbol* makeSymbol(enum Nature nature, TypeNode* type, SymbolsTable* table) {
   s->type = type;
   s->params = NULL;
   s->fields = NULL;
-  int size = size_for_type(type, table);
-  if (size == -1) return NULL;
-  s->size = size;
+  if (type == NULL)
+    s->size = 0;
+  else {
+    int size = size_for_type(type, table);
+    if (size == -1) return NULL;
+    s->size = size;
+  }
   s->line = 0;
   s->column = 0;
   return s;
@@ -64,6 +68,8 @@ int convert(TypeNode expected, TypeNode actual) {
 }
 
 int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
+  if (node == NULL)
+    return 0;
 
   switch (node->type) {
     case INT:
@@ -186,6 +192,24 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       if (var.index == NULL && s->nature == NAT_VECTOR) return ERR_VECTOR;
       *out = *(s->type);
       return 0; }
+    case TYPE_DECL: {
+      TypeDeclNode decl = node->value->type_decl_node;
+
+      Symbol* s = makeSymbol(NAT_CLASS, NULL, table);
+      if (s == NULL) return ERR_UNDECLARED;
+      s->fields = decl.field;
+
+      int size = 0;
+      FieldNode* f = decl.field;
+      while (f != NULL) {
+        size += size_for_type(f->type, table);
+        f = f->next;
+      }
+      s->size = size;
+      addSymbol(table, decl.identifier, s);
+
+      return typecheck(node->next, table, out);
+    }
     case FUNCTION_DECL: {
       FunctionDeclNode decl = node->value->function_decl_node;
 
@@ -205,8 +229,10 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       }
 
       int check = typecheck(decl.body, table, out);
+      if (check != 0) return check;
+
       popScope(table);
-      return check; }
+      return typecheck(node->next, table, out); }
     case RETURN: {
       ListNode ret = node->value->return_node;
 
