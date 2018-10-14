@@ -38,7 +38,7 @@ bool match(TypeNode* t1, TypeNode* t2) {
     return t1->kind == t2->kind;
 }
 
-TypeKind infer(TypeNode left, TypeNode right) {
+int infer(TypeNode left, TypeNode right) {
   if (left.kind == STRING_T ||
       left.kind == CHAR_T ||
       left.kind == CUSTOM_T ||
@@ -55,7 +55,7 @@ TypeKind infer(TypeNode left, TypeNode right) {
   return -1;
 }
 
-TypeKind convert(TypeNode expected, TypeNode actual) {
+int convert(TypeNode expected, TypeNode actual) {
   if (match(&expected, &actual))
     return expected.kind;
   if (infer(expected, actual) != -1)
@@ -100,7 +100,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         case MODULO:
         case POW: {
           // Only numerical types are accepted
-          TypeKind kind = infer(left_type, right_type);
+          int kind = infer(left_type, right_type);
           if (kind == -1) return ERR_WRONG_TYPE;
           out->kind = kind;
           return 0; }
@@ -133,10 +133,10 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
           return ERR_WRONG_TYPE;
         case BIT_AND:
         case BIT_OR:
-          return 0;
+          return ERR_WRONG_TYPE;
         case BASH_PIPE:
         case FORWARD_PIPE:
-          return 0;
+          return ERR_WRONG_TYPE;
       }
 
     }
@@ -175,7 +175,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       if (check != 0) return check;
 
       Symbol* expected_return = getReturn(table);
-      TypeKind kind = convert(*expected_return->type, value_type);
+      int kind = convert(*expected_return->type, value_type);
       if (kind != -1) {
         out->kind = kind;
         return 0;
