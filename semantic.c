@@ -174,7 +174,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         case MINUS:
         case PLUS: {
           int kind = infer(bool_node, value_type);
-          if (kind == -1) return kind;
+          if (kind == -1) return ERR_WRONG_TYPE;
           out->kind = kind;
           return 0; }
         case ADDRESS:
@@ -182,7 +182,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
           return ERR_WRONG_TYPE;
         case EVAL_BOOL: {
           int kind = convert(bool_node, value_type);
-          if (kind == -1) return kind;
+          if (kind == -1) return ERR_WRONG_TYPE;
           out->kind = kind;
           return 0; }
         case HASH:
@@ -232,7 +232,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
         TypeNode intNode;
         intNode.kind = INT_T;
-        if (convert(intNode, index) != 0)
+        if (convert(intNode, index) == -1)
           return ERR_WRONG_TYPE;
       }
 
