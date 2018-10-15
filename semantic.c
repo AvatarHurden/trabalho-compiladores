@@ -67,6 +67,15 @@ int convert(TypeNode expected, TypeNode actual) {
   return -1;
 }
 
+int check_program(Node* node) {
+  SymbolsTable* table = createTable();
+  TypeNode t;
+  int check = typecheck(node, table, &t);
+  popScope(table);
+  free(table);
+  return check;
+}
+
 int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
   if (node == NULL)
     return 0;
@@ -252,6 +261,8 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         kind = NAT_VARIABLE;
       Symbol* s = makeSymbol(kind, decl.type, table);
       if (s == NULL) return ERR_UNDECLARED;
+      if (decl.array_size > 0)
+        s->size = decl.array_size * s->size;
       addSymbol(table, decl.identifier, s);
 
       return typecheck(node->next, table, out);

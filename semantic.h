@@ -31,3 +31,5 @@
 #define ERR_WRONG_PAR_RETURN 502 //parâmetro não é expressão compatível com tipo do retorno
 
 int typecheck(Node* node, SymbolsTable* table, TypeNode* out);
+
+int check_program(Node* node);

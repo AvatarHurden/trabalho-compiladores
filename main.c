@@ -16,12 +16,9 @@ int main (int argc, char **argv)
 {
   int ret = yyparse();
   descompila (arvore);
-  SymbolsTable* table = createTable();
-  TypeNode t;
-  int check = typecheck(arvore, table, &t);
+
+  int check = check_program(arvore);
   printf("\nchecking resulted in %d\n", check);
-  print_type(&t);
-  printf("\n");
   // libera(arvore);
   arvore = NULL;
   yylex_destroy();
