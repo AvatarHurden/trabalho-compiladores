@@ -189,6 +189,32 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
           return ERR_WRONG_TYPE;
       }
     }
+    case TERN_OP: {
+      TernOpNode tern = node->value->tern_op_node;
+
+      TypeNode cond_type;
+      int type = typecheck(tern.cond, table, &cond_type);
+      if (type != 0) return type;
+
+      TypeNode bool_node;
+      bool_node.kind = BOOL_T;
+      int kind = convert(bool_node, cond_type);
+      if (kind == -1) return ERR_WRONG_TYPE;
+
+      TypeNode exp1_type;
+      type = typecheck(tern.exp1, table, &exp1_type);
+      if (type != 0) return type;
+
+      TypeNode exp2_type;
+      type = typecheck(tern.exp2, table, &exp2_type);
+      if (type != 0) return type;
+
+      int ret_kind = convert(exp2_type, exp2_type);
+      if (ret_kind == -1) return ERR_WRONG_TYPE;
+
+      out->kind = ret_kind;
+      return 0;
+    }
     case VARIABLE: {
       VariableNode var = node->value->var_node;
       Symbol* s = getSymbol(table, var.identifier);
