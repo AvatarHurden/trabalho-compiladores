@@ -76,6 +76,44 @@ int check_program(Node* node) {
   return check;
 }
 
+int typecheck_var(VariableNode* var, SymbolsTable* table, TypeNode* out) {
+  Symbol* s = getSymbol(table, var->identifier);
+  if (s == NULL) return ERR_UNDECLARED;
+  if (s->nature == NAT_FUNCTION) return ERR_FUNCTION;
+  if (s->nature == NAT_CLASS) return ERR_USER;
+  // Significa que foi usada como vetor e não é vetor na declaração (só pode ser simples)
+  if (var->index != NULL && s->nature != NAT_VECTOR) return ERR_VARIABLE;
+  // Significa que foi usada como simples, mas declarada como vetor
+  if (var->index == NULL && s->nature == NAT_VECTOR) return ERR_VECTOR;
+  if (var->index != NULL) {
+    TypeNode index;
+    int check = typecheck(var->index, table, &index);
+    if (check != 0) return check;
+
+    TypeNode intNode;
+    intNode.kind = INT_T;
+    if (convert(intNode, index) == -1)
+      return ERR_WRONG_TYPE;
+  }
+
+  if (var->field != NULL) {
+    char* type_name = s->type->name;
+    Symbol* s = getSymbol(table, type_name);
+    FieldNode* f = s->fields;
+    FieldNode* valid = NULL;
+    while (f != NULL) {
+      if (strcmp(f->identifier, var->field) == 0)
+        valid = f;
+      f = f->next;
+    }
+    if (valid == NULL) return ERR_UNDECLARED;
+    *out = *(valid->type);
+  } else {
+    *out = *(s->type);
+  }
+  return 0;
+}
+
 int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
   if (node == NULL)
     return 0;
@@ -96,6 +134,10 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
     case STRING:
       out->kind = STRING_T;
       return 0;
+    case VARIABLE: {
+      VariableNode var = node->value->var_node;
+      return typecheck_var(&var, table, out);
+    }
     case DOT: {
       Symbol* s = getDot(table);
       if (s == NULL) return ERR_UNDECLARED;
@@ -221,45 +263,6 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       out->kind = ret_kind;
       return 0;
     }
-    case VARIABLE: {
-      VariableNode var = node->value->var_node;
-      Symbol* s = getSymbol(table, var.identifier);
-      if (s == NULL) return ERR_UNDECLARED;
-      if (s->nature == NAT_FUNCTION) return ERR_FUNCTION;
-      if (s->nature == NAT_CLASS) return ERR_USER;
-      // Significa que foi usada como vetor e não é vetor na declaração (só pode ser simples)
-      if (var.index != NULL && s->nature != NAT_VECTOR) return ERR_VARIABLE;
-      // Significa que foi usada como simples, mas declarada como vetor
-      if (var.index == NULL && s->nature == NAT_VECTOR) return ERR_VECTOR;
-      if (var.index != NULL) {
-        TypeNode index;
-        int check = typecheck(var.index, table, &index);
-        if (check != 0) return check;
-
-        TypeNode intNode;
-        intNode.kind = INT_T;
-        if (convert(intNode, index) == -1)
-          return ERR_WRONG_TYPE;
-      }
-
-      if (var.field != NULL) {
-        char* type_name = s->type->name;
-        Symbol* s = getSymbol(table, type_name);
-        FieldNode* f = s->fields;
-        FieldNode* valid = NULL;
-        while (f != NULL) {
-          if (strcmp(f->identifier, var.field) == 0)
-            valid = f;
-          f = f->next;
-        }
-        if (valid == NULL) return ERR_UNDECLARED;
-        *out = *(valid->type);
-      } else {
-        *out = *(s->type);
-      }
-
-      return 0;
-    }
     case VAR_DECL: {
       LocalVarNode decl = node->value->local_var_node;
 
@@ -278,6 +281,22 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       Symbol* s = makeSymbol(NAT_VARIABLE, decl.type, table);
       if (s == NULL) return ERR_UNDECLARED;
       addSymbol(table, decl.identifier, s);
+      return 0;
+    }
+    case ATTR: {
+      AttrNode attr = node->value->attr_node;
+
+      TypeNode var_type;
+      int check = typecheck_var(attr.var, table, &var_type);
+      if (check != 0) return check;
+
+      TypeNode value_type;
+      check = typecheck(attr.value, table, &value_type);
+      if (check != 0) return check;
+
+      if (convert(var_type, value_type) == -1)
+        return ERR_WRONG_TYPE;
+      *out = var_type;
       return 0;
     }
     case FUNCTION_CALL: {
