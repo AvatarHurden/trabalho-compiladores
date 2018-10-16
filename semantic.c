@@ -467,6 +467,28 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       }
       return 0;
     }
+    case IF: {
+      IfNode iff = node->value->if_node;
+
+      TypeNode cond_type;
+      int check = typecheck(iff.cond, table, &cond_type);
+      if (check != 0) return check;
+
+      TypeNode b;
+      b.kind = BOOL_T;
+      if (convert(b, cond_type) == -1) return ERR_WRONG_TYPE;
+
+      TypeNode then_type;
+      check = typecheck(iff.then, table, &then_type);
+      if (check != 0) return check;
+
+      if (iff.else_node != NULL) {
+        TypeNode else_type;
+        check = typecheck(iff.else_node, table, &else_type);
+        if (check != 0) return check;
+      }
+      return 0;
+    }
   }
 
   return 0;
