@@ -299,6 +299,26 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       *out = var_type;
       return 0;
     }
+    case SHIFT_L:
+    case SHIFT_R: {
+      AttrNode attr = node->value->attr_node;
+
+      TypeNode var_type;
+      int check = typecheck_var(attr.var, table, &var_type);
+      if (check != 0) return check;
+
+      TypeNode value_type;
+      check = typecheck(attr.value, table, &value_type);
+      if (check != 0) return check;
+
+      TypeNode int_type;
+      int_type.kind = INT_T;
+      if (convert(int_type, value_type) == -1 ||
+          convert(int_type, var_type) == -1)
+        return ERR_WRONG_TYPE;
+      *out = var_type;
+      return 0;
+    }
     case FUNCTION_CALL: {
       FunctionCallNode call = node->value->function_call_node;
 
