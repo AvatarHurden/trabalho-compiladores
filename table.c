@@ -48,6 +48,14 @@ Symbol* getReturn(SymbolsTable* table) {
   return table->return_symbol;
 }
 
+void setDot(SymbolsTable* table, Symbol* symbol) {
+  table->dot_symbol = symbol;
+}
+
+Symbol* getDot(SymbolsTable* table) {
+  return table->dot_symbol;
+}
+
 void delete_symbol(Symbol* symbol) {
   free(symbol);
 }

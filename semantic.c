@@ -96,6 +96,12 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
     case STRING:
       out->kind = STRING_T;
       return 0;
+    case DOT: {
+      Symbol* s = getDot(table);
+      if (s == NULL) return ERR_UNDECLARED;
+      *out = *(s->type);
+      return 0;
+    }
     case BIN_OP: {
       BinOpNode bin = node->value->bin_op_node;
 
