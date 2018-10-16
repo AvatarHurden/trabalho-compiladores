@@ -523,6 +523,23 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
       return 0;
     }
+    case SWITCH: {
+      SwitchNode switchh = node->value->switch_node;
+
+      TypeNode exp_type;
+      int check = typecheck(switchh.expression, table, &exp_type);
+      if (check != 0) return check;
+
+      TypeNode b;
+      b.kind = INT_T;
+      if (convert(b, exp_type) == -1) return ERR_WRONG_TYPE;
+
+      TypeNode body_type;
+      check = typecheck(switchh.body, table, &body_type);
+      if (check != 0) return check;
+
+      return 0;
+    }
   }
 
   return 0;
