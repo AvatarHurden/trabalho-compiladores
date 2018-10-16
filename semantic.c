@@ -263,6 +263,72 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       out->kind = ret_kind;
       return 0;
     }
+    case TYPE_DECL: {
+      TypeDeclNode decl = node->value->type_decl_node;
+
+      if (getSymbol(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
+
+      Symbol* s = makeSymbol(NAT_CLASS, NULL, table);
+      if (s == NULL) return ERR_UNDECLARED;
+      s->fields = decl.field;
+
+      int size = 0;
+      FieldNode* f = decl.field;
+      while (f != NULL) {
+        size += size_for_type(f->type, table);
+        f = f->next;
+      }
+      s->size = size;
+      addSymbol(table, decl.identifier, s);
+
+      return typecheck(node->next, table, out);
+    }
+    case GLOBAL_VAR_DECL: {
+      GlobalVarNode decl = node->value->global_var_node;
+
+      if (getSymbol(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
+
+      enum Nature kind;
+      if (decl.array_size >= 0)
+        kind = NAT_VECTOR;
+      else
+        kind = NAT_VARIABLE;
+      Symbol* s = makeSymbol(kind, decl.type, table);
+      if (s == NULL) return ERR_UNDECLARED;
+      if (decl.array_size > 0)
+        s->size = decl.array_size * s->size;
+      addSymbol(table, decl.identifier, s);
+
+      return typecheck(node->next, table, out);
+    }
+    case FUNCTION_DECL: {
+      FunctionDeclNode decl = node->value->function_decl_node;
+
+      if (getSymbol(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
+
+      Symbol* s = makeSymbol(NAT_FUNCTION, decl.type, table);
+      if (s == NULL) return ERR_UNDECLARED;
+      s->params = decl.param;
+      setReturn(table, s);
+      addSymbol(table, decl.identifier, s);
+
+      pushScope(table);
+      ParamNode* param = decl.param;
+      while (param != NULL) {
+        Symbol* s = makeSymbol(NAT_VARIABLE, param->type, table);
+        if (s == NULL) return ERR_UNDECLARED;
+        addSymbol(table, param->identifier, s);
+        param = param->next;
+      }
+
+      int check = typecheck(decl.body, table, out);
+      if (check != 0) return check;
+
+      popScope(table);
+      return typecheck(node->next, table, out); }
     case VAR_DECL: {
       LocalVarNode decl = node->value->local_var_node;
 
@@ -344,72 +410,6 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       out->kind = s->type->kind;
       return 0;
     }
-    case TYPE_DECL: {
-      TypeDeclNode decl = node->value->type_decl_node;
-
-      if (getSymbol(table, decl.identifier) != NULL)
-        return ERR_DECLARED;
-
-      Symbol* s = makeSymbol(NAT_CLASS, NULL, table);
-      if (s == NULL) return ERR_UNDECLARED;
-      s->fields = decl.field;
-
-      int size = 0;
-      FieldNode* f = decl.field;
-      while (f != NULL) {
-        size += size_for_type(f->type, table);
-        f = f->next;
-      }
-      s->size = size;
-      addSymbol(table, decl.identifier, s);
-
-      return typecheck(node->next, table, out);
-    }
-    case GLOBAL_VAR_DECL: {
-      GlobalVarNode decl = node->value->global_var_node;
-
-      if (getSymbol(table, decl.identifier) != NULL)
-        return ERR_DECLARED;
-
-      enum Nature kind;
-      if (decl.array_size >= 0)
-        kind = NAT_VECTOR;
-      else
-        kind = NAT_VARIABLE;
-      Symbol* s = makeSymbol(kind, decl.type, table);
-      if (s == NULL) return ERR_UNDECLARED;
-      if (decl.array_size > 0)
-        s->size = decl.array_size * s->size;
-      addSymbol(table, decl.identifier, s);
-
-      return typecheck(node->next, table, out);
-    }
-    case FUNCTION_DECL: {
-      FunctionDeclNode decl = node->value->function_decl_node;
-
-      if (getSymbol(table, decl.identifier) != NULL)
-        return ERR_DECLARED;
-
-      Symbol* s = makeSymbol(NAT_FUNCTION, decl.type, table);
-      if (s == NULL) return ERR_UNDECLARED;
-      s->params = decl.param;
-      setReturn(table, s);
-      addSymbol(table, decl.identifier, s);
-
-      pushScope(table);
-      ParamNode* param = decl.param;
-      while (param != NULL) {
-        Symbol* s = makeSymbol(NAT_VARIABLE, param->type, table);
-        if (s == NULL) return ERR_UNDECLARED;
-        addSymbol(table, param->identifier, s);
-        param = param->next;
-      }
-
-      int check = typecheck(decl.body, table, out);
-      if (check != 0) return check;
-
-      popScope(table);
-      return typecheck(node->next, table, out); }
     case RETURN: {
       ListNode ret = node->value->return_node;
 
