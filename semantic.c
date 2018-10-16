@@ -540,6 +540,58 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
       return 0;
     }
+    case FOR: {
+      ForNode forr = node->value->for_node;
+
+      Node* init = forr.initializers;
+      while (init != NULL) {
+        TypeNode init_type;
+        int check = typecheck(init, table, &init_type);
+        if (check != 0) return check;
+        init = init->next;
+      }
+
+      TypeNode exps_type;
+      int check = typecheck(forr.expressions, table, &exps_type);
+      if (check != 0) return check;
+
+      Node* command = forr.commands;
+      while (command != NULL) {
+        TypeNode command_type;
+        int check = typecheck(command, table, &command_type);
+        if (check != 0) return check;
+        command = command->next;
+      }
+
+      TypeNode body_type;
+      check = typecheck(forr.body, table, &body_type);
+      if (check != 0) return check;
+
+      return 0;
+    }
+    case FOR_EACH: {
+      ForEachNode for_each = node->value->for_each_node;
+
+      Node* expr = for_each.expression;
+      TypeNode common_type;
+      bool isFirst = true;
+      while (expr != NULL) {
+        TypeNode exp_type;
+        int check = typecheck(expr, table, &exp_type);
+        if (check != 0) return check;
+        if (isFirst)
+          common_type = exp_type;
+        isFirst = false;
+        if (convert(common_type, exp_type) == -1) return ERR_WRONG_TYPE;
+        expr = expr->next;
+      }
+
+      TypeNode body_type;
+      int check = typecheck(for_each.body, table, &body_type);
+      if (check != 0) return check;
+
+      return 0;
+    }
   }
 
   return 0;
