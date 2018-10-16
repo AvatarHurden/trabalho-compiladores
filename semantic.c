@@ -209,7 +209,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       type = typecheck(tern.exp2, table, &exp2_type);
       if (type != 0) return type;
 
-      int ret_kind = convert(exp2_type, exp2_type);
+      int ret_kind = convert(exp1_type, exp2_type);
       if (ret_kind == -1) return ERR_WRONG_TYPE;
 
       out->kind = ret_kind;
