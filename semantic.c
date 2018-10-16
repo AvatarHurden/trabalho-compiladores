@@ -489,6 +489,40 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       }
       return 0;
     }
+    case WHILE: {
+      WhileNode whilee = node->value->while_node;
+
+      TypeNode cond_type;
+      int check = typecheck(whilee.cond, table, &cond_type);
+      if (check != 0) return check;
+
+      TypeNode b;
+      b.kind = BOOL_T;
+      if (convert(b, cond_type) == -1) return ERR_WRONG_TYPE;
+
+      TypeNode body_type;
+      check = typecheck(whilee.body, table, &body_type);
+      if (check != 0) return check;
+
+      return 0;
+    }
+    case DO_WHILE: {
+      WhileNode whilee = node->value->do_while_node;
+
+      TypeNode cond_type;
+      int check = typecheck(whilee.cond, table, &cond_type);
+      if (check != 0) return check;
+
+      TypeNode b;
+      b.kind = BOOL_T;
+      if (convert(b, cond_type) == -1) return ERR_WRONG_TYPE;
+
+      TypeNode body_type;
+      check = typecheck(whilee.body, table, &body_type);
+      if (check != 0) return check;
+
+      return 0;
+    }
   }
 
   return 0;
