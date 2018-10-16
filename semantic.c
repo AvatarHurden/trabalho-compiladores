@@ -355,8 +355,16 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       } else
         return ERR_WRONG_PAR_RETURN; }
     case BLOCK: {
-      int check = typecheck(node->value->block_node.value, table, out);
-      return check; }
+      ListNode block = node->value->block_node;
+
+      Node* value = block.value;
+      while (value != NULL) {
+        int check = typecheck(value, table, out);
+        if (check != 0) return check;
+        value = value->next;
+      }
+      return 0;
+    }
   }
 
   return 0;
