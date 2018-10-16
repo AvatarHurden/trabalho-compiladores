@@ -274,6 +274,31 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       addSymbol(table, decl.identifier, s);
       return 0;
     }
+    case FUNCTION_CALL: {
+      FunctionCallNode call = node->value->function_call_node;
+
+      Symbol* s = getSymbol(table, call.identifier);
+      if (s == NULL) return ERR_UNDECLARED;
+      if (s->nature == NAT_VARIABLE) return ERR_VARIABLE;
+      if (s->nature == NAT_CLASS) return ERR_USER;
+      if (s->nature == NAT_VECTOR) return ERR_VECTOR;
+
+      Node* arg = call.arguments;
+      ParamNode* param = s->params;
+      while (arg != NULL && param != NULL) {
+        TypeNode arg_type;
+        int check = typecheck(arg, table, &arg_type);
+        if (check != 0) return check;
+        if (convert(*param->type, arg_type) == -1)
+          return ERR_WRONG_TYPE_ARGS;
+        arg = arg->next;
+        param = param->next;
+      }
+      if (arg != NULL) return ERR_EXCESS_ARGS;
+      if (param != NULL) return ERR_MISSING_ARGS;
+      out->kind = s->type->kind;
+      return 0;
+    }
     case TYPE_DECL: {
       TypeDeclNode decl = node->value->type_decl_node;
 
