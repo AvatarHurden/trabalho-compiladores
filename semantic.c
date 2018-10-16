@@ -423,7 +423,35 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         out->kind = kind;
         return 0;
       } else
-        return ERR_WRONG_PAR_RETURN; }
+      return ERR_WRONG_PAR_RETURN;
+    }
+    case INPUT: {
+      ListNode input = node->value->input_node;
+
+      if (input.value->type != VARIABLE) return ERR_WRONG_PAR_INPUT;
+      return 0;
+    }
+    case OUTPUT: {
+      ListNode output = node->value->output_node;
+
+      Node* value = output.value;
+      while (value != NULL) {
+        // Literal de string
+        if (value->type == STRING)
+          value = value->next;
+        else {
+          // Verifica se pode virar uma expressão numérica
+          TypeNode t;
+          int check = typecheck(value, table, &t);
+          if (check != 0) return check;
+          TypeNode int_type;
+          int_type.kind = INT_T;
+          if (convert(int_type, t) == -1) return ERR_WRONG_PAR_OUTPUT;
+          value = value->next;
+        }
+      }
+      return 0;
+    }
     case BLOCK: {
       ListNode block = node->value->block_node;
 
