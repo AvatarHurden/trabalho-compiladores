@@ -44,5 +44,6 @@ void addSymbol(SymbolsTable* table, char* name, Symbol* symbol);
 void setReturn(SymbolsTable* table, Symbol* symbol);
 
 Symbol* getSymbol(SymbolsTable* table, char* name);
+Symbol* getSymbolCurrentScope(SymbolsTable* table, char* name);
 // Se retorno não está definido, encerra execução
 Symbol* getReturn(SymbolsTable* table);

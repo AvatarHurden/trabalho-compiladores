@@ -26,6 +26,15 @@ Symbol* getSymbol(SymbolsTable* table, char* name) {
   else return element->symbol;
 }
 
+Symbol* getSymbolCurrentScope(SymbolsTable* table, char* name) {
+  struct SymbolElement* element = table->head;
+  while (element != NULL &&
+    (!element->isSeparator && strcmp(name, element->name) != 0))
+    element = element->next;
+  if (element == NULL) return NULL;
+  else return element->symbol;
+}
+
 void setReturn(SymbolsTable* table, Symbol* symbol) {
   table->return_symbol = symbol;
 }
