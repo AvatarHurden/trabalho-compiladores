@@ -452,6 +452,10 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       }
       return 0;
     }
+    case BREAK:
+    case CONTINUE:
+    case CASE:
+      return 0;
     case BLOCK: {
       ListNode block = node->value->block_node;
 
