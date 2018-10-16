@@ -252,7 +252,28 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         *out = *(s->type);
       }
 
-      return 0; }
+      return 0;
+    }
+    case VAR_DECL: {
+      LocalVarNode decl = node->value->local_var_node;
+
+      if (getSymbolCurrentScope(table, decl.identifier) != NULL)
+        return ERR_DECLARED;
+
+      if (decl.init != NULL) {
+        TypeNode init_type;
+        int check = typecheck(decl.init, table, &init_type);
+        if (check != 0) return check;
+
+        if (convert(*decl.type, init_type) == -1)
+          return ERR_WRONG_TYPE;
+      }
+
+      Symbol* s = makeSymbol(NAT_VARIABLE, decl.type, table);
+      if (s == NULL) return ERR_UNDECLARED;
+      addSymbol(table, decl.identifier, s);
+      return 0;
+    }
     case TYPE_DECL: {
       TypeDeclNode decl = node->value->type_decl_node;
 
