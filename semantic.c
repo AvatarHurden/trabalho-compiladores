@@ -429,6 +429,11 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       ListNode input = node->value->input_node;
 
       if (input.value->type != VARIABLE) return ERR_WRONG_PAR_INPUT;
+
+      TypeNode t;
+      int check = typecheck(input.value, table, &t);
+      if (check != 0) return check;
+
       return 0;
     }
     case OUTPUT: {
