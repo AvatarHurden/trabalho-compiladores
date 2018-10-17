@@ -44,6 +44,7 @@ void popScope(SymbolsTable* table);
 void addSymbol(SymbolsTable* table, char* name, Symbol* symbol);
 void setReturn(SymbolsTable* table, Symbol* symbol);
 void setDot(SymbolsTable* table, Symbol* symbol);
+void clearDot(SymbolsTable* table);
 
 Symbol* getSymbol(SymbolsTable* table, char* name);
 Symbol* getSymbolCurrentScope(SymbolsTable* table, char* name);

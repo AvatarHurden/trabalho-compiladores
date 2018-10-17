@@ -52,6 +52,10 @@ void setDot(SymbolsTable* table, Symbol* symbol) {
   table->dot_symbol = symbol;
 }
 
+void clearDot(SymbolsTable* table) {
+  table->dot_symbol = NULL;
+}
+
 Symbol* getDot(SymbolsTable* table) {
   return table->dot_symbol;
 }
