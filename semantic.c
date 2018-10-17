@@ -335,6 +335,7 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       if (getSymbolCurrentScope(table, decl.identifier) != NULL)
         return ERR_DECLARED;
 
+      int l = -1;
       if (decl.init != NULL) {
         TypeNode init_type;
         int check = typecheck(decl.init, table, &init_type);
@@ -342,10 +343,14 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
         if (convert(*decl.type, init_type) == -1)
           return ERR_WRONG_TYPE;
+
+        if (init_type.kind == STRING_T)
+          l = strlen(decl.init->value->string_node);
       }
 
       Symbol* s = makeSymbol(NAT_VARIABLE, decl.type, table);
       if (s == NULL) return ERR_UNDECLARED;
+      if (l > - 1) s->size = l;
       addSymbol(table, decl.identifier, s);
       return 0;
     }
@@ -362,6 +367,14 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
       if (convert(var_type, value_type) == -1)
         return ERR_WRONG_TYPE;
+
+      if (value_type.kind == STRING_T && attr.value->type == STRING) {
+        int l = strlen(attr.value->value->string_node);
+        Symbol* s = getSymbol(table, attr.var->identifier);
+        if (s != NULL && s->size == -1)
+          s->size = l;
+      }
+
       *out = var_type;
       return 0;
     }
