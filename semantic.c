@@ -617,9 +617,15 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         expr = expr->next;
       }
 
+      Symbol* s = makeSymbol(NAT_VARIABLE, &common_type, table);
+      pushScope(table);
+      addSymbol(table, for_each.id, s);
+
       TypeNode body_type;
       int check = typecheck(for_each.body, table, &body_type);
       if (check != 0) return check;
+
+      popScope(table);
 
       return 0;
     }
