@@ -1,3 +1,5 @@
+#ifndef SEMANTIC_H
+#define SEMANTIC_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -33,3 +35,7 @@
 int typecheck(Node* node, SymbolsTable* table, TypeNode* out);
 
 int check_program(Node* node);
+
+const char* semantic_error_to_str(int e);
+
+#endif

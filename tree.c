@@ -183,27 +183,32 @@ void indent(int n) {
     putchar('\t');
 }
 
-void print_type(TypeNode* type) {
+const char* type_to_str(TypeNode* type) {
   switch (type->kind) {
     case INT_T:
-      printf("int");
+      return("int");
       break;
     case FLOAT_T:
-      printf("float");
+      return("float");
       break;
     case CHAR_T:
-      printf("char");
+      return("char");
       break;
     case STRING_T:
-      printf("string");
+      return("string");
       break;
     case BOOL_T:
-      printf("bool");
+      return("bool");
       break;
     case CUSTOM_T:
-      printf("%s", type->name);
+      return(type->name);
       break;
   }
+  return "";
+}
+
+void print_type(TypeNode* type) {
+  printf("%s", type_to_str(type));
 }
 
 void print_variable(VariableNode* var) {
@@ -635,6 +640,7 @@ void print(Node* node) {
 
 void descompila(Node* arvore) {
   print_offset(arvore, 0);
+  printf("\n");
 }
 
 // Construction Functions

@@ -1,20 +1,6 @@
 #include "semantic.h"
-#include "tree.h"
-#include <string.h>
 
-int size_for_type(TypeNode* type, SymbolsTable* table) {
-  switch (type->kind) {
-    case INT_T: return 4;
-    case FLOAT_T: return 8;
-    case CHAR_T: return 1;
-    case BOOL_T: return 1;
-    case STRING_T: return -1;
-    case CUSTOM_T: {
-      Symbol* s = getSymbol(table, type->name);
-      if (s == NULL) return -1;
-      else return s->size; }
-  }
-}
+#include <string.h>
 
 // Se essa função retornar NULL, significa que o tipo passado não foi declarado (ERR_UNDECLARED)
 Symbol* makeSymbol(enum Nature nature, TypeNode* type, SymbolsTable* table) {
@@ -71,6 +57,9 @@ int check_program(Node* node) {
   SymbolsTable* table = createTable();
   TypeNode t;
   int check = typecheck(node, table, &t);
+  if (check != 0) {
+    printf("Semantic error: %s\n", semantic_error_to_str(check));
+  }
   popScope(table);
   free(table);
   return check;
@@ -632,4 +621,26 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
   }
 
   return 0;
+}
+
+const char* semantic_error_to_str(int e) {
+  switch(e) {
+    case ERR_UNDECLARED: return "Identifier not declared";
+    case ERR_DECLARED: return "Identifier already declared";
+    case ERR_VARIABLE: return "Identifier should be used as variable";
+    case ERR_VECTOR: return "Identifier should be used as vector";
+    case ERR_FUNCTION: return "Identifier should be used as function";
+    case ERR_USER: return "Identifier should be used as custom type";
+    case ERR_WRONG_TYPE: return "Incompatible types";
+    case ERR_STRING_TO_X: return "Impossible convertion of string variable";
+    case ERR_CHAR_TO_X: return "Impossible convertion of char variable";
+    case ERR_USER_TO_X: return "Impossible convertion of custom type variable";
+    case ERR_MISSING_ARGS: return "Missing arguments";
+    case ERR_EXCESS_ARGS: return "Arguments in excess";
+    case ERR_WRONG_TYPE_ARGS: return "Wrong type arguments";
+    case ERR_WRONG_PAR_INPUT: return "Input parameter should be an identifier";
+    case ERR_WRONG_PAR_OUTPUT: return "Output parameter should be string or expression";
+    case ERR_WRONG_PAR_RETURN: return "Wrong return type";
+  }
+  return "Unknown error";
 }

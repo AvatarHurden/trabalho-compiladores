@@ -27,6 +27,10 @@ all: lex.yy.o
 	$(CC) $(CFLAGS) $(SRC_FILES) lex.yy.o parser.tab.o -lfl -o etapa$(etapa)
 	@echo " - Done!"
 
+debug: CFLAGS += -D_DEBUG
+debug: all
+	@echo " Debug mode"
+
 lex.yy.o: parser.y scanner.l
 	@echo "\n - Compile parser"
 	bison -d parser.y -Wall --verbose

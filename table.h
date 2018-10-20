@@ -1,3 +1,5 @@
+#ifndef TABLE_H
+#define TABLE_H
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -24,15 +26,15 @@ typedef struct Symbol {
   FieldNode* fields;
 } Symbol;
 
-struct SymbolElement {
+typedef struct SymbolElement {
   bool isSeparator;
   Symbol* symbol;
   char* name;
   struct SymbolElement* next;
-};
+} SymbolElement;
 
 typedef struct SymbolsTable {
-  struct SymbolElement* head;
+  SymbolElement* head;
   Symbol* return_symbol;
   Symbol* dot_symbol;
 } SymbolsTable;
@@ -51,3 +53,9 @@ Symbol* getSymbolCurrentScope(SymbolsTable* table, char* name);
 // Se retorno não está definido, encerra execução
 Symbol* getReturn(SymbolsTable* table);
 Symbol* getDot(SymbolsTable* table);
+
+void print_table(SymbolsTable* table);
+void print_symbol(const char* name, Symbol* symbol);
+int size_for_type(TypeNode* type, SymbolsTable* table);
+
+#endif
