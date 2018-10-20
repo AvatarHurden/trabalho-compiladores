@@ -1,5 +1,5 @@
-#ifndef EXAMPLE_H
-#define EXAMPLE_H
+#ifndef TREE_H
+#define TREE_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -49,6 +49,7 @@ typedef enum {
 union NodeValue;
 
 typedef struct Node {
+  int line, column;
   NodeType type;
   union NodeValue* value;
   struct Node* next;
@@ -138,6 +139,7 @@ typedef struct FieldNode {
 } FieldNode;
 
 typedef struct ParamNode {
+  int line, column;
   bool is_const;
   TypeNode* type;
   char* identifier;
@@ -298,12 +300,20 @@ typedef union {
   char* string_literal;
 } TokenValue;
 
+typedef struct Token {
+  int line;
+  int column;
+  TokenCategory category;
+  TokenValue value;
+} Token;
+
 void delete(Node* node);
 void delete_field(FieldNode* node);
 void delete_param(ParamNode* node);
 void delete_type(TypeNode* type);
 
 void print(Node* node);
+const char* type_to_str(TypeNode* type);
 void print_type(TypeNode* type);
 
 Node* make_int(int value);
@@ -311,7 +321,7 @@ Node* make_float(float value);
 Node* make_bool(bool value);
 Node* make_char(char value);
 Node* make_string(char* value);
-Node* make_variable(char* id, Node* index, char* field);
+Node* make_variable(Token token, Node* index, char* field);
 
 Node* make_bin_op(Node* left, BinOpType type, Node* right);
 Node* make_un_op(Node* value, UnOpType type);
@@ -319,13 +329,13 @@ Node* make_tern_op(Node* cond, Node* exp1, Node* exp2);
 
 TypeNode* make_type(TypeKind kind, char* name);
 FieldNode* make_field(Scope scope, TypeNode* type, char* id);
-ParamNode* make_param(bool is_const, TypeNode* type, char* id);
+ParamNode* make_param(bool is_const, TypeNode* type, Token token);
 
-Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size);
-Node* make_type_decl(char* id, FieldNode* field);
-Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body);
+Node* make_global_var(TypeNode* type, Token token, bool is_static, int array_size);
+Node* make_type_decl(Token token, FieldNode* field);
+Node* make_function_decl(TypeNode* type, Token token, bool is_static, ParamNode* param, Node* body);
 
-Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init);
+Node* make_local_var(TypeNode* type, Token token, bool is_static, bool is_const, Node* init);
 Node* make_attr(Node* var, Node* value);
 Node* make_shift_l(Node* var, Node* value);
 Node* make_shift_r(Node* var, Node* value);

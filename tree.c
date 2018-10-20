@@ -8,6 +8,8 @@ Node* make_node(NodeType type) {
   n->type = type;
   n->value = malloc(sizeof(union NodeValue));
   n->next = NULL;
+  n->line = 0;
+  n->column = 0;
   return n;
 }
 
@@ -667,9 +669,11 @@ Node* make_string(char* value) {
   return n;
 }
 
-Node* make_variable(char* id, Node* index, char* field) {
+Node* make_variable(Token token, Node* index, char* field) {
   Node* n = make_node(VARIABLE);
-  n->value->var_node.identifier = id;
+  n->line = token.line;
+  n->column = token.column;
+  n->value->var_node.identifier = token.value.identifier;
   n->value->var_node.index = index;
   n->value->var_node.field = field;
   return n;
@@ -708,10 +712,12 @@ TypeNode* make_type(TypeKind kind, char* name) {
   return n;
 }
 
-Node* make_global_var(TypeNode* type, char* id, bool is_static, int array_size) {
+Node* make_global_var(TypeNode* type, Token token, bool is_static, int array_size) {
   Node* n = make_node(GLOBAL_VAR_DECL);
+  n->line = token.line;
+  n->column = token.column;
   n->value->global_var_node.type = type;
-  n->value->global_var_node.identifier = id;
+  n->value->global_var_node.identifier = token.value.identifier;
   n->value->global_var_node.is_static = is_static;
   n->value->global_var_node.array_size = array_size;
   return n;
@@ -726,36 +732,44 @@ FieldNode* make_field(Scope scope, TypeNode* type, char* id) {
   return n;
 }
 
-Node* make_type_decl(char* id, FieldNode* field) {
+Node* make_type_decl(Token token, FieldNode* field) {
   Node* n = make_node(TYPE_DECL);
-  n->value->type_decl_node.identifier = id;
+  n->line = token.line;
+  n->column = token.column;
+  n->value->type_decl_node.identifier = token.value.identifier;
   n->value->type_decl_node.field = field;
   return n;
 }
 
-ParamNode* make_param(bool is_const, TypeNode* type, char* id) {
+ParamNode* make_param(bool is_const, TypeNode* type, Token token) {
   ParamNode* n = (ParamNode*) malloc(sizeof(ParamNode));
+  n->line = token.line;
+  n->column = token.column;
   n->is_const = is_const;
   n->type = type;
-  n->identifier = id;
+  n->identifier = token.value.identifier;
   n->next = NULL;
   return n;
 }
 
-Node* make_function_decl(TypeNode* type, char* id, bool is_static, ParamNode* param, Node* body) {
+Node* make_function_decl(TypeNode* type, Token token, bool is_static, ParamNode* param, Node* body) {
   Node* n = make_node(FUNCTION_DECL);
+  n->line = token.line;
+  n->column = token.column;
   n->value->function_decl_node.type = type;
-  n->value->function_decl_node.identifier = id;
+  n->value->function_decl_node.identifier = token.value.identifier;
   n->value->function_decl_node.is_static = is_static;
   n->value->function_decl_node.param = param;
   n->value->function_decl_node.body = body;
   return n;
 }
 
-Node* make_local_var(TypeNode* type, char* id, bool is_static, bool is_const, Node* init) {
+Node* make_local_var(TypeNode* type, Token token, bool is_static, bool is_const, Node* init) {
   Node* n = make_node(VAR_DECL);
+  n->line = token.line;
+  n->column = token.column;
   n->value->local_var_node.type = type;
-  n->value->local_var_node.identifier = id;
+  n->value->local_var_node.identifier = token.value.identifier;
   n->value->local_var_node.is_static = is_static;
   n->value->local_var_node.is_const = is_const;
   n->value->local_var_node.init = init;

@@ -347,7 +347,7 @@ void update_token_position() {
     }
 
     yylval.token.line = yylineno;
-    yylval.token.column = column;
+    yylval.token.column = column - strlen(yytext);
 }
 
 int get_line_number() {

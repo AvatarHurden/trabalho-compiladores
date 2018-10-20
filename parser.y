@@ -20,12 +20,7 @@ extern int get_column_number();
 }
 
 %union {
-  struct Token {
-    int line;
-    int column;
-    TokenCategory category;
-    TokenValue value;
-  } token;
+  Token token;
   Node* node;
   TypeNode* type;
   FieldNode* field;
@@ -75,7 +70,7 @@ extern int get_column_number();
 %token <token.value.bool_literal> TK_LIT_TRUE
 %token <token.value.char_literal> TK_LIT_CHAR
 %token <token.value.string_literal> TK_LIT_STRING
-%token <token.value.identifier> TK_IDENTIFICADOR
+%token <token> TK_IDENTIFICADOR
 %token TOKEN_ERRO
 
 %type <node> literal
@@ -187,7 +182,7 @@ base_type: TK_PR_INT { $$ = make_type($1, NULL); }
          | TK_PR_STRING { $$ = make_type($1, NULL); }
          | TK_PR_FLOAT { $$ = make_type($1, NULL); };
 type: base_type { $$ = $1; }
-    | TK_IDENTIFICADOR { $$ = make_type(CUSTOM_T, $1); };
+    | TK_IDENTIFICADOR { $$ = make_type(CUSTOM_T, $1.value.identifier); };
 
 scope: TK_PR_PRIVATE | TK_PR_PUBLIC | TK_PR_PROTECTED;
 scope_opt: scope { $$ = $1; }
@@ -215,13 +210,13 @@ global_declaration: new_type { $$ = $1; }
 new_type: TK_PR_CLASS TK_IDENTIFICADOR '[' field_list ']' ';' { $$ = make_type_decl($2, $4); };
 field_list: field ':' field_list { $1->next = $3; $$ = $1; }
           | field { $$ = $1; };
-field: scope_opt base_type TK_IDENTIFICADOR { $$ = make_field($1, $2, $3); };
+field: scope_opt base_type TK_IDENTIFICADOR { $$ = make_field($1, $2, $3.value.identifier); };
 
 global_var:
   TK_IDENTIFICADOR base_type ';'                     // Base type variable
       { $$ = make_global_var($2, $1, false, -1); }
   | TK_IDENTIFICADOR TK_IDENTIFICADOR ';'            // Custom type variable
-      { $$ = make_global_var(make_type(CUSTOM_T, $2), $1, false, -1); }
+      { $$ = make_global_var(make_type(CUSTOM_T, $2.value.identifier), $1, false, -1); }
   | TK_IDENTIFICADOR array_index static_opt type ';' // Array variable
       { $$ = make_global_var($4, $1, $3, $2); }
   | TK_IDENTIFICADOR TK_PR_STATIC type ';'          // Static variable
@@ -231,7 +226,7 @@ function_declaration:
   base_type TK_IDENTIFICADOR function_params body            // Base type function
       { $$ = make_function_decl($1, $2, false, $3, $4); }
   | TK_IDENTIFICADOR TK_IDENTIFICADOR function_params body   // Custom type function
-      { $$ = make_function_decl(make_type(CUSTOM_T, $1), $2, false, $3, $4); }
+      { $$ = make_function_decl(make_type(CUSTOM_T, $1.value.identifier), $2, false, $3, $4); }
   | TK_PR_STATIC type TK_IDENTIFICADOR function_params body // Static function
       { $$ = make_function_decl($2, $3, true, $4, $5); };
 
@@ -282,7 +277,7 @@ simple_local_var_decl:
   base_type TK_IDENTIFICADOR init_opt    // Base type local var
       { $$ = make_local_var($1, $2, false, false, $3); }
   | TK_IDENTIFICADOR TK_IDENTIFICADOR   // Custom type local var
-      { $$ = make_local_var(make_type(CUSTOM_T, $1), $2, false, false, NULL); };
+      { $$ = make_local_var(make_type(CUSTOM_T, $1.value.identifier), $2, false, false, NULL); };
 
 init_opt: TK_OC_LE lit_or_id { $$ = $2; }
         | %empty { $$ = NULL; };
@@ -297,7 +292,7 @@ variable_access:
 
 field_access_opt: field_access
                 | %empty { $$ = NULL; };
-field_access: '$' TK_IDENTIFICADOR { $$ = $2; };
+field_access: '$' TK_IDENTIFICADOR { $$ = $2.value.identifier; };
 
 assign_or_shift: variable_access '=' expression
                     { $$ = make_attr($1, $3); }
@@ -324,7 +319,7 @@ else_opt: TK_PR_ELSE block { $$ = $2; }
         | %empty { $$ = NULL; };
 
 foreach: TK_PR_FOREACH '(' TK_IDENTIFICADOR ':' expression_list ')' block
-      { $$ = make_for_each($3, $5, $7); };
+      { $$ = make_for_each($3.value.identifier, $5, $7); };
 
 for: TK_PR_FOR '(' commands_comma_separated ':' expression ':' commands_comma_separated ')' block
       { $$ = make_for($3, $5, $7, $9); };
@@ -348,7 +343,7 @@ function_call:
         { $$ = make_bin_op($1, $2, $3); };
 
 function: TK_IDENTIFICADOR '(' argument_list_opt ')'
-      { $$ = make_function_call($1, $3); };
+      { $$ = make_function_call($1.value.identifier, $3); };
 
 argument_list_opt:
       argument_list
