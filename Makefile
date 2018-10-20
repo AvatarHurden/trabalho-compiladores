@@ -19,7 +19,7 @@ TEST_OBJ_FILES := $(TEST_SRC_FILES:%.cpp=%.o)
 TEST_OBJS := $(addprefix $(TEST_DIR)/, $(TEST_OBJ_FILES))
 
 # Variables
-etapa=3
+etapa=4
 
 # Rules
 all: lex.yy.o
@@ -44,7 +44,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CPPC) -c $< -o $@
 
 zip:
-	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y tree.h tree.c
+	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y tree.h tree.c table.h table.c semantic.h semantic.c
 
 clean:
 	rm -f etapa* lex.yy.* parser.tab.* *.o test/scanner_test.o test/parser_test.o $(TEST_EXE)
