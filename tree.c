@@ -6,6 +6,7 @@
 Node* make_node(NodeType type) {
   Node* n = (Node*) malloc(sizeof(Node));
   n->type = type;
+  n->coerced_to = -1;
   n->value = malloc(sizeof(union NodeValue));
   n->next = NULL;
   n->line = 0;
@@ -947,4 +948,16 @@ Node* make_switch(Node* expression, Node* body) {
   n->value->switch_node.expression = expression;
   n->value->switch_node.body = body;
   return n;
+}
+
+char* kind_to_str(int kind) {
+  switch(kind) {
+    case INT_T: return "int";
+    case FLOAT_T: return "float";
+    case CHAR_T: return "char";
+    case BOOL_T: return "bool";
+    case STRING_T: return "string";
+    case CUSTOM_T: return "custom";
+  }
+  return "";
 }

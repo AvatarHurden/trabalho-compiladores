@@ -48,8 +48,9 @@ int infer(TypeNode left, TypeNode right) {
 int convert(TypeNode expected, TypeNode actual) {
   if (match(&expected, &actual))
     return expected.kind;
-  if (infer(expected, actual) != -1)
+  if (infer(expected, actual) != -1) {
     return expected.kind;
+  }
   return -1;
 }
 
@@ -80,8 +81,12 @@ int typecheck_var(VariableNode* var, SymbolsTable* table, TypeNode* out) {
 
     TypeNode intNode;
     intNode.kind = INT_T;
-    if (convert(intNode, index) == -1)
+    int final_type = convert(intNode, index);
+    if (final_type == -1)
       return ERR_WRONG_TYPE;
+    if (final_type != index.kind) {
+      var->index->coerced_to = final_type;
+    }
   }
 
   if (var->field != NULL) {
@@ -207,8 +212,13 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         int check = typecheck(decl.init, table, &init_type);
         if (check != 0) return check;
 
-        if (convert(*decl.type, init_type) == -1)
+        int final_type = convert(*decl.type, init_type);
+        if (final_type == -1)
           return ERR_WRONG_TYPE;
+        if (final_type != init_type.kind) {
+          //printf("\n%s coerced to %s\n", type_to_str(&init_type), kind_to_str(final_type));
+          decl.init->coerced_to = final_type;
+        }
 
         if (init_type.kind == STRING_T)
           len = strlen(decl.init->value->string_node);
@@ -277,18 +287,18 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
         case LESS_THAN:
         case GREATER_EQUAL:
         case LESS_EQUAL:
-          out->kind = BOOL_T;
-          // Check for numerical inference
-          if (convert(left_type, right_type) != -1)
-            return 0;
-          return ERR_WRONG_TYPE;
         case EQUAL:
         case NOT_EQUAL:
           out->kind = BOOL_T;
           // Check for numerical inference
-          if (convert(left_type, right_type) != -1)
-            return 0;
-          return ERR_WRONG_TYPE;
+          int final_type = convert(left_type, right_type);
+          if (final_type == -1)
+            return ERR_WRONG_TYPE;
+          if (final_type != left_type.kind) {
+            //printf("\n%s coerced to %s\n", type_to_str(&left_type), kind_to_str(final_type));
+            bin.left->coerced_to = final_type;
+          }
+          return 0;
         case AND:
         case OR:
           if (left_type.kind == BOOL_T && right_type.kind == BOOL_T) {
@@ -332,9 +342,14 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
       switch (un.type) {
         case NOT: {
-          int kind = convert(bool_node, value_type);
-          if (kind == -1) return kind;
-          out->kind = kind;
+          int final_type = convert(bool_node, value_type);
+          if (final_type == -1)
+            return final_type;
+          if (final_type != value_type.kind) {
+            //printf("\n%s coerced to %s\n", type_to_str(&value_type), kind_to_str(final_type));
+            node->coerced_to = final_type;
+          }
+          out->kind = final_type;
           return 0; }
         case MINUS:
         case PLUS: {
@@ -393,8 +408,13 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
       check = typecheck(attr.value, table, &value_type);
       if (check != 0) return check;
 
-      if (convert(var_type, value_type) == -1)
+      int final_type = convert(var_type, value_type);
+      if (final_type == -1)
         return ERR_WRONG_TYPE;
+      if (final_type != value_type.kind) {
+        //printf("\n%s coerced to %s\n", type_to_str(&value_type), kind_to_str(final_type));
+        node->coerced_to = final_type;
+      }
 
       if (value_type.kind == STRING_T && attr.value->type == STRING) {
         int len = strlen(attr.value->value->string_node);
@@ -520,7 +540,14 @@ int typecheck(Node* node, SymbolsTable* table, TypeNode* out) {
 
       TypeNode b;
       b.kind = BOOL_T;
-      if (convert(b, cond_type) == -1) return ERR_WRONG_TYPE;
+
+      int final_type = convert(b, cond_type);
+      if (final_type == -1)
+        return ERR_WRONG_TYPE;
+      if (final_type != cond_type.kind) {
+        //printf("\n%s coerced to %s\n", type_to_str(&cond_type), kind_to_str(final_type));
+        node->coerced_to = final_type;
+      }
 
       TypeNode then_type;
       check = typecheck(iff.then, table, &then_type);

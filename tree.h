@@ -48,13 +48,6 @@ typedef enum {
 
 union NodeValue;
 
-typedef struct Node {
-  int line, column;
-  NodeType type;
-  union NodeValue* value;
-  struct Node* next;
-} Node;
-
 // ENUMS
 
 typedef enum {
@@ -103,6 +96,14 @@ typedef enum {
   PROTECTED,
   NO_SCOPE
 } Scope;
+
+typedef struct Node {
+  int line, column;
+  NodeType type;
+  TypeKind coerced_to;
+  union NodeValue* value;
+  struct Node* next;
+} Node;
 
 // Operator Nodes
 
@@ -359,5 +360,7 @@ Node* make_for(Node* initializers, Node* expressions, Node* commands, Node* body
 Node* make_while(Node* cond, Node* body);
 Node* make_do_while(Node* cond, Node* body);
 Node* make_switch(Node* expression, Node* body);
+
+char* kind_to_str(int kind);
 
 #endif
