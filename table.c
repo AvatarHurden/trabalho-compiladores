@@ -71,6 +71,16 @@ void delete_element(SymbolElement* element) {
   free(element);
 }
 
+void delete_table(SymbolsTable* table) {
+  if (table->head) {
+    delete_element(table->head);
+  }
+  if (table->dot_symbol) {
+    delete_symbol(table->dot_symbol);
+  }
+  free(table);
+}
+
 void pushScope(SymbolsTable* table) {
   SymbolElement* element = malloc(sizeof(SymbolElement));
   element->isSeparator = true;

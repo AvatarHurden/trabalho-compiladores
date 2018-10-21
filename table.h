@@ -40,6 +40,7 @@ typedef struct SymbolsTable {
 } SymbolsTable;
 
 SymbolsTable* createTable();
+void delete_table(SymbolsTable* table);
 
 void pushScope(SymbolsTable* table);
 void popScope(SymbolsTable* table);

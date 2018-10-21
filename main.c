@@ -15,11 +15,11 @@ void libera (void *arvore);
 int main (int argc, char **argv)
 {
   int ret = yyparse();
-  descompila (arvore);
-
-  int check = check_program(arvore);
-  printf("\nchecking resulted in %d\n", check);
-  // libera(arvore);
+  if (ret == 0) {
+    //descompila (arvore);
+    ret = check_program(arvore);
+  }
+  libera(arvore);
   arvore = NULL;
   yylex_destroy();
   return ret;

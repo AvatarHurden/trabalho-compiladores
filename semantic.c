@@ -60,8 +60,7 @@ int check_program(Node* node) {
   if (check != 0) {
     printf("Semantic error: %s\n", semantic_error_to_str(check));
   }
-  popScope(table);
-  free(table);
+  delete_table(table);
   return check;
 }
 
