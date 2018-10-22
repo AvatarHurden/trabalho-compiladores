@@ -90,6 +90,8 @@ int typecheck_var(VariableNode* var, SymbolsTable* table, TypeNode* out) {
   }
 
   if (var->field != NULL) {
+    if (s->type->kind != CUSTOM_T)
+      return ERR_VARIABLE;
     char* type_name = s->type->name;
     Symbol* s = getSymbol(table, type_name);
     FieldNode* f = s->fields;
