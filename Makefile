@@ -10,7 +10,7 @@ TEST_DIR := test
 TEST_EXE := $(TEST_DIR)/run_tests
 
 # Sources
-SRC_FILES := main.c tree.c table.c semantic.c
+SRC_FILES := main.c tree.c table.c semantic.c iloc.c
 TEST_SRC_FILES := catch.cpp parser_test.cpp scanner_test.cpp
 TEST_SRCS := $(addprefix $(TEST_DIR)/, $(TEST_SRC_FILES))
 
@@ -19,7 +19,7 @@ TEST_OBJ_FILES := $(TEST_SRC_FILES:%.cpp=%.o)
 TEST_OBJS := $(addprefix $(TEST_DIR)/, $(TEST_OBJ_FILES))
 
 # Variables
-etapa=4
+etapa=5
 
 # Rules
 all: lex.yy.o
