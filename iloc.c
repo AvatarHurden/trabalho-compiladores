@@ -37,6 +37,9 @@ void generate_code(Node* node) {
     case BIN_OP:
         bin_op_code(node->value->bin_op_node);
         break;
+    case UN_OP:
+        un_op_code(node->value->un_op_node);
+        break;
     case IF:
         if_code(node->value->if_node);
         break;
@@ -118,6 +121,27 @@ void bin_op_code(BinOpNode node) {
         break;
     default:
         break;
+    }
+}
+
+void un_op_code(UnOpNode node) {
+    generate_code(node.value);
+    if (node.type == NOT) {
+        int label_true = new_label();
+        int label_false = new_label();
+        int label_end = new_label();
+        printf("cbr r%d -> L%d, L%d // NOT\n", reg_counter, label_true, label_false);
+        printf("L%d: loadI false => r%d\n", label_true, reg_counter);
+        printf("jumpI -> L%d\n", label_end);
+        printf("L%d: loadI true => r%d\n", label_false, reg_counter);
+        printf("L%d: // END NOT\n", label_end);
+    } else if (node.type == MINUS) {
+        int expression_reg = reg_counter;
+        int zero_reg = new_reg();
+        int result_reg = new_reg();
+        printf("loadI 0 => r%d\n", zero_reg);
+        printf("subI r%d, r%d => r%d", zero_reg, expression_reg, result_reg);
+        printf(" // r%d = 0 - r%d\n", result_reg, expression_reg);
     }
 }
 

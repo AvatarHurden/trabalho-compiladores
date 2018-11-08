@@ -14,6 +14,7 @@ void attr_code(AttrNode attr_node);
 void int_code(int int_node);
 void var_access_code(VariableNode var_node);
 
+void un_op_code(UnOpNode node);
 void bin_op_code(BinOpNode node);
 void logic_expression(BinOpNode node);
 void relational_expression(BinOpNode node);
