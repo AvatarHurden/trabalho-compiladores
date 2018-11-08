@@ -123,7 +123,10 @@ void logic_expression(BinOpNode node) {
     int result_reg = reg_counter;
     int eval_right = new_label();
     int skip_right = new_label();
-    printf("cbr r%d -> L%d, L%d", result_reg, eval_right, skip_right);
+    if (node.type == AND)
+        printf("cbr r%d -> L%d, L%d", result_reg, eval_right, skip_right);
+    else
+        printf("cbr r%d -> L%d, L%d", result_reg, skip_right, eval_right);
     printf(" // Depending on result, skip right eval (short circuit)\n");
     printf("L%d: nop\n", eval_right);
     generate_code(node.right);
@@ -136,9 +139,9 @@ void logic_expression(BinOpNode node) {
 
 void relational_expression(BinOpNode node) {
     generate_code(node.left);
-    int left_result = new_reg();
+    int left_result = reg_counter;
     generate_code(node.right);
-    int right_result = new_reg();
+    int right_result = reg_counter;
     int cmp_result = new_reg();
 
     char op[3];
@@ -157,9 +160,9 @@ void relational_expression(BinOpNode node) {
 
 void arithmetic_expression(BinOpNode node) {
     generate_code(node.left);
-    int left_result = new_reg();
+    int left_result = reg_counter;
     generate_code(node.right);
-    int right_result = new_reg();
+    int right_result = reg_counter;
     int result_reg = new_reg();
 
     char op[5];
@@ -179,20 +182,15 @@ void if_code(IfNode if_node) {
     printf("// IF\n");
     generate_code(if_node.cond);
     int result_reg = reg_counter;
-    int zero_reg = new_reg();
-    int cmp_reg = new_reg();
-    printf("loadI 0 => r%d // LOAD ZERO (IF)\n", zero_reg);
-    printf("cmp_NE r%d, r%d -> r%d", result_reg, zero_reg, cmp_reg);
-    printf(" // Check if result (r%d) is zero\n", result_reg);
     int then_label = new_label();
     int else_label = new_label();
     int endif_label = new_label();
-    printf("cbr r%d -> L%d, L%d", cmp_reg, then_label, else_label);
-    printf(" // If it was zero, goto else (L%d)\n", else_label);
-    printf("L%d: nop // then\n", then_label);
+    printf("cbr r%d -> L%d, L%d", result_reg, then_label, else_label);
+    printf(" // If result (r%d) is false, goto else (L%d)\n", result_reg, else_label);
+    printf("L%d: nop // THEN\n", then_label);
     generate_code(if_node.then);
-    printf("jumpI -> L%d // goto done\n", endif_label);
-    printf("L%d: nop // else\n", else_label);
+    printf("jumpI -> L%d // goto ENDIF\n", endif_label);
+    printf("L%d: nop // ELSE\n", else_label);
     generate_code(if_node.else_node);
     printf("L%d: nop\n// ENDIF\n", endif_label);
 }
