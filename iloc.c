@@ -28,9 +28,6 @@ void generate_code(Node* node) {
     case ATTR:
         attr_code(node->value->attr_node);
         break;
-    case IF:
-        if_code(node->value->if_node);
-        break;
     case INT:
         int_code(node->value->int_node);
         break;
@@ -39,6 +36,15 @@ void generate_code(Node* node) {
         break;
     case BIN_OP:
         bin_op_code(node->value->bin_op_node);
+        break;
+    case IF:
+        if_code(node->value->if_node);
+        break;
+    case WHILE:
+        while_code(node->value->while_node);
+        break;
+    case DO_WHILE:
+        do_while_code(node->value->do_while_node);
         break;
     default:
         break;
@@ -193,6 +199,35 @@ void if_code(IfNode if_node) {
     printf("L%d: nop // ELSE\n", else_label);
     generate_code(if_node.else_node);
     printf("L%d: nop\n// ENDIF\n", endif_label);
+}
+
+void while_code(WhileNode while_node) {
+    printf("// WHILE\n");
+    int test_label = new_label();
+    printf("L%d: nop // TEST\n", test_label);
+    generate_code(while_node.cond);
+    int test_result = reg_counter;
+    int enter_label = new_label();
+    int leave_label = new_label();
+    printf("cbr r%d -> L%d, L%d", test_result, enter_label, leave_label);
+    printf(" // If test result (r%d) is false, leave while(L%d)\n", test_result, leave_label);
+    printf("L%d: nop // ENTER WHILE\n", enter_label);
+    generate_code(while_node.body);
+    printf("jumpI -> L%d // goto TEST\n", test_label);
+    printf("L%d: nop // LEAVE WHILE\n", leave_label);
+}
+
+void do_while_code(WhileNode do_while_node) {
+    int enter_label = new_label();
+    printf("L%d: nop // ENTER DO WHILE\n", enter_label);
+    generate_code(do_while_node.body);
+    printf("// TEST\n");
+    generate_code(do_while_node.cond);
+    int test_result = reg_counter;
+    int leave_label = new_label();
+    printf("cbr r%d -> L%d, L%d", test_result, enter_label, leave_label);
+    printf(" // If test result (r%d) is true, enter do while(L%d)\n", test_result, enter_label);
+    printf("L%d: nop // LEAVE DO WHILE\n", leave_label);
 }
 
 Memory* find_memory(char* id) {

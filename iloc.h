@@ -20,6 +20,8 @@ void relational_expression(BinOpNode node);
 void arithmetic_expression(BinOpNode node);
 
 void if_code(IfNode if_node);
+void while_code(WhileNode while_node);
+void do_while_code(WhileNode do_while_node);
 
 Memory* find_memory(char* id);
 int new_reg();
