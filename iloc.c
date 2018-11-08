@@ -131,9 +131,9 @@ void un_op_code(UnOpNode node) {
         int label_false = new_label();
         int label_end = new_label();
         printf("cbr r%d -> L%d, L%d // NOT\n", reg_counter, label_true, label_false);
-        printf("L%d: loadI false => r%d\n", label_true, reg_counter);
+        printf("L%d: cmp_NE r%d, r%d -> r%d\n", label_true, reg_counter, reg_counter, reg_counter);
         printf("jumpI -> L%d\n", label_end);
-        printf("L%d: loadI true => r%d\n", label_false, reg_counter);
+        printf("L%d: cmp_EQ r%d, r%d -> r%d\n", label_false, reg_counter, reg_counter, reg_counter);
         printf("L%d: // END NOT\n", label_end);
     } else if (node.type == MINUS) {
         int expression_reg = reg_counter;
