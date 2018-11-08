@@ -160,8 +160,8 @@ void relational_expression(BinOpNode node) {
         case NOT_EQUAL: strcpy(op, "NE"); break;
         default: break;
     }
-    printf("cmp_%s r%d, r%d -> r%d", op, right_result, left_result, cmp_result);
-    printf(" // r%d = r%d %s r%d\n", cmp_result, right_result, op, left_result);
+    printf("cmp_%s r%d, r%d -> r%d", op, left_result, right_result, cmp_result);
+    printf(" // r%d = r%d %s r%d\n", cmp_result, left_result, op, right_result);
 }
 
 void arithmetic_expression(BinOpNode node) {
