@@ -31,16 +31,6 @@ void generate_code(Node* node) {
     case IF:
         if_code(node->value->if_node);
         break;
-    default:
-        expression_code(node);
-        break;
-    }
-
-    generate_code(node->next);
-}
-
-void expression_code(Node* node) {
-    switch (node->type) {
     case INT:
         int_code(node->value->int_node);
         break;
@@ -53,6 +43,8 @@ void expression_code(Node* node) {
     default:
         break;
     }
+
+    generate_code(node->next);
 }
 
 void global_var_code(GlobalVarNode var_node) {
@@ -77,7 +69,7 @@ void local_var_code(LocalVarNode var_node) {
     if (var_node.init) {
         generate_code(var_node.init);
         printf("storeAI r%d => rfp, %d", reg_counter, mem->offset);
-        printf(" // %s = r%d\n", var_node.identifier, reg_counter);
+        printf(" // int %s = r%d\n", var_node.identifier, reg_counter);
     }
 }
 
@@ -101,34 +93,91 @@ void var_access_code(VariableNode var_node) {
 void bin_op_code(BinOpNode node) {
     switch(node.type) {
     case AND:
-        printf("// AND\n");
-        expression_code(node.left);
-        int result_reg = reg_counter;
-        int zero_reg = new_reg();
-        int cmp_reg = new_reg();
-        printf("loadI 0 => r%d // LOAD ZERO (AND)\n", zero_reg);
-        printf("cmp_NE r%d, r%d -> r%d", result_reg, zero_reg, cmp_reg);
-        printf(" // Check if left result (r%d) is zero\n", result_reg);
-        int eval_right = new_label();
-        int skip_right = new_label();
-        printf("cbr r%d -> L%d, L%d", cmp_reg, eval_right, skip_right);
-        printf(" // If it was zero, skip right eval (short circuit)\n");
-        printf("L%d: nop\n", eval_right);
-        expression_code(node.right);
-        printf("i2i r%d => r%d", reg_counter, result_reg);
-        printf (" // Move right eval to result reg (r%d)\n", result_reg);
-        printf("L%d: nop\n", skip_right);
-        printf("i2i r%d => r%d", result_reg, new_reg());
-        printf(" // Move AND result to r%d\n", reg_counter);
+    case OR:
+        logic_expression(node);
+        break;
+    case GREATER:
+    case LESS_THAN:
+    case GREATER_EQUAL:
+    case LESS_EQUAL:
+    case EQUAL:
+    case NOT_EQUAL:
+        relational_expression(node);
+        break;
+    case ADD:
+    case SUBTRACT:
+    case MULTIPLY:
+    case DIVIDE:
+        arithmetic_expression(node);
         break;
     default:
         break;
     }
 }
 
+void logic_expression(BinOpNode node) {
+    char op[4];
+    strcpy(op, node.type == AND ? "AND" : "OR");
+    printf("// %s\n", op);
+    generate_code(node.left);
+    int result_reg = reg_counter;
+    int eval_right = new_label();
+    int skip_right = new_label();
+    printf("cbr r%d -> L%d, L%d", result_reg, eval_right, skip_right);
+    printf(" // Depending on result, skip right eval (short circuit)\n");
+    printf("L%d: nop\n", eval_right);
+    generate_code(node.right);
+    printf("i2i r%d => r%d", reg_counter, result_reg);
+    printf (" // Move right eval to result reg (r%d)\n", result_reg);
+    printf("L%d: nop\n", skip_right);
+    printf("i2i r%d => r%d", result_reg, new_reg());
+    printf(" // Move %s result to r%d\n", op, reg_counter);
+}
+
+void relational_expression(BinOpNode node) {
+    generate_code(node.left);
+    int left_result = new_reg();
+    generate_code(node.right);
+    int right_result = new_reg();
+    int cmp_result = new_reg();
+
+    char op[3];
+    switch(node.type) {
+        case GREATER: strcpy(op, "GT"); break;
+        case LESS_THAN: strcpy(op, "LT"); break;
+        case GREATER_EQUAL: strcpy(op, "GE"); break;
+        case LESS_EQUAL: strcpy(op, "LE"); break;
+        case EQUAL: strcpy(op, "EQ"); break;
+        case NOT_EQUAL: strcpy(op, "NE"); break;
+        default: break;
+    }
+    printf("cmp_%s r%d, r%d -> r%d", op, right_result, left_result, cmp_result);
+    printf(" // r%d = r%d %s r%d\n", cmp_result, right_result, op, left_result);
+}
+
+void arithmetic_expression(BinOpNode node) {
+    generate_code(node.left);
+    int left_result = new_reg();
+    generate_code(node.right);
+    int right_result = new_reg();
+    int result_reg = new_reg();
+
+    char op[5];
+    switch(node.type) {
+        case ADD: strcpy(op, "add"); break;
+        case SUBTRACT: strcpy(op, "sub"); break;
+        case MULTIPLY: strcpy(op, "mult"); break;
+        case DIVIDE: strcpy(op, "div"); break;
+        default: break;
+    }
+
+    printf("%s r%d, r%d => r%d", op, left_result, right_result, result_reg);
+    printf(" // r%d = r%d %s r%d\n", result_reg, left_result, op, right_result);
+}
+
 void if_code(IfNode if_node) {
     printf("// IF\n");
-    expression_code(if_node.cond);
+    generate_code(if_node.cond);
     int result_reg = reg_counter;
     int zero_reg = new_reg();
     int cmp_reg = new_reg();
