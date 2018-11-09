@@ -137,10 +137,8 @@ void un_op_code(UnOpNode node) {
         printf("L%d: // END NOT\n", label_end);
     } else if (node.type == MINUS) {
         int expression_reg = reg_counter;
-        int zero_reg = new_reg();
         int result_reg = new_reg();
-        printf("loadI 0 => r%d\n", zero_reg);
-        printf("subI r%d, r%d => r%d", zero_reg, expression_reg, result_reg);
+        printf("rsubI r%d, 0 => r%d", expression_reg, result_reg);
         printf(" // r%d = 0 - r%d\n", result_reg, expression_reg);
     }
 }
