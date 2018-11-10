@@ -48,7 +48,7 @@ $(TEST_DIR)/%.o: $(TEST_DIR)/%.cpp
 	$(CPPC) -c $< -o $@
 
 zip:
-	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y tree.h tree.c table.h table.c semantic.h semantic.c
+	tar cvzf etapa$(etapa).tgz Makefile main.c scanner.l parser.y tree.h tree.c table.h table.c semantic.h semantic.c iloc.h iloc.c
 
 clean:
 	rm -f etapa* lex.yy.* parser.tab.* *.o test/scanner_test.o test/parser_test.o $(TEST_EXE)
