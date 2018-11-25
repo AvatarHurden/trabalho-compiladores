@@ -59,7 +59,7 @@ int check_program(Node* node) {
   TypeNode t;
   int check = typecheck(node, table, &t);
   if (check != 0) {
-    printf("Semantic error: %s\n", semantic_error_to_str(check));
+    fprintf(stderr, "Semantic error: %s\n", semantic_error_to_str(check));
   }
   delete_table(table);
   return check;

@@ -8,6 +8,13 @@ int global_offset = 0;
 int local_offset = 0;
 Memory* global_memory = NULL;
 
+void init_iloc() {
+    printf("loadI 0 => rfp\n");
+    printf("loadI 0 => rsp\n");
+    printf("loadI 0 => rbss\n");
+    printf("jumpI => Lmain\n");
+}
+
 void generate_code(Node* node) {
     if (node == NULL) {
         return;
@@ -17,7 +24,7 @@ void generate_code(Node* node) {
         global_var_code(node->value->global_var_node);
         break;
     case FUNCTION_DECL:
-        generate_code(node->value->function_decl_node.body);
+        function_decl_code(node->value->function_decl_node);
         break;
     case BLOCK:
         generate_code(node->value->block_node.value);
@@ -49,6 +56,12 @@ void generate_code(Node* node) {
     case DO_WHILE:
         do_while_code(node->value->do_while_node);
         break;
+    case FUNCTION_CALL:
+        function_call_code(node->value->function_call_node);
+        break;
+    case RETURN:
+        return_code(node->value->return_node);
+        break;
     default:
         break;
     }
@@ -74,6 +87,8 @@ void local_var_code(LocalVarNode var_node) {
     mem->next = global_memory;
     global_memory = mem;
     local_offset += 4;
+    printf("addI rsp, 4 => rsp");
+    printf(" // Local variable %s\n", mem->id);
 
     if (var_node.init) {
         generate_code(var_node.init);
@@ -241,7 +256,7 @@ void while_code(WhileNode while_node) {
 
 void do_while_code(WhileNode do_while_node) {
     int enter_label = new_label();
-    printf("L%d: nop // ENTER DO WHILE\n", enter_label);
+    printf("L%d: // ENTER DO WHILE\n", enter_label);
     generate_code(do_while_node.body);
     printf("// TEST\n");
     generate_code(do_while_node.cond);
@@ -249,7 +264,71 @@ void do_while_code(WhileNode do_while_node) {
     int leave_label = new_label();
     printf("cbr r%d -> L%d, L%d", test_result, enter_label, leave_label);
     printf(" // If test result (r%d) is true, enter do while(L%d)\n", test_result, enter_label);
-    printf("L%d: nop // LEAVE DO WHILE\n", leave_label);
+    printf("L%d: // LEAVE DO WHILE\n", leave_label);
+}
+
+void function_decl_code(FunctionDeclNode function_decl_node) {
+    printf("L%s:\n", function_decl_node.identifier);
+    if (strcmp(function_decl_node.identifier, "main") == 0) {
+        local_offset = 0;
+        generate_code(function_decl_node.body);
+        printf("halt\n");
+        return;
+    }
+    int paramCount = 0;
+    ParamNode* params = function_decl_node.param;
+    while(params) {
+        Memory* mem = (Memory*) malloc(sizeof(Memory));
+        mem->id = params->identifier;
+        mem->base_reg = "rfp";
+        mem->offset = 4 * paramCount + 12;
+        mem->next = global_memory;
+        global_memory = mem;
+        paramCount++;
+        params = params->next;
+    }
+    local_offset = 20;
+    printf("i2i rsp => rfp // New frame\n");
+    printf("addI rsp, %d => rsp // Update stack top\n", 4 * paramCount + 16);
+    generate_code(function_decl_node.body);
+    int rsp_reg = new_reg();
+    printf("loadAI rfp, 4 => r%d // Get rsp\n", rsp_reg);
+    int rfp_reg = new_reg();
+    printf("loadAI rfp, 8 => r%d // Get rfp\n", rfp_reg);
+    int return_address_reg = new_reg();
+    printf("loadAI rfp, %d => r%d // Get return address\n", 4 * paramCount + 12, return_address_reg);
+    printf("i2i r%d => rsp // Restore rsp\n", rsp_reg);
+    printf("i2i r%d => rfp // Restore rfp\n", rfp_reg);
+    printf("jump => r%d // Jump to return address\n", return_address_reg);
+}
+
+void function_call_code(FunctionCallNode func_call_node) {
+    printf("// Calling function %s\n", func_call_node.identifier);
+    printf("storeAI rsp => rsp, 4 // Push Stack Pointer\n");
+    printf("storeAI rfp => rsp, 8 // Push Frame Pointer\n");
+    int argCount = 0;
+    Node* args = func_call_node.arguments;
+    while (args) {
+        printf("// Evaluating arg %d of function %s\n", argCount, func_call_node.identifier);
+        generate_code(args);
+        printf("storeAI r%d => rsp, %d", reg_counter, 4 * argCount + 12);
+        printf(" // Push arg %d of %s to the stack\n", argCount, func_call_node.identifier);
+        argCount++;
+        args = args->next;
+    }
+    int return_offset_reg = new_reg();
+    printf("addI rpc, 3 => r%d", return_offset_reg);
+    printf(" // Get return address\n");
+    printf("storeAI r%d => rsp, %d", return_offset_reg, 4 * argCount + 12);
+    printf(" // Save Return address\n");
+    printf("jumpI => L%s\n", func_call_node.identifier);
+    printf("loadAI rsp, 0 => r%d // Load return value\n", new_reg());
+}
+
+void return_code(ListNode return_node) {
+    printf("// Evaluate return expression\n");
+    generate_code(return_node.value);
+    printf("storeAI r%d => rfp, 0 // Save return value\n", reg_counter);
 }
 
 Memory* find_memory(char* id) {

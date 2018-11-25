@@ -21,6 +21,7 @@ int main (int argc, char **argv)
     ret = check_program(arvore);
   }
   if (ret == 0) {
+    init_iloc();
     generate_code(arvore);
   }
   libera(arvore);

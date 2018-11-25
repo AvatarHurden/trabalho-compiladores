@@ -7,6 +7,7 @@ typedef struct memory {
     struct memory* next;
 } Memory;
 
+void init_iloc();
 void generate_code(Node* node);
 void global_var_code(GlobalVarNode var_node);
 void local_var_code(LocalVarNode var_node);
@@ -23,6 +24,10 @@ void arithmetic_expression(BinOpNode node);
 void if_code(IfNode if_node);
 void while_code(WhileNode while_node);
 void do_while_code(WhileNode do_while_node);
+
+void function_decl_code(FunctionDeclNode func_decl_node);
+void function_call_code(FunctionCallNode func_call_node);
+void return_code(ListNode return_node);
 
 Memory* find_memory(char* id);
 int new_reg();
