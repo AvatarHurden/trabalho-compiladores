@@ -1,34 +1,70 @@
-#include "table.h"
+#ifndef ILOC_H
+#define ILOC_H
 
-typedef struct memory {
-    char* id;
-    char* base_reg;
-    int offset;
-    struct memory* next;
-} Memory;
+#include "tree.h"
 
-void init_iloc();
-void generate_code(Node* node);
-void global_var_code(GlobalVarNode var_node);
-void local_var_code(LocalVarNode var_node);
-void attr_code(AttrNode attr_node);
-void int_code(int int_node);
-void var_access_code(VariableNode var_node);
+typedef enum {
+    RBSS = -4,
+    RFP,
+    RSP,
+    RPC
+} SpecialRegister;
 
-void un_op_code(UnOpNode node);
-void bin_op_code(BinOpNode node);
-void logic_expression(BinOpNode node);
-void relational_expression(BinOpNode node);
-void arithmetic_expression(BinOpNode node);
+typedef enum {
+    IADD = 1,
+    SUB,
+    MULT,
+    DIV,
+    ADDI,
+    RSUBI,
+    LOADI,
+    LOADAI,
+    STOREAI,
+    I2I,
+    CMP_EQ,
+    CMP_LE,
+    CMP_LT,
+    CMP_GE,
+    CMP_GT,
+    CMP_NE,
+    CBR,
+    JUMPI,
+    JUMP,
+    HALT
+} Mnemonic;
 
-void if_code(IfNode if_node);
-void while_code(WhileNode while_node);
-void do_while_code(WhileNode do_while_node);
+typedef struct instruction {
+    Mnemonic mnemonic;
+    int arg1;
+    int arg2;
+    int arg3;
+    char* comment;
+    int label;
+    struct instruction* next;
+} Instruction;
 
-void function_decl_code(FunctionDeclNode func_decl_node);
-void function_call_code(FunctionCallNode func_call_node);
-void return_code(ListNode return_node);
+Instruction* math(BinOpType operation, int op1, int op2, int dst);
+Instruction* addI(int op1, int op2, int dst);
+Instruction* rsubI(int reg, int op, int dst);
 
-Memory* find_memory(char* id);
-int new_reg();
-int new_label();
+Instruction* loadI(int value, int reg);
+Instruction* loadAI(int src, int offset, int dst);
+Instruction* storeAI(int src, int dst, int offset);
+Instruction* i2i(int r1, int r2);
+
+Instruction* compare(BinOpType comparison, int op1, int op2, int dst);
+Instruction* cbr(int op, int label_true, int label_false);
+
+Instruction* jumpI(int label);
+Instruction* jump(int reg);
+
+Instruction* halt();
+
+void append_code(Instruction* i);
+void set_main_label(int label);
+void print_code();
+char* reg_name(int reg);
+Instruction* add_comment(char* comment);
+Instruction* new_comment(char* comment);
+
+#endif

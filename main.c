@@ -6,7 +6,7 @@ Este arquivo não pode ser modificado.
 #include <stdio.h>
 #include "lex.yy.h"
 #include "semantic.h"
-#include "iloc.h"
+#include "codegen.h"
 #include "parser.tab.h" //arquivo gerado com bison -d parser.y
 
 void *arvore = NULL;
@@ -23,6 +23,7 @@ int main (int argc, char **argv)
   if (ret == 0) {
     init_iloc();
     generate_code(arvore);
+    print_code();
   }
   libera(arvore);
   arvore = NULL;
